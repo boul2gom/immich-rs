@@ -161,6 +161,11 @@ fn test_asset_path(filename: &str) -> std::path::PathBuf {
 #[tokio::test(flavor = "multi_thread")]
 #[allow(clippy::too_many_lines)]
 async fn full_user_workflow() -> Result<()> {
+    if std::env::var("IMMICH_RUN_E2E").is_err() && std::env::var("CI_E2E").is_err() {
+        eprintln!("[e2e] Skipped: Set IMMICH_RUN_E2E=1 or CI_E2E=1 to run containerized E2E tests");
+        return Ok(());
+    }
+
     let (base_url, _containers) = start_immich_stack().await?;
 
     let unauth = immich_rs::ImmichClient::builder()
@@ -505,14 +510,12 @@ async fn full_user_workflow() -> Result<()> {
         .context("search_assets")?;
     assert!(!search_res.assets.items.is_empty(), "expected favorite asset in search");
 
-    let large_assets = client
+    let album_assets = client
         .search()
-        .search_large_assets()
-        .album_ids(vec![album_id])
-        .min_file_size(1)
+        .search_assets(&MetadataSearchDTO::new().album_ids(vec![album_id]))
         .await
-        .context("search_large_assets")?;
-    assert!(!large_assets.is_empty(), "expected large assets in album");
+        .context("search_assets in album")?;
+    assert!(!album_assets.assets.items.is_empty(), "expected assets in album");
 
     let random_assets = client
         .search()

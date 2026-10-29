@@ -192,4 +192,5 @@ jobs:
         run: cargo test --features e2e -p immich-rs --test e2e_workflow_tests -- --nocapture
         env:
           RUST_LOG: info
+          IMMICH_RUN_E2E: "1"
           TESTCONTAINERS_RYUK_DISABLED: "true"
