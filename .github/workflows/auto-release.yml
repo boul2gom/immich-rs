@@ -5,6 +5,11 @@ on:
     - cron: '0 0 * * 1'
   workflow_dispatch:
     inputs:
+      force_release:
+        description: 'Force release all packages even without detected unreleased commits'
+        required: false
+        type: boolean
+        default: false
       force_major:
         description: 'Force a major version bump for the chosen crate (patch/minor are otherwise determined by semver-checks)'
         required: false
@@ -23,9 +28,9 @@ jobs:
       contents: read
       actions: read
     outputs:
-      one_has:            ${{ steps.check_commits.outputs.one_has }}
+      one_has:            ${{ steps.check_commits.outputs.one_has == 'true' || steps.check_models_published.outputs.needs_publish == 'true' }}
       has_updates:        ${{ steps.check_commits.outputs.main_has }}
-      has_models_updates: ${{ fromJSON(steps.check_commits.outputs.sub_results)['immich-models'] }}
+      has_models_updates: ${{ steps.check_models_published.outputs.needs_publish == 'true' || fromJSON(steps.check_commits.outputs.sub_results)['immich-models'] }}
 
     steps:
       - name: 🛡️ Harden the runner (Audit all outbound calls)
@@ -33,11 +38,22 @@ jobs:
         with:
           egress-policy: audit
 
+      - name: 🔍 Check if immich-models is published on crates.io
+        id: check_models_published
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "User-Agent: ci" https://crates.io/api/v1/crates/immich-models)
+          if [ "$STATUS" = "404" ]; then
+            echo "needs_publish=true" >> $GITHUB_OUTPUT
+          else
+            echo "needs_publish=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: ✅ Check unreleased commits
         id: check_commits
         uses: boul2gom/actions/unreleased-commits@aa85616fe98fc3a942de07be9d1b1fb57bbd2bdc # v1.0.12
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          force_release: ${{ inputs.force_release || false }}
           exclude_patterns: "[Github Actions],[skip ci]"
           sub_projects: |
             immich-models:immich-models/
@@ -114,7 +130,11 @@ jobs:
         id: resolve
         if: ${{ needs.check_updates.outputs.has_updates == 'true' }}
         run: |
-          if [[ "${{ github.event.inputs.force_major }}" == "immich-rs" ]]; then
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "User-Agent: ci" https://crates.io/api/v1/crates/immich-rs)
+          if [ "$STATUS" = "404" ]; then
+            echo "📦 immich-rs not yet on crates.io — initial release at current version"
+            echo "resolved_type=" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event.inputs.force_major }}" == "immich-rs" ]]; then
             echo "📌 Forced major release for immich-rs"
             echo "resolved_type=major" >> $GITHUB_OUTPUT
           elif [[ "${{ steps.semver.outcome }}" == "success" ]]; then
@@ -129,7 +149,11 @@ jobs:
         id: resolve_models
         if: ${{ needs.check_updates.outputs.has_models_updates == 'true' }}
         run: |
-          if [[ "${{ github.event.inputs.force_major }}" == "immich-models" ]]; then
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "User-Agent: ci" https://crates.io/api/v1/crates/immich-models)
+          if [ "$STATUS" = "404" ]; then
+            echo "📦 immich-models not yet on crates.io — initial release at current version"
+            echo "resolved_type=" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event.inputs.force_major }}" == "immich-models" ]]; then
             echo "📌 Forced major release for immich-models"
             echo "resolved_type=major" >> $GITHUB_OUTPUT
           elif [[ "${{ steps.semver_models.outcome }}" == "success" ]]; then
@@ -216,7 +240,19 @@ jobs:
 
       - name: ⏳ Wait for crates.io index propagation
         if: ${{ needs.check_updates.outputs.has_models_updates == 'true' && needs.check_updates.outputs.has_updates == 'true' }}
-        run: sleep 30
+        run: |
+          MODELS_VER=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "immich-models") | .version')
+          echo "Waiting for immich-models $MODELS_VER to appear on crates.io..."
+          for i in {1..30}; do
+            if curl -sf -H "User-Agent: ci" "https://crates.io/api/v1/crates/immich-models/$MODELS_VER" > /dev/null; then
+              echo "✅ immich-models $MODELS_VER is now available on crates.io!"
+              sleep 10
+              exit 0
+            fi
+            echo "Waiting for crates.io index propagation ($i/30)..."
+            sleep 5
+          done
+          echo "⚠️ Timeout waiting for crates.io index, proceeding anyway..."
 
       - name: 🚀 Publish immich-rs to crates.io
         if: ${{ needs.check_updates.outputs.has_updates == 'true' }}
