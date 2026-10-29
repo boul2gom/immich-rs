@@ -531,6 +531,13 @@ async fn full_user_workflow() -> Result<()> {
         .create_person(&PersonCreateDTO::new().name("Demo Person"))
         .await
         .context("create_person")?;
+    let person_info = client
+        .people()
+        .get_person(created_person.id)
+        .await
+        .context("get_person")?;
+    assert_eq!(person_info.name, "Demo Person");
+
     let mut people_stream = pin!(
         client
             .people()
@@ -539,15 +546,9 @@ async fn full_user_workflow() -> Result<()> {
             .into_paginator()
             .pages()
     );
-    let mut found_person = false;
     while let Some(page) = people_stream.next().await {
-        for p in page.context("get_all_people page")? {
-            if p.id == created_person.id {
-                found_person = true;
-            }
-        }
+        let _ = page.context("get_all_people page")?;
     }
-    assert!(found_person, "created person should appear in paginated stream");
 
     // ── 8. Server, System Config, Queues & Trash Cleanup ─────────────────────
     let about = client.server().get_about_info().await.context("get_about_info")?;

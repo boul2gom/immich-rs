@@ -113,11 +113,8 @@ jobs:
         with:
           targets: wasm32-unknown-unknown
 
-      - name: 🌐 WASM target check (immich-models)
-        run: cargo check -p immich-models --target wasm32-unknown-unknown
-
-      - name: 🌐 WASM target check (immich-rs)
-        run: cargo check -p immich-rs --target wasm32-unknown-unknown --no-default-features
+      - name: 🌐 WASM target check
+        run: cargo check -p immich-models -p immich-rs --target wasm32-unknown-unknown --no-default-features
 
       - name: 🦀 TLS backend check (native-tls)
         run: cargo check -p immich-rs --no-default-features --features native-tls
