@@ -146,16 +146,15 @@ where
                     }
 
                     let match_res = check_resp.results.iter().find(|r| r.id == idx.to_string());
-                    if let Some(r) = match_res {
-                        if r.action == AssetUploadAction::Reject
-                            && r.reason == Some(AssetRejectReason::Duplicate)
-                        {
-                            yield Ok(BulkUploadResult::Duplicate {
-                                path: item.path.to_path_buf(),
-                                existing_asset_id: r.asset_id.map(Into::into),
-                            });
-                            continue;
-                        }
+                    if let Some(r) = match_res
+                        && r.action == AssetUploadAction::Reject
+                        && r.reason == Some(AssetRejectReason::Duplicate)
+                    {
+                        yield Ok(BulkUploadResult::Duplicate {
+                            path: item.path.to_path_buf(),
+                            existing_asset_id: r.asset_id.map(Into::into),
+                        });
+                        continue;
                     }
                     to_upload.push(item);
                 }

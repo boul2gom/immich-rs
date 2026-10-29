@@ -18,10 +18,10 @@ async fn main() -> Result<()> {
     let base_url = std::env::var("IMMICH_URL").unwrap_or_else(|_| "http://localhost:2283/api/".to_owned());
 
     let mut builder = ImmichClient::builder().base_url(base_url);
-    if let Ok(key) = std::env::var("IMMICH_API_KEY") {
-        if !key.trim().is_empty() {
-            builder = builder.api_key(key);
-        }
+    if let Ok(key) = std::env::var("IMMICH_API_KEY")
+        && !key.trim().is_empty()
+    {
+        builder = builder.api_key(key);
     }
 
     let client = builder.build().context("failed to build Immich client")?;

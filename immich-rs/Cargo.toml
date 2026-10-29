@@ -2,7 +2,6 @@
 name = "immich-rs"
 edition.workspace = true
 version.workspace = true
-rust-version.workspace = true
 
 authors.workspace = true
 description = "Async Rust SDK for the Immich self-hosted photo backup server."

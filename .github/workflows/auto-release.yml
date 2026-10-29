@@ -61,6 +61,8 @@ jobs:
         uses: boul2gom/actions/ci-status@aa85616fe98fc3a942de07be9d1b1fb57bbd2bdc # v1.0.12
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          workflow_id: ci.yml
+          branch: main
 
   semver_gate:
     name: 🔖 Semver compatibility gate
