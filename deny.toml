@@ -1,0 +1,80 @@
+# Configuration for cargo-deny
+
+[graph]
+targets = []
+all-features = true
+no-default-features = false
+
+[output]
+feature-depth = 1
+
+[licenses]
+allow = [
+    # Public domain / dedication
+    "0BSD",
+    "CC0-1.0",
+    "Unlicense",
+    # Permissive
+    "BSL-1.0",
+    "ISC",
+    "MIT",
+    "MIT-0",
+    "Zlib",
+    # Permissive with attribution
+    "Apache-2.0",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "CDLA-Permissive-2.0",
+    "Unicode-3.0",
+    "Unicode-DFS-2016",
+    # Weak copyleft
+    "LGPL-2.1-or-later",
+    # Strong copyleft
+    "GPL-3.0-only",
+]
+confidence-threshold = 0.8
+exceptions = []
+unused-allowed-license = "allow"
+
+[[licenses.clarify]]
+crate = "ring"
+expression = "MIT AND ISC AND OpenSSL"
+license-files = [{ path = "LICENSE", hash = 0xbd0eed23 }]
+
+[licenses.private]
+ignore = true
+registries = []
+
+[bans]
+multiple-versions = "warn"
+wildcards = "allow"
+highlight = "all"
+workspace-default-features = "allow"
+external-default-features = "allow"
+allow = []
+allow-workspace = false
+deny = []
+skip = []
+skip-tree = []
+
+[sources]
+unknown-registry = "warn"
+unknown-git = "warn"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []
+
+[sources.allow-org]
+github = []
+gitlab = []
+bitbucket = []
+
+[advisories]
+ignore = [
+    # tokio-tar vulnerability in testcontainers 0.23 (dev dependency only, isolated container runner)
+    "RUSTSEC-2025-0111",
+    # rustls-pemfile unmaintained warning from bollard/testcontainers (dev dependency only)
+    "RUSTSEC-2025-0134",
+    # backoff and instant are unmaintained transitive dependencies of rust_socketio
+    "RUSTSEC-2025-0012",
+    "RUSTSEC-2024-0384",
+]

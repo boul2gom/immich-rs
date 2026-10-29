@@ -1,0 +1,28 @@
+[files]
+extend-exclude = [
+    "target/",
+    "open-api/",
+    "tests/fixtures/",
+    "Cargo.lock",
+]
+
+[default.extend-words]
+# Database / cache backend used by Immich
+valkey = "valkey"
+# OpenAPI / Schema terminology
+dto = "dto"
+DTO = "DTO"
+DTOs = "DTOs"
+typify = "typify"
+schemars = "schemars"
+# Immich-specific terms and hash formats
+thumbhash = "thumbhash"
+exif = "exif"
+EXIF = "EXIF"
+# Rust crate / library names
+reqwest = "reqwest"
+testcontainers = "testcontainers"
+wiremock = "wiremock"
+rustls = "rustls"
+# HTTP Headers & auth
+x-api-key = "x-api-key"

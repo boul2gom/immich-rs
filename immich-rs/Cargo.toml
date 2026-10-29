@@ -1,0 +1,102 @@
+[package]
+name = "immich-rs"
+edition.workspace = true
+version.workspace = true
+rust-version.workspace = true
+
+authors.workspace = true
+description = "Async Rust SDK for the Immich self-hosted photo backup server."
+
+license.workspace = true
+readme = "README.md"
+documentation = "https://docs.rs/immich-rs"
+homepage = "https://github.com/boul2gom/immich-rs"
+repository = "https://github.com/boul2gom/immich-rs"
+
+categories = ["api-bindings", "web-programming::http-client", "wasm"]
+keywords = ["immich", "photo", "backup", "api", "wasm"]
+
+publish.workspace = true
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+targets = ["x86_64-unknown-linux-gnu", "x86_64-pc-windows-msvc", "aarch64-apple-darwin", "wasm32-unknown-unknown"]
+
+[package.metadata.release]
+tag-name = "v{{version}}"
+tag-message = "🔖 v{{version}}"
+pre-release-commit-message = "🔖 v{{version}}"
+pre-release-replacements = [
+  {file="../README.md", search='immich-rs = "[\d.]+"', replace='immich-rs = "{{version}}"', min=1},
+  {file="../README.md", search='(immich-rs = \{ version = )"[\d.]+"', replace='$1"{{version}}"', min=1},
+]
+
+[features]
+default = ["fs", "rustls-tls"]
+fs = ["tokio/fs", "dep:tokio-util"]
+rustls-tls = ["reqwest/rustls-tls"]
+native-tls = ["reqwest/default-tls"]
+socketio = ["dep:rust_socketio"]
+opentelemetry = ["dep:opentelemetry"]
+e2e = []   # flag marker only — testcontainers comes from dev-dependencies
+
+[dependencies]
+# Workspace crates
+immich-models.workspace = true
+
+# Runtime and async
+tokio = { workspace = true, features = ["sync", "macros", "io-util", "rt", "time"] }
+tokio-util = { workspace = true, features = ["io"], optional = true }
+reqwest = { workspace = true, features = ["json", "multipart", "stream"] }
+tower-service.workspace = true
+tower-layer.workspace = true
+futures-core.workspace = true
+futures-util.workspace = true
+async-stream.workspace = true
+
+# Serialization
+serde.workspace = true
+serde_json.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+
+# Error handling
+thiserror.workspace = true
+
+# Observability
+tracing.workspace = true
+opentelemetry = { workspace = true, optional = true }
+
+# Networking and URLs
+url.workspace = true
+urlencoding.workspace = true
+mime_guess.workspace = true
+
+# Hashing and Crypto
+sha1.workspace = true
+hex.workspace = true
+
+# Utilities
+rand.workspace = true
+scopeguard.workspace = true
+
+# Real-time events (optional)
+rust_socketio = { workspace = true, optional = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+getrandom = { workspace = true, features = ["wasm_js"] }
+wasm-bindgen-futures.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
+uuid = { workspace = true, features = ["v4"] }
+testcontainers.workspace = true
+wiremock.workspace = true
+tracing-subscriber.workspace = true
+anyhow.workspace = true
+tempfile.workspace = true
+pretty_assertions.workspace = true
+
+[lints]
+workspace = true

@@ -1,0 +1,47 @@
+[package]
+name = "immich-models"
+edition.workspace = true
+version.workspace = true
+rust-version.workspace = true
+
+authors.workspace = true
+description = "Generated OpenAPI data models for Immich."
+
+license.workspace = true
+readme = "README.md"
+documentation = "https://docs.rs/immich-models"
+homepage = "https://github.com/boul2gom/immich-rs"
+repository = "https://github.com/boul2gom/immich-rs"
+
+categories = ["api-bindings", "wasm"]
+keywords = ["immich", "openapi", "models", "dto", "wasm"]
+
+publish.workspace = true
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+targets = ["x86_64-unknown-linux-gnu", "x86_64-pc-windows-msvc", "aarch64-apple-darwin", "wasm32-unknown-unknown"]
+
+[package.metadata.release]
+tag-name = "models-v{{version}}"
+tag-message = "🔖 immich-models v{{version}}"
+pre-release-commit-message = "🔖 immich-models v{{version}}"
+pre-release-replacements = [
+  {file="../README.md", search='immich-models = "[\d.]+"', replace='immich-models = "{{version}}"', min=1},
+  {file="README.md", search='immich-models = "[\d.]+"', replace='immich-models = "{{version}}"', min=1},
+]
+
+[dependencies]
+# Serialization
+serde.workspace = true
+serde_json.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+regex.workspace = true
+
+[dev-dependencies]
+pretty_assertions.workspace = true
+
+[lints]
+workspace = true

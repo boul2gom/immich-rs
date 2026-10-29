@@ -1,0 +1,56 @@
+name: 🔗 Sync API
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: Setup Nightly Rust (for rustfmt)
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "immich-rs"
+
+      - name: Generate Models & Client
+        run: |
+          cargo xtask generate
+          cargo +nightly fmt --all
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check for drift
+        run: |
+          git add immich-models/src immich-rs/src/api
+          if ! git diff --cached --quiet; then
+            cargo clippy --workspace --all-targets --all-features -- -D warnings
+            cargo test --workspace --exclude examples
+
+            git checkout -B sync-api
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git commit -m "chore: sync OpenAPI client and models"
+            git push origin sync-api --force
+            gh label create e2e --description "Run Docker E2E suite on this PR" --force || true
+            gh pr create --title "chore: sync OpenAPI client and models" --body "Automated PR to sync models and client with the latest Immich release." --base main --head sync-api --label e2e || gh pr edit sync-api --add-label e2e
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

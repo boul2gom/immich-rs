@@ -1,0 +1,109 @@
+[workspace]
+members = ["immich-models", "immich-rs", "xtask", "examples"]
+resolver = "3"
+
+[workspace.metadata.release]
+consolidate-commits = false
+shared-version = false
+sign-commit = true
+sign-tag = true
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85.0"
+authors = ["boul2gom <contact@boul2gom.fr>"]
+license = "GPL-3.0-only"
+repository = "https://github.com/boul2gom/immich-rs"
+publish = true
+
+[workspace.dependencies]
+# Internal crates
+immich-models = { path = "immich-models", version = "0.1.0" }
+immich-rs = { path = "immich-rs", version = "0.1.0" }
+
+# Serialization
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+uuid = { version = "1.29.0", features = ["serde"] }
+chrono = { version = "0.4.45", features = ["serde"] }
+regex = "1.13.1"
+urlencoding = "2.1.3"
+
+# Async & Network
+tokio = { version = "1.54.1" }
+tokio-util = { version = "0.7.20" }
+reqwest = { version = "0.12.28", default-features = false }
+tower = { version = "0.5.3", default-features = false, features = ["util"] }
+tower-service = "0.3.3"
+tower-layer = "0.3.3"
+futures-core = "0.3.34"
+futures-util = "0.3.34"
+async-stream = "0.3.6"
+url = "2.5.8"
+mime_guess = "2.0.5"
+
+# Error & Observability
+thiserror = "2.0.21"
+anyhow = "1.0.104"
+tracing = "0.1.44"
+opentelemetry = { version = "0.33.1", default-features = false, features = ["metrics"] }
+
+# Real-time & WASM
+rust_socketio = { version = "0.6.0", default-features = false, features = ["async"] }
+getrandom = { version = "0.4.3" }
+wasm-bindgen-futures = "0.4.79"
+
+# Crypto
+sha1 = "0.11.0"
+hex = "0.4.3"
+
+# Misc
+rand = "0.10.3"
+scopeguard = "1.2.0"
+
+# Code generation (xtask only)
+ureq = { version = "3.5.0", features = ["json"] }
+typify = "0.7.0"
+schemars = "=0.8.22"          # Strict pin — typify 0.7.0 requires this exact version
+syn = { version = "3.0.9", features = ["full", "visit-mut", "extra-traits"] }
+prettyplease = "0.3.0"
+proc-macro2 = "1.0.107"
+quote = "1.0.47"
+
+# Dev
+wiremock = "0.6.5"
+testcontainers = "0.23.3"     # 0.28.x = breaking API, bump separately after tests stabilize
+tempfile = "3.27.0"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
+pretty_assertions = "1.4.1"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+missing_debug_implementations = "warn"
+
+[workspace.lints.rustdoc]
+redundant_explicit_links = "allow"
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = true
+
+[profile.bench]
+inherits = "release"
+debug = true
+strip = false
+
+[profile.dev]
+opt-level = 0
+debug = true
+
+[profile.dev.package."*"]
+opt-level = 3

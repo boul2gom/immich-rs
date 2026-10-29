@@ -1,0 +1,45 @@
+# IDE / Editor
+.idea/
+.vscode/
+*.iml
+.fleet/
+.zed/
+*.code-workspace
+.direnv/
+.mise.toml
+.tool-versions
+.junie/
+
+# OS artefacts
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Rust / Cargo
+target/
+**/*.rs.bk
+scratch.rs
+
+# Secret / environment
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Runtime & Temporary outputs
+libs/
+temp/
+*.log
+logs/
+
+# Benchmark / test artefacts
+criterion/

@@ -1,0 +1,738 @@
+// @generated Made by @boul2gom with `immich-rs` - do not edit by hand.
+// Re-run `cargo xtask generate` to update.
+
+//! `OpenAPI` data models for `admin`.
+
+pub use crate::activities::UserAvatarColor;
+
+/// `UserAdminCreateDTO`
+///
+/// | Field | Type | Required | Description |
+/// |-------|------|:--------:|-------------|
+/// | `avatar_color` | [`UserAvatarColor`] |  |  |
+/// | `email` | [`String`] | ✓ | User email |
+/// | `is_admin` | `bool` |  | Grant admin privileges |
+/// | `name` | [`String`] | ✓ | User name |
+/// | `notify` | `bool` |  | Send notification email |
+/// | `password` | [`String`] | ✓ | User password |
+/// | `pin_code` | [`String`] |  | PIN code |
+/// | `quota_size_in_bytes` | `i64` |  | Storage quota in bytes |
+/// | `should_change_password` | `bool` |  | Require password change on next login |
+/// | `storage_label` | [`String`] |  | Storage label |
+///
+/// See: <https://api.immich.app/models/UserAdminCreateDto>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct UserAdminCreateDTO {
+    #[serde(
+        rename = "avatarColor",
+        default,
+        skip_serializing_if = "::std::option::Option::is_none"
+    )]
+    pub avatar_color: Option<UserAvatarColor>,
+    pub email: UserAdminCreateEmail,
+    /// Grant admin privileges
+    #[serde(rename = "isAdmin", default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub is_admin: Option<bool>,
+    pub name: String,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub notify: Option<bool>,
+    pub password: String,
+    /// PIN code
+    #[serde(rename = "pinCode", default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub pin_code: Option<UserAdminCreatePinCode>,
+    /// Storage quota in bytes
+    #[serde(
+        rename = "quotaSizeInBytes",
+        default,
+        skip_serializing_if = "::std::option::Option::is_none"
+    )]
+    pub quota_size_in_bytes: Option<i64>,
+    /// Require password change on next login
+    #[serde(
+        rename = "shouldChangePassword",
+        default,
+        skip_serializing_if = "::std::option::Option::is_none"
+    )]
+    pub should_change_password: Option<bool>,
+    /// Storage label
+    #[serde(
+        rename = "storageLabel",
+        default,
+        skip_serializing_if = "::std::option::Option::is_none"
+    )]
+    pub storage_label: Option<String>,
+}
+
+impl UserAdminCreateDTO {
+    ///Creates a new [`UserAdminCreateDTO`].
+    #[must_use]
+    #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
+    pub fn new(email: UserAdminCreateEmail, name: impl Into<String>, password: impl Into<String>) -> Self {
+        Self {
+            avatar_color: None,
+            email,
+            is_admin: None,
+            name: name.into(),
+            notify: None,
+            password: password.into(),
+            pin_code: None,
+            quota_size_in_bytes: None,
+            should_change_password: None,
+            storage_label: None,
+        }
+    }
+
+    ///Sets `avatar_color`.
+    #[must_use]
+    pub fn avatar_color(mut self, value: UserAvatarColor) -> Self {
+        self.avatar_color = Some(value);
+        self
+    }
+
+    ///Sets or clears `avatar_color`.
+    #[must_use]
+    pub fn set_avatar_color(mut self, value: Option<UserAvatarColor>) -> Self {
+        self.avatar_color = value;
+        self
+    }
+
+    ///Sets `email`.
+    #[must_use]
+    pub fn email(mut self, value: UserAdminCreateEmail) -> Self {
+        self.email = value;
+        self
+    }
+
+    ///Sets `is_admin`.
+    #[must_use]
+    pub fn is_admin(mut self, value: bool) -> Self {
+        self.is_admin = Some(value);
+        self
+    }
+
+    ///Sets or clears `is_admin`.
+    #[must_use]
+    pub fn set_is_admin(mut self, value: Option<bool>) -> Self {
+        self.is_admin = value;
+        self
+    }
+
+    ///Sets `name`.
+    #[must_use]
+    pub fn name(mut self, value: impl Into<String>) -> Self {
+        self.name = value.into();
+        self
+    }
+
+    ///Sets `notify`.
+    #[must_use]
+    pub fn notify(mut self, value: bool) -> Self {
+        self.notify = Some(value);
+        self
+    }
+
+    ///Sets or clears `notify`.
+    #[must_use]
+    pub fn set_notify(mut self, value: Option<bool>) -> Self {
+        self.notify = value;
+        self
+    }
+
+    ///Sets `password`.
+    #[must_use]
+    pub fn password(mut self, value: impl Into<String>) -> Self {
+        self.password = value.into();
+        self
+    }
+
+    ///Sets `pin_code`.
+    #[must_use]
+    pub fn pin_code(mut self, value: UserAdminCreatePinCode) -> Self {
+        self.pin_code = Some(value);
+        self
+    }
+
+    ///Sets or clears `pin_code`.
+    #[must_use]
+    pub fn set_pin_code(mut self, value: Option<UserAdminCreatePinCode>) -> Self {
+        self.pin_code = value;
+        self
+    }
+
+    ///Sets `quota_size_in_bytes`.
+    #[must_use]
+    pub fn quota_size_in_bytes(mut self, value: i64) -> Self {
+        self.quota_size_in_bytes = Some(value);
+        self
+    }
+
+    ///Sets or clears `quota_size_in_bytes`.
+    #[must_use]
+    pub fn set_quota_size_in_bytes(mut self, value: Option<i64>) -> Self {
+        self.quota_size_in_bytes = value;
+        self
+    }
+
+    ///Sets `should_change_password`.
+    #[must_use]
+    pub fn should_change_password(mut self, value: bool) -> Self {
+        self.should_change_password = Some(value);
+        self
+    }
+
+    ///Sets or clears `should_change_password`.
+    #[must_use]
+    pub fn set_should_change_password(mut self, value: Option<bool>) -> Self {
+        self.should_change_password = value;
+        self
+    }
+
+    ///Sets `storage_label`.
+    #[must_use]
+    pub fn storage_label(mut self, value: impl Into<String>) -> Self {
+        self.storage_label = Some(value.into());
+        self
+    }
+
+    ///Sets or clears `storage_label`.
+    #[must_use]
+    pub fn set_storage_label(mut self, value: Option<String>) -> Self {
+        self.storage_label = value;
+        self
+    }
+}
+
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct UserAdminCreateEmail(pub String);
+
+impl ::std::ops::Deref for UserAdminCreateEmail {
+    type Target = String;
+    fn deref(&self) -> &String {
+        &self.0
+    }
+}
+
+impl ::std::str::FromStr for UserAdminCreateEmail {
+    type Err = crate::common::error::ConversionError;
+    fn from_str(value: &str) -> Result<Self, crate::common::error::ConversionError> {
+        static PATTERN: ::std::sync::LazyLock<::regex::Regex> = ::std::sync::LazyLock::new(|| {
+            ::regex::Regex::new(
+                    "^[\\p{L}\\p{M}\\p{N}.!#$%&'*+/=?^_`{|}~-]+@[\\p{L}\\p{N}](?:[\\p{L}\\p{M}\\p{N}-]{0,61}[\\p{L}\\p{M}\\p{N}])?(?:\\.[\\p{L}\\p{N}](?:[\\p{L}\\p{M}\\p{N}-]{0,61}[\\p{L}\\p{M}\\p{N}])?)*$",
+                )
+                .unwrap()
+        });
+        if PATTERN.find(value).is_none() {
+            return Err(
+                "doesn't match pattern \"^[\\p{L}\\p{M}\\p{N}.!#$%&'*+/=?^_`{|}~-]+@[\\p{L}\\p{N}](?:[\\p{L}\\p{M}\\p{N}-]{0,61}[\\p{L}\\p{M}\\p{N}])?(?:\\.[\\p{L}\\p{N}](?:[\\p{L}\\p{M}\\p{N}-]{0,61}[\\p{L}\\p{M}\\p{N}])?)*$\""
+                    .into(),
+            );
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+
+impl TryFrom<&str> for UserAdminCreateEmail {
+    type Error = crate::common::error::ConversionError;
+    fn try_from(value: &str) -> Result<Self, crate::common::error::ConversionError> {
+        value.parse()
+    }
+}
+
+impl TryFrom<&String> for UserAdminCreateEmail {
+    type Error = crate::common::error::ConversionError;
+    fn try_from(value: &String) -> Result<Self, crate::common::error::ConversionError> {
+        value.parse()
+    }
+}
+
+impl TryFrom<String> for UserAdminCreateEmail {
+    type Error = crate::common::error::ConversionError;
+    fn try_from(value: String) -> Result<Self, crate::common::error::ConversionError> {
+        value.parse()
+    }
+}
+
+impl<'de> ::serde::Deserialize<'de> for UserAdminCreateEmail {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: crate::common::error::ConversionError| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
+
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct UserAdminCreatePinCode(pub String);
+
+impl ::std::ops::Deref for UserAdminCreatePinCode {
+    type Target = String;
+    fn deref(&self) -> &String {
+        &self.0
+    }
+}
+
+impl ::std::str::FromStr for UserAdminCreatePinCode {
+    type Err = crate::common::error::ConversionError;
+    fn from_str(value: &str) -> Result<Self, crate::common::error::ConversionError> {
+        static PATTERN: ::std::sync::LazyLock<::regex::Regex> =
+            ::std::sync::LazyLock::new(|| ::regex::Regex::new("^\\d{6}$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^\\d{6}$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+
+impl TryFrom<&str> for UserAdminCreatePinCode {
+    type Error = crate::common::error::ConversionError;
+    fn try_from(value: &str) -> Result<Self, crate::common::error::ConversionError> {
+        value.parse()
+    }
+}
+
+impl TryFrom<&String> for UserAdminCreatePinCode {
+    type Error = crate::common::error::ConversionError;
+    fn try_from(value: &String) -> Result<Self, crate::common::error::ConversionError> {
+        value.parse()
+    }
+}
+
+impl TryFrom<String> for UserAdminCreatePinCode {
+    type Error = crate::common::error::ConversionError;
+    fn try_from(value: String) -> Result<Self, crate::common::error::ConversionError> {
+        value.parse()
+    }
+}
+
+impl<'de> ::serde::Deserialize<'de> for UserAdminCreatePinCode {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: crate::common::error::ConversionError| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
+
+/// `UserAdminDeleteDTO`
+///
+/// | Field | Type | Required | Description |
+/// |-------|------|:--------:|-------------|
+/// | `force` | `bool` |  | Force delete even if user has assets |
+///
+/// See: <https://api.immich.app/models/UserAdminDeleteDto>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Default)]
+pub struct UserAdminDeleteDTO {
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub force: Option<bool>,
+}
+
+impl UserAdminDeleteDTO {
+    ///Creates a new [`UserAdminDeleteDTO`].
+    #[must_use]
+    #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
+    pub fn new() -> Self {
+        Self { force: None }
+    }
+
+    ///Sets `force`.
+    #[must_use]
+    pub fn force(mut self, value: bool) -> Self {
+        self.force = Some(value);
+        self
+    }
+
+    ///Sets or clears `force`.
+    #[must_use]
+    pub fn set_force(mut self, value: Option<bool>) -> Self {
+        self.force = value;
+        self
+    }
+}
+
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct UserAdminResponseEmail(pub String);
+
+impl ::std::ops::Deref for UserAdminResponseEmail {
+    type Target = String;
+    fn deref(&self) -> &String {
+        &self.0
+    }
+}
+
+impl ::std::str::FromStr for UserAdminResponseEmail {
+    type Err = crate::common::error::ConversionError;
+    fn from_str(value: &str) -> Result<Self, crate::common::error::ConversionError> {
+        static PATTERN: ::std::sync::LazyLock<::regex::Regex> = ::std::sync::LazyLock::new(|| {
+            ::regex::Regex::new(
+                    "^[\\p{L}\\p{M}\\p{N}.!#$%&'*+/=?^_`{|}~-]+@[\\p{L}\\p{N}](?:[\\p{L}\\p{M}\\p{N}-]{0,61}[\\p{L}\\p{M}\\p{N}])?(?:\\.[\\p{L}\\p{N}](?:[\\p{L}\\p{M}\\p{N}-]{0,61}[\\p{L}\\p{M}\\p{N}])?)*$",
+                )
+                .unwrap()
+        });
+        if PATTERN.find(value).is_none() {
+            return Err(
+                "doesn't match pattern \"^[\\p{L}\\p{M}\\p{N}.!#$%&'*+/=?^_`{|}~-]+@[\\p{L}\\p{N}](?:[\\p{L}\\p{M}\\p{N}-]{0,61}[\\p{L}\\p{M}\\p{N}])?(?:\\.[\\p{L}\\p{N}](?:[\\p{L}\\p{M}\\p{N}-]{0,61}[\\p{L}\\p{M}\\p{N}])?)*$\""
+                    .into(),
+            );
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+
+impl TryFrom<&str> for UserAdminResponseEmail {
+    type Error = crate::common::error::ConversionError;
+    fn try_from(value: &str) -> Result<Self, crate::common::error::ConversionError> {
+        value.parse()
+    }
+}
+
+impl TryFrom<&String> for UserAdminResponseEmail {
+    type Error = crate::common::error::ConversionError;
+    fn try_from(value: &String) -> Result<Self, crate::common::error::ConversionError> {
+        value.parse()
+    }
+}
+
+impl TryFrom<String> for UserAdminResponseEmail {
+    type Error = crate::common::error::ConversionError;
+    fn try_from(value: String) -> Result<Self, crate::common::error::ConversionError> {
+        value.parse()
+    }
+}
+
+impl<'de> ::serde::Deserialize<'de> for UserAdminResponseEmail {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: crate::common::error::ConversionError| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
+
+/// `UserAdminUpdateDTO`
+///
+/// | Field | Type | Required | Description |
+/// |-------|------|:--------:|-------------|
+/// | `avatar_color` | [`UserAvatarColor`] |  |  |
+/// | `email` | [`String`] |  | User email |
+/// | `is_admin` | `bool` |  | Grant admin privileges |
+/// | `name` | [`String`] |  | User name |
+/// | `password` | [`String`] |  | User password |
+/// | `pin_code` | [`String`] |  | PIN code |
+/// | `quota_size_in_bytes` | `i64` |  | Storage quota in bytes |
+/// | `should_change_password` | `bool` |  | Require password change on next login |
+/// | `storage_label` | [`String`] |  | Storage label |
+///
+/// See: <https://api.immich.app/models/UserAdminUpdateDto>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Default)]
+pub struct UserAdminUpdateDTO {
+    #[serde(
+        rename = "avatarColor",
+        default,
+        skip_serializing_if = "::std::option::Option::is_none"
+    )]
+    pub avatar_color: Option<UserAvatarColor>,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub email: Option<UserAdminUpdateEmail>,
+    /// Grant admin privileges
+    #[serde(rename = "isAdmin", default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub is_admin: Option<bool>,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub name: Option<String>,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub password: Option<String>,
+    /// PIN code
+    #[serde(rename = "pinCode", default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub pin_code: Option<UserAdminUpdatePinCode>,
+    /// Storage quota in bytes
+    #[serde(
+        rename = "quotaSizeInBytes",
+        default,
+        skip_serializing_if = "::std::option::Option::is_none"
+    )]
+    pub quota_size_in_bytes: Option<i64>,
+    /// Require password change on next login
+    #[serde(
+        rename = "shouldChangePassword",
+        default,
+        skip_serializing_if = "::std::option::Option::is_none"
+    )]
+    pub should_change_password: Option<bool>,
+    /// Storage label
+    #[serde(
+        rename = "storageLabel",
+        default,
+        skip_serializing_if = "::std::option::Option::is_none"
+    )]
+    pub storage_label: Option<String>,
+}
+
+impl UserAdminUpdateDTO {
+    ///Creates a new [`UserAdminUpdateDTO`].
+    #[must_use]
+    #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
+    pub fn new() -> Self {
+        Self {
+            avatar_color: None,
+            email: None,
+            is_admin: None,
+            name: None,
+            password: None,
+            pin_code: None,
+            quota_size_in_bytes: None,
+            should_change_password: None,
+            storage_label: None,
+        }
+    }
+
+    ///Sets `avatar_color`.
+    #[must_use]
+    pub fn avatar_color(mut self, value: UserAvatarColor) -> Self {
+        self.avatar_color = Some(value);
+        self
+    }
+
+    ///Sets or clears `avatar_color`.
+    #[must_use]
+    pub fn set_avatar_color(mut self, value: Option<UserAvatarColor>) -> Self {
+        self.avatar_color = value;
+        self
+    }
+
+    ///Sets `email`.
+    #[must_use]
+    pub fn email(mut self, value: UserAdminUpdateEmail) -> Self {
+        self.email = Some(value);
+        self
+    }
+
+    ///Sets or clears `email`.
+    #[must_use]
+    pub fn set_email(mut self, value: Option<UserAdminUpdateEmail>) -> Self {
+        self.email = value;
+        self
+    }
+
+    ///Sets `is_admin`.
+    #[must_use]
+    pub fn is_admin(mut self, value: bool) -> Self {
+        self.is_admin = Some(value);
+        self
+    }
+
+    ///Sets or clears `is_admin`.
+    #[must_use]
+    pub fn set_is_admin(mut self, value: Option<bool>) -> Self {
+        self.is_admin = value;
+        self
+    }
+
+    ///Sets `name`.
+    #[must_use]
+    pub fn name(mut self, value: impl Into<String>) -> Self {
+        self.name = Some(value.into());
+        self
+    }
+
+    ///Sets or clears `name`.
+    #[must_use]
+    pub fn set_name(mut self, value: Option<String>) -> Self {
+        self.name = value;
+        self
+    }
+
+    ///Sets `password`.
+    #[must_use]
+    pub fn password(mut self, value: impl Into<String>) -> Self {
+        self.password = Some(value.into());
+        self
+    }
+
+    ///Sets or clears `password`.
+    #[must_use]
+    pub fn set_password(mut self, value: Option<String>) -> Self {
+        self.password = value;
+        self
+    }
+
+    ///Sets `pin_code`.
+    #[must_use]
+    pub fn pin_code(mut self, value: UserAdminUpdatePinCode) -> Self {
+        self.pin_code = Some(value);
+        self
+    }
+
+    ///Sets or clears `pin_code`.
+    #[must_use]
+    pub fn set_pin_code(mut self, value: Option<UserAdminUpdatePinCode>) -> Self {
+        self.pin_code = value;
+        self
+    }
+
+    ///Sets `quota_size_in_bytes`.
+    #[must_use]
+    pub fn quota_size_in_bytes(mut self, value: i64) -> Self {
+        self.quota_size_in_bytes = Some(value);
+        self
+    }
+
+    ///Sets or clears `quota_size_in_bytes`.
+    #[must_use]
+    pub fn set_quota_size_in_bytes(mut self, value: Option<i64>) -> Self {
+        self.quota_size_in_bytes = value;
+        self
+    }
+
+    ///Sets `should_change_password`.
+    #[must_use]
+    pub fn should_change_password(mut self, value: bool) -> Self {
+        self.should_change_password = Some(value);
+        self
+    }
+
+    ///Sets or clears `should_change_password`.
+    #[must_use]
+    pub fn set_should_change_password(mut self, value: Option<bool>) -> Self {
+        self.should_change_password = value;
+        self
+    }
+
+    ///Sets `storage_label`.
+    #[must_use]
+    pub fn storage_label(mut self, value: impl Into<String>) -> Self {
+        self.storage_label = Some(value.into());
+        self
+    }
+
+    ///Sets or clears `storage_label`.
+    #[must_use]
+    pub fn set_storage_label(mut self, value: Option<String>) -> Self {
+        self.storage_label = value;
+        self
+    }
+}
+
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct UserAdminUpdateEmail(pub String);
+
+impl ::std::ops::Deref for UserAdminUpdateEmail {
+    type Target = String;
+    fn deref(&self) -> &String {
+        &self.0
+    }
+}
+
+impl ::std::str::FromStr for UserAdminUpdateEmail {
+    type Err = crate::common::error::ConversionError;
+    fn from_str(value: &str) -> Result<Self, crate::common::error::ConversionError> {
+        static PATTERN: ::std::sync::LazyLock<::regex::Regex> = ::std::sync::LazyLock::new(|| {
+            ::regex::Regex::new(
+                    "^[\\p{L}\\p{M}\\p{N}.!#$%&'*+/=?^_`{|}~-]+@[\\p{L}\\p{N}](?:[\\p{L}\\p{M}\\p{N}-]{0,61}[\\p{L}\\p{M}\\p{N}])?(?:\\.[\\p{L}\\p{N}](?:[\\p{L}\\p{M}\\p{N}-]{0,61}[\\p{L}\\p{M}\\p{N}])?)*$",
+                )
+                .unwrap()
+        });
+        if PATTERN.find(value).is_none() {
+            return Err(
+                "doesn't match pattern \"^[\\p{L}\\p{M}\\p{N}.!#$%&'*+/=?^_`{|}~-]+@[\\p{L}\\p{N}](?:[\\p{L}\\p{M}\\p{N}-]{0,61}[\\p{L}\\p{M}\\p{N}])?(?:\\.[\\p{L}\\p{N}](?:[\\p{L}\\p{M}\\p{N}-]{0,61}[\\p{L}\\p{M}\\p{N}])?)*$\""
+                    .into(),
+            );
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+
+impl TryFrom<&str> for UserAdminUpdateEmail {
+    type Error = crate::common::error::ConversionError;
+    fn try_from(value: &str) -> Result<Self, crate::common::error::ConversionError> {
+        value.parse()
+    }
+}
+
+impl TryFrom<&String> for UserAdminUpdateEmail {
+    type Error = crate::common::error::ConversionError;
+    fn try_from(value: &String) -> Result<Self, crate::common::error::ConversionError> {
+        value.parse()
+    }
+}
+
+impl TryFrom<String> for UserAdminUpdateEmail {
+    type Error = crate::common::error::ConversionError;
+    fn try_from(value: String) -> Result<Self, crate::common::error::ConversionError> {
+        value.parse()
+    }
+}
+
+impl<'de> ::serde::Deserialize<'de> for UserAdminUpdateEmail {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: crate::common::error::ConversionError| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
+
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct UserAdminUpdatePinCode(pub String);
+
+impl ::std::ops::Deref for UserAdminUpdatePinCode {
+    type Target = String;
+    fn deref(&self) -> &String {
+        &self.0
+    }
+}
+
+impl ::std::str::FromStr for UserAdminUpdatePinCode {
+    type Err = crate::common::error::ConversionError;
+    fn from_str(value: &str) -> Result<Self, crate::common::error::ConversionError> {
+        static PATTERN: ::std::sync::LazyLock<::regex::Regex> =
+            ::std::sync::LazyLock::new(|| ::regex::Regex::new("^\\d{6}$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^\\d{6}$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+
+impl TryFrom<&str> for UserAdminUpdatePinCode {
+    type Error = crate::common::error::ConversionError;
+    fn try_from(value: &str) -> Result<Self, crate::common::error::ConversionError> {
+        value.parse()
+    }
+}
+
+impl TryFrom<&String> for UserAdminUpdatePinCode {
+    type Error = crate::common::error::ConversionError;
+    fn try_from(value: &String) -> Result<Self, crate::common::error::ConversionError> {
+        value.parse()
+    }
+}
+
+impl TryFrom<String> for UserAdminUpdatePinCode {
+    type Error = crate::common::error::ConversionError;
+    fn try_from(value: String) -> Result<Self, crate::common::error::ConversionError> {
+        value.parse()
+    }
+}
+
+impl<'de> ::serde::Deserialize<'de> for UserAdminUpdatePinCode {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: crate::common::error::ConversionError| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}

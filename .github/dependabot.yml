@@ -1,0 +1,84 @@
+version: 2
+updates:
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "00:00"
+      timezone: "Europe/Paris"
+    reviewers:
+      - "boul2gom"
+    assignees:
+      - "boul2gom"
+    commit-message:
+      prefix: "🦀 [Rust Crates] "
+    target-branch: "main"
+    rebase-strategy: "auto"
+    groups:
+      tokio-network:
+        patterns:
+          - "tokio"
+          - "tokio-*"
+          - "reqwest*"
+          - "tower*"
+          - "http*"
+          - "futures*"
+          - "async-stream*"
+          - "url*"
+          - "mime_guess*"
+      serialization:
+        patterns:
+          - "serde"
+          - "serde_*"
+          - "uuid*"
+          - "chrono*"
+          - "regex*"
+          - "urlencoding*"
+      observability:
+        patterns:
+          - "tracing"
+          - "tracing-*"
+          - "opentelemetry*"
+      code-generation:
+        patterns:
+          - "ureq*"
+          - "typify*"
+          - "schemars*"
+          - "syn*"
+          - "quote*"
+          - "proc-macro2*"
+          - "prettyplease*"
+      dev-dependencies:
+        patterns:
+          - "wiremock*"
+          - "testcontainers*"
+          - "tempfile*"
+          - "pretty_assertions*"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "00:00"
+      timezone: "Europe/Paris"
+    reviewers:
+      - "boul2gom"
+    assignees:
+      - "boul2gom"
+    commit-message:
+      prefix: "🔌 [Github Actions] "
+    target-branch: "main"
+    rebase-strategy: "auto"
+    groups:
+      boul2gom-actions:
+        patterns:
+          - "boul2gom/actions/*"
+      codeql-actions:
+        patterns:
+          - "github/codeql-action/*"
+      other-actions:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "boul2gom/actions/*"
+          - "github/codeql-action/*"
