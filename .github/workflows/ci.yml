@@ -83,10 +83,10 @@ jobs:
         run: cargo clippy --workspace --all-targets --all-features -- -D warnings
 
       - name: 📦 Build test targets
-        run: cargo test --no-run --workspace --all-features --exclude examples
+        run: cargo test --no-run --workspace --all-features --exclude immich-examples
 
       - name: 🧪 Run workspace tests
-        run: cargo test --workspace --all-features --exclude examples
+        run: cargo test --workspace --all-features --exclude immich-examples
         env:
           RUST_LOG: info
 

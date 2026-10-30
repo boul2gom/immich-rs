@@ -1,4 +1,4 @@
-name: 🔗 Sync API
+name: "🔗 Github CI - Sync API"
 
 on:
   schedule:
@@ -12,45 +12,83 @@ permissions:
 
 jobs:
   sync:
+    name: 🔗 Sync OpenAPI client and models
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+
     steps:
-      - uses: actions/checkout@v7
-
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+      - name: 🛡️ Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
         with:
-          components: clippy
+          egress-policy: audit
 
-      - name: Setup Nightly Rust (for rustfmt)
-        uses: dtolnay/rust-toolchain@nightly
+      - name: 🔐 Generate ephemeral token from GitHub App
+        id: app-token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
-          components: rustfmt
+          app-id: ${{ secrets.CI_APP_ID }}
+          private-key: ${{ secrets.CI_APP_KEY }}
 
-      - uses: Swatinem/rust-cache@v2
+      - name: 📁 Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          fetch-depth: 0
+
+      - name: 📦 Cache Rust dependencies
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
           shared-key: "immich-rs"
 
-      - name: Generate Models & Client
+      - name: 🛠️ Set up Rust toolchain
+        uses: dtolnay/rust-toolchain@631a55b12751854ce901bb631d5902ceb48146f7 # stable
+        with:
+          components: clippy
+
+      - name: 🛠️ Set up nightly Rust (for rustfmt)
+        uses: dtolnay/rust-toolchain@631a55b12751854ce901bb631d5902ceb48146f7 # nightly
+        with:
+          toolchain: nightly
+          components: rustfmt
+
+      - name: ⚙️ Set stable as default toolchain
+        run: rustup default stable
+
+      - name: 🔐 Import GPG Key and setup Git
+        uses: crazy-max/ghaction-import-gpg@2dc316deee8e90f13e1a351ab510b4d5bc0c82cd # v7.0.0
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          trust_level: 5
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+          git_tag_gpgsign: true
+          git_config_global: true
+          git_committer_name: "boul2gom-bot"
+          git_committer_email: "actions-bot@boul2gom.com"
+
+      - name: ⚙️ Generate OpenAPI client and models
         run: |
           cargo xtask generate
           cargo +nightly fmt --all
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
-      - name: Check for drift
+      - name: 🔍 Check for drift and create pull request
         run: |
-          git add immich-models/src immich-rs/src/api
+          git add immich-models/src immich-rs/src/api open-api
           if ! git diff --cached --quiet; then
             cargo clippy --workspace --all-targets --all-features -- -D warnings
-            cargo test --workspace --exclude examples
+            cargo test --workspace --exclude immich-examples
 
             git checkout -B sync-api
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
             git commit -m "chore: sync OpenAPI client and models"
             git push origin sync-api --force
             gh label create e2e --description "Run Docker E2E suite on this PR" --force || true
             gh pr create --title "chore: sync OpenAPI client and models" --body "Automated PR to sync models and client with the latest Immich release." --base main --head sync-api --label e2e || gh pr edit sync-api --add-label e2e
           fi
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
