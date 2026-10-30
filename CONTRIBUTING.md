@@ -4,7 +4,7 @@ Thank you for your interest in contributing to `immich-rs`!
 
 ## Prerequisites
 
-- **Rust stable** (`1.88+`, Rust 2024 edition)
+- **Rust stable** (latest, Rust 2024 edition)
 - **Rust nightly** `rustfmt` (`rustup toolchain install nightly --component rustfmt`)
 - **`wasm32-unknown-unknown` target** (`rustup target add wasm32-unknown-unknown`)
 - **Docker** *(optional, only required to run the full end-to-end container suite)*

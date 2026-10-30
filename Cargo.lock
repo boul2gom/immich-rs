@@ -1296,7 +1296,6 @@ dependencies = [
  "tokio",
  "tokio-util",
  "toml",
- "tower",
  "tower-layer",
  "tower-service",
  "tracing",

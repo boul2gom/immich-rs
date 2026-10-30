@@ -1,7 +1,6 @@
 [package]
 name = "immich-models"
 edition.workspace = true
-rust-version.workspace = true
 version.workspace = true
 
 authors.workspace = true

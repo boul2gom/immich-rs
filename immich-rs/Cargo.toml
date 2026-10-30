@@ -1,7 +1,6 @@
 [package]
 name = "immich-rs"
 edition.workspace = true
-rust-version.workspace = true
 version.workspace = true
 
 authors.workspace = true
@@ -49,7 +48,6 @@ immich-models.workspace = true
 # Runtime and async (cross-platform)
 tokio = { workspace = true, features = ["sync", "io-util"] }
 reqwest = { workspace = true, features = ["json", "multipart", "stream"] }
-tower.workspace = true
 tower-service.workspace = true
 tower-layer.workspace = true
 futures-core.workspace = true

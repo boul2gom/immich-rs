@@ -11,7 +11,6 @@ sign-tag = true
 [workspace.package]
 version = "0.1.0"
 edition = "2024"
-rust-version = "1.88"
 authors = ["boul2gom <contact@boul2gom.fr>"]
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/boul2gom/immich-rs"
@@ -39,7 +38,6 @@ bytes = "1.12.1"
 tokio = { version = "1.54.1" }
 tokio-util = { version = "0.7.20" }
 reqwest = { version = "0.12.28", default-features = false }
-tower = { version = "0.5.3", default-features = false, features = ["util"] }
 tower-service = "0.3.3"
 tower-layer = "0.3.3"
 futures-core = "0.3.34"
@@ -125,7 +123,8 @@ strip = false
 
 [profile.dev]
 opt-level = 0
-debug = true
+debug = 1
 
 [profile.dev.package."*"]
-opt-level = 3
+opt-level = 2
+debug = 0
