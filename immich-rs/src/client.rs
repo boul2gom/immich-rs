@@ -2,6 +2,7 @@ use std::time::Duration;
 
 use reqwest::Url;
 use reqwest::header::HeaderValue;
+use tower_layer::Layer;
 
 use crate::core::RetryPolicy;
 use crate::error::{Error, Result};
@@ -14,21 +15,29 @@ pub(crate) enum Auth {
     None,
 }
 
-#[derive(Clone, Default)]
-enum BuilderAuth {
-    ApiKey(String),
-    Bearer(String),
-    #[default]
-    None,
-}
-
-impl std::fmt::Debug for BuilderAuth {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::ApiKey(_) => f.write_str("ApiKey(<redacted>)"),
-            Self::Bearer(_) => f.write_str("Bearer(<redacted>)"),
-            Self::None => f.write_str("None"),
+impl Auth {
+    fn from_api_key(key: &str) -> std::result::Result<Self, String> {
+        if key.trim().is_empty() {
+            return Err("API key cannot be empty".into());
         }
+        let mut val = HeaderValue::try_from(key).map_err(|e| format!("invalid API key format: {e}"))?;
+        val.set_sensitive(true);
+        Ok(Self::ApiKey(val))
+    }
+
+    fn from_bearer_token(token: &str) -> std::result::Result<Self, String> {
+        let trimmed = token.trim();
+        if trimmed.is_empty() {
+            return Err("Bearer token cannot be empty".into());
+        }
+        let raw_token = trimmed.strip_prefix("Bearer ").unwrap_or(trimmed);
+        if raw_token.trim().is_empty() {
+            return Err("Bearer token cannot be empty".into());
+        }
+        let mut val = HeaderValue::try_from(format!("Bearer {raw_token}"))
+            .map_err(|e| format!("invalid Bearer token format: {e}"))?;
+        val.set_sensitive(true);
+        Ok(Self::Bearer(val))
     }
 }
 
@@ -73,11 +82,11 @@ impl std::fmt::Debug for ClientState {
     }
 }
 
-/// An asynchronous, type-safe client for the Immich self-hosted photo backup server.
+/// An asynchronous, type-safe client for the Immich self-hosted photo and video management platform.
 ///
-/// Constructed via [`ImmichClient::new`] or [`ImmichClient::builder`].
+/// Constructed via [`ImmichClient::new`], [`ImmichClient::from_env`], or [`ImmichClient::builder`].
 ///
-/// Cloning an `ImmichClient` is cheap and thread-safe as internal state is shared via an [`Arc`](std::sync::Arc).
+/// Cloning an `ImmichClient` is cheap (`O(1)`) and thread-safe as internal state is shared via [`Arc`](std::sync::Arc).
 #[derive(Debug, Clone)]
 pub struct ImmichClient {
     pub(crate) inner: std::sync::Arc<ClientState>,
@@ -86,7 +95,7 @@ pub struct ImmichClient {
 impl ImmichClient {
     /// Creates a new `ImmichClient` with the given base URL and API key.
     ///
-    /// For advanced configuration (timeouts, retries, headers, bearer token),
+    /// For advanced configuration (timeouts, retries, rate limiting, headers, bearer token),
     /// use [`ImmichClient::builder()`].
     ///
     /// # Errors
@@ -98,23 +107,19 @@ impl ImmichClient {
 
     /// Creates a new `ImmichClient` initialized from environment variables.
     ///
-    /// Inspects the following variables:
+    /// Inspects the following variables (ignoring empty or whitespace-only values):
     /// - Base URL: `IMMICH_INSTANCE_URL`, `IMMICH_BASE_URL`, or `IMMICH_URL`.
     /// - API Key: `IMMICH_API_KEY`.
     ///
     /// # Errors
     ///
-    /// Returns an error if the base URL environment variable is not set, or if
+    /// Returns an error if no non-empty base URL environment variable is set, or if
     /// the client configuration fails validation.
     pub fn from_env() -> Result<Self> {
         Self::builder().from_env()?.build()
     }
 
     /// Creates a new builder for `ImmichClient`.
-    ///
-    /// # Returns
-    ///
-    /// A builder for `ImmichClient`.
     pub fn builder() -> ImmichClientBuilder {
         ImmichClientBuilder::default()
     }
@@ -136,16 +141,16 @@ impl ImmichClient {
     pub fn api_key(&self) -> Option<&str> {
         match &self.inner.auth {
             Auth::ApiKey(val) => val.to_str().ok(),
-            _ => None,
+            Auth::Bearer(_) | Auth::None => None,
         }
     }
 
-    /// Returns the configured Bearer token, if present.
+    /// Returns the configured raw Bearer token (without the `"Bearer "` prefix), if present.
     #[must_use]
     pub fn bearer_token(&self) -> Option<&str> {
         match &self.inner.auth {
-            Auth::Bearer(val) => val.to_str().ok(),
-            _ => None,
+            Auth::Bearer(val) => val.to_str().ok().map(|s| s.strip_prefix("Bearer ").unwrap_or(s)),
+            Auth::ApiKey(_) | Auth::None => None,
         }
     }
 }
@@ -154,20 +159,20 @@ type LayerFn = Box<dyn FnOnce(BoxService) -> BoxService + Send + 'static>;
 
 /// Builder for configuring and constructing an [`ImmichClient`].
 ///
-/// Provides options for setting connection timeouts, retries, custom headers,
+/// Provides options for setting connection timeouts, retries, rate limiting, custom headers,
 /// TLS certificate validation, authentication credentials, and custom Tower layers.
 #[derive(Default)]
 #[must_use = "builder methods must be chained or stored"]
 pub struct ImmichClientBuilder {
     base_url: Option<String>,
-    auth: BuilderAuth,
+    auth: Auth,
+    auth_error: Option<String>,
     accept_invalid_certs: bool,
     max_retries: Option<u32>,
     connect_timeout: Option<Duration>,
     global_timeout: Option<Duration>,
     user_agent: Option<String>,
     default_headers: Option<reqwest::header::HeaderMap>,
-    warn_on_version_mismatch: bool,
     layers: Vec<LayerFn>,
     rate_limit_per_second: Option<u32>,
 }
@@ -183,7 +188,6 @@ impl std::fmt::Debug for ImmichClientBuilder {
             .field("global_timeout", &self.global_timeout)
             .field("user_agent", &self.user_agent)
             .field("default_headers", &self.default_headers)
-            .field("warn_on_version_mismatch", &self.warn_on_version_mismatch)
             .field("layers_count", &self.layers.len())
             .field("rate_limit_per_second", &self.rate_limit_per_second)
             .finish_non_exhaustive()
@@ -196,9 +200,11 @@ impl ImmichClientBuilder {
     /// - Base URL: reads `IMMICH_INSTANCE_URL`, `IMMICH_BASE_URL`, or `IMMICH_URL`.
     /// - API Key: reads `IMMICH_API_KEY`.
     ///
+    /// Empty or whitespace-only environment variables are ignored.
+    ///
     /// # Errors
     ///
-    /// Returns an error if the base URL environment variable is not defined or is not valid UTF-8.
+    /// Returns an error if no non-empty base URL environment variable is defined.
     pub fn from_env(self) -> Result<Self> {
         self.from_env_map(|key| std::env::var(key).ok())
     }
@@ -206,122 +212,92 @@ impl ImmichClientBuilder {
     /// Populates unset builder options by querying a custom lookup function.
     ///
     /// Useful for testing or integrating with non-standard configuration stores
-    /// without mutating the process environment.
+    /// without mutating the process environment. Empty or whitespace-only values are ignored.
     ///
     /// # Errors
     ///
-    /// Returns an error if no base URL can be found from the lookup provider.
+    /// Returns an error if no non-empty base URL can be found from the lookup provider.
     pub fn from_env_map(mut self, mut lookup: impl FnMut(&str) -> Option<String>) -> Result<Self> {
+        let non_empty = |v: String| (!v.trim().is_empty()).then_some(v);
+
         if self.base_url.is_none() {
             let url = lookup("IMMICH_INSTANCE_URL")
-                .or_else(|| lookup("IMMICH_BASE_URL"))
-                .or_else(|| lookup("IMMICH_URL"))
+                .and_then(non_empty)
+                .or_else(|| lookup("IMMICH_BASE_URL").and_then(non_empty))
+                .or_else(|| lookup("IMMICH_URL").and_then(non_empty))
                 .ok_or_else(|| {
-                    Error::Validation("Missing IMMICH_INSTANCE_URL or IMMICH_BASE_URL environment variable".into())
+                    Error::Validation(
+                        "missing IMMICH_INSTANCE_URL, IMMICH_BASE_URL, or IMMICH_URL environment variable".into(),
+                    )
                 })?;
             self.base_url = Some(url);
         }
-        if matches!(self.auth, BuilderAuth::None)
-            && let Some(key) = lookup("IMMICH_API_KEY")
+        if matches!(self.auth, Auth::None)
+            && self.auth_error.is_none()
+            && let Some(key) = lookup("IMMICH_API_KEY").and_then(non_empty)
         {
-            self.auth = BuilderAuth::ApiKey(key);
+            self = self.api_key(key);
         }
         Ok(self)
     }
 
-    /// Sets the base URL of the Immich instance.
-    ///
-    /// # Parameters
-    ///
-    /// - `url` — The base URL of the Immich server API (e.g., `http://localhost:2283/api`).
-    ///
-    /// # Returns
-    ///
-    /// The updated builder for chaining.
+    /// Sets the base URL of the Immich instance (e.g., `https://photos.example.com/api`).
     pub fn base_url(mut self, url: impl Into<String>) -> Self {
         self.base_url = Some(url.into());
         self
     }
 
     /// Sets the API key for authentication.
-    ///
-    /// # Parameters
-    ///
-    /// - `key` — The API key to use for requests.
-    ///
-    /// # Returns
-    ///
-    /// The updated builder for chaining.
     pub fn api_key(mut self, key: impl Into<String>) -> Self {
-        self.auth = BuilderAuth::ApiKey(key.into());
+        let key_str = key.into();
+        match Auth::from_api_key(&key_str) {
+            Ok(auth) => {
+                self.auth = auth;
+                self.auth_error = None;
+            }
+            Err(err) => {
+                self.auth = Auth::None;
+                self.auth_error = Some(err);
+            }
+        }
         self
     }
 
     /// Sets a bearer token for authentication.
-    ///
-    /// # Parameters
-    ///
-    /// - `token` — The bearer token to use for requests.
-    ///
-    /// # Returns
-    ///
-    /// The updated builder for chaining.
     pub fn bearer_token(mut self, token: impl Into<String>) -> Self {
-        self.auth = BuilderAuth::Bearer(token.into());
+        let token_str = token.into();
+        match Auth::from_bearer_token(&token_str) {
+            Ok(auth) => {
+                self.auth = auth;
+                self.auth_error = None;
+            }
+            Err(err) => {
+                self.auth = Auth::None;
+                self.auth_error = Some(err);
+            }
+        }
         self
     }
 
     /// Allows accepting invalid TLS certificates (insecure).
-    ///
-    /// # Parameters
-    ///
-    /// - `accept` — Whether to accept invalid certificates.
-    ///
-    /// # Returns
-    ///
-    /// The updated builder for chaining.
     pub fn danger_accept_invalid_certs(mut self, accept: bool) -> Self {
         self.accept_invalid_certs = accept;
         self
     }
 
-    /// Sets the maximum number of retries for transient errors.
-    ///
-    /// # Parameters
-    ///
-    /// - `max` — The maximum number of retry attempts.
-    ///
-    /// # Returns
-    ///
-    /// The updated builder for chaining.
+    /// Sets the maximum number of retries for transient errors (defaults to `3`).
     pub fn max_retries(mut self, max: u32) -> Self {
         self.max_retries = Some(max);
         self
     }
 
-    /// Sets the connection timeout for HTTP requests.
-    ///
-    /// # Parameters
-    ///
-    /// - `timeout` — The duration to wait before timing out a connection.
-    ///
-    /// # Returns
-    ///
-    /// The updated builder for chaining.
+    /// Sets the connection timeout for HTTP requests (defaults to `10s` on native targets).
     pub fn connect_timeout(mut self, timeout: Duration) -> Self {
         self.connect_timeout = Some(timeout);
         self
     }
 
     /// Sets the global timeout for HTTP requests.
-    ///
-    /// # Parameters
-    ///
-    /// - `timeout` — The duration to wait for a request to complete.
-    ///
-    /// # Returns
-    ///
-    /// The updated builder for chaining.
     pub fn global_timeout(mut self, timeout: Duration) -> Self {
         self.global_timeout = Some(timeout);
         self
@@ -341,16 +317,10 @@ impl ImmichClientBuilder {
         self
     }
 
-    /// Sets whether to perform an advisory compatibility check against the server version.
-    pub fn warn_on_version_mismatch(mut self, enabled: bool) -> Self {
-        self.warn_on_version_mismatch = enabled;
-        self
-    }
-
-    /// Adds a custom Tower [`Layer`](tower_layer::Layer) into the client request execution pipeline.
+    /// Adds a custom Tower [`Layer`] into the client request execution pipeline.
     pub fn layer<L>(mut self, layer: L) -> Self
     where
-        L: tower_layer::Layer<BoxService> + Send + 'static,
+        L: Layer<BoxService> + Send + 'static,
         L::Service: tower_service::Service<reqwest::Request, Response = reqwest::Response, Error = Error>
             + Clone
             + Send
@@ -366,22 +336,20 @@ impl ImmichClientBuilder {
 
     /// Sets client-side rate limiting to at most `requests_per_second`.
     ///
-    /// Requests exceeding the limit will asynchronously wait (smooth throttling / pacing)
-    /// before being sent to the server.
+    /// Requests exceeding the limit asynchronously wait (smooth token-bucket pacing)
+    /// before being dispatched to the server.
     pub fn rate_limit_per_second(mut self, requests_per_second: u32) -> Self {
         self.rate_limit_per_second = Some(requests_per_second);
         self
     }
 
-    /// Builds the `ImmichClient`.
+    /// Builds the [`ImmichClient`] synchronously without performing any implicit network I/O.
     ///
-    /// # Returns
-    ///
-    /// A configured `ImmichClient`.
+    /// To immediately verify server version compatibility upon startup, use [`Self::build_checked`].
     ///
     /// # Errors
     ///
-    /// Returns an error if the base URL is missing or invalid, or if the HTTP client fails to build.
+    /// Returns an error if the base URL or credentials are invalid, or if the HTTP client fails to build.
     pub fn build(self) -> Result<ImmichClient> {
         let mut base_url = self
             .base_url
@@ -397,27 +365,9 @@ impl ImmichClientBuilder {
             )));
         }
 
-        let auth = match self.auth {
-            BuilderAuth::ApiKey(key) => {
-                if key.trim().is_empty() {
-                    return Err(Error::Validation("API key cannot be empty".into()));
-                }
-                let mut val = HeaderValue::try_from(key)
-                    .map_err(|e| Error::Validation(format!("Invalid API key format: {e}")))?;
-                val.set_sensitive(true);
-                Auth::ApiKey(val)
-            }
-            BuilderAuth::Bearer(token) => {
-                if token.trim().is_empty() {
-                    return Err(Error::Validation("Bearer token cannot be empty".into()));
-                }
-                let mut val = HeaderValue::try_from(format!("Bearer {token}"))
-                    .map_err(|e| Error::Validation(format!("Invalid Bearer token format: {e}")))?;
-                val.set_sensitive(true);
-                Auth::Bearer(val)
-            }
-            BuilderAuth::None => Auth::None,
-        };
+        if let Some(err) = self.auth_error {
+            return Err(Error::Validation(err));
+        }
 
         let user_agent =
             self.user_agent
@@ -431,10 +381,16 @@ impl ImmichClientBuilder {
             cb = cb.connect_timeout(self.connect_timeout.unwrap_or_else(|| Duration::from_secs(10)));
         }
 
-        #[cfg(any(feature = "rustls-tls", feature = "native-tls"))]
+        #[cfg(all(not(target_arch = "wasm32"), any(feature = "rustls-tls", feature = "native-tls")))]
         {
             cb = cb.danger_accept_invalid_certs(self.accept_invalid_certs);
         }
+        #[cfg(target_arch = "wasm32")]
+        let _ = self.accept_invalid_certs;
+        #[cfg(target_arch = "wasm32")]
+        let _ = self.connect_timeout;
+        #[cfg(target_arch = "wasm32")]
+        let _ = self.global_timeout;
 
         #[cfg(not(target_arch = "wasm32"))]
         if let Some(to) = self.global_timeout {
@@ -445,65 +401,69 @@ impl ImmichClientBuilder {
         }
 
         let raw_http = cb.build()?;
-        let mut service = crate::core::BoxCloneSyncService::new(crate::core::ReqwestTransport::new(raw_http.clone()));
-
-        for layer_fn in self.layers {
-            service = layer_fn(service);
-        }
-
-        if let Some(rps) = self.rate_limit_per_second {
-            use tower_layer::Layer;
-            service = crate::core::BoxCloneSyncService::new(crate::middleware::RateLimitLayer::new(rps).layer(service));
-        }
-
         let retry_policy = RetryPolicy::default_with_max(self.max_retries.unwrap_or(3));
-        {
-            use tower_layer::Layer;
-            service = crate::core::BoxCloneSyncService::new(
-                crate::core::RetryLayer::new(retry_policy.clone()).layer(service),
-            );
-        }
+        let base_transport = crate::core::ReqwestTransport::new(raw_http.clone());
 
-        let client = ImmichClient {
+        let service = if self.layers.is_empty() {
+            match (self.rate_limit_per_second, retry_policy.max_attempts > 0) {
+                (None, false) => crate::core::BoxCloneSyncService::new(base_transport),
+                (None, true) => crate::core::BoxCloneSyncService::new(
+                    crate::core::RetryLayer::new(retry_policy.clone()).layer(base_transport),
+                ),
+                (Some(rps), false) => crate::core::BoxCloneSyncService::new(
+                    crate::middleware::RateLimitLayer::new(rps).layer(base_transport),
+                ),
+                (Some(rps), true) => {
+                    let rate_limited = crate::middleware::RateLimitLayer::new(rps).layer(base_transport);
+                    crate::core::BoxCloneSyncService::new(
+                        crate::core::RetryLayer::new(retry_policy.clone()).layer(rate_limited),
+                    )
+                }
+            }
+        } else {
+            let mut boxed = crate::core::BoxCloneSyncService::new(base_transport);
+            for layer_fn in self.layers {
+                boxed = layer_fn(boxed);
+            }
+            match (self.rate_limit_per_second, retry_policy.max_attempts > 0) {
+                (None, false) => boxed,
+                (None, true) => crate::core::BoxCloneSyncService::new(
+                    crate::core::RetryLayer::new(retry_policy.clone()).layer(boxed),
+                ),
+                (Some(rps), false) => {
+                    crate::core::BoxCloneSyncService::new(crate::middleware::RateLimitLayer::new(rps).layer(boxed))
+                }
+                (Some(rps), true) => {
+                    let rate_limited = crate::middleware::RateLimitLayer::new(rps).layer(boxed);
+                    crate::core::BoxCloneSyncService::new(
+                        crate::core::RetryLayer::new(retry_policy.clone()).layer(rate_limited),
+                    )
+                }
+            }
+        };
+
+        Ok(ImmichClient {
             inner: std::sync::Arc::new(ClientState {
                 http: service,
                 raw_http,
                 base_url: parsed_url,
-                auth,
+                auth: self.auth,
                 retry_policy,
             }),
-        };
-
-        #[cfg(not(target_arch = "wasm32"))]
-        if self.warn_on_version_mismatch {
-            let client_clone = client.clone();
-            if let Ok(handle) = tokio::runtime::Handle::try_current() {
-                handle.spawn(async move {
-                    let _ = client_clone.check_compatibility().await;
-                });
-            }
-        }
-        #[cfg(target_arch = "wasm32")]
-        if self.warn_on_version_mismatch {
-            let client_clone = client.clone();
-            wasm_bindgen_futures::spawn_local(async move {
-                let _ = client_clone.check_compatibility().await;
-            });
-        }
-
-        Ok(client)
+        })
     }
 
     /// Builds the `ImmichClient` and immediately performs an advisory compatibility check against the server.
     ///
     /// If the server version differs from the SDK target version, an advisory [`tracing::warn!`] is logged.
-    /// The call will succeed even if the versions do not match.
+    /// The call succeeds even if the versions do not match, unless the network request itself fails.
     ///
     /// # Errors
-    /// Returns an error if client construction fails or if the network request for version check fails.
+    ///
+    /// Returns an error if client construction fails or if the network request for the version check fails.
     pub async fn build_checked(self) -> Result<ImmichClient> {
         let client = self.build()?;
-        let _ = client.check_compatibility().await;
+        let _ = client.check_compatibility().await?;
         Ok(client)
     }
 }

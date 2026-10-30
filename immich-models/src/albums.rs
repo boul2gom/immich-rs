@@ -1,9 +1,11 @@
 // @generated Made by @boul2gom with `immich-rs` - do not edit by hand.
 // Re-run `cargo xtask generate` to update.
+#![allow(clippy::struct_excessive_bools, clippy::too_many_lines)]
 
 //! `OpenAPI` data models for `albums`.
 
 pub use crate::activities::UserResponseDTO;
+pub use crate::id::{AlbumId, AssetId, UserId};
 
 /// `AddUsersDTO`
 ///
@@ -12,7 +14,8 @@ pub use crate::activities::UserResponseDTO;
 /// | `album_users` | [`Vec<AlbumUserAddDTO>`](crate::albums::AlbumUserAddDTO) | ✓ | Album users to add |
 ///
 /// See: <https://api.immich.app/models/AddUsersDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct AddUsersDTO {
     /// Album users to add (required)
     #[serde(rename = "albumUsers")]
@@ -20,17 +23,18 @@ pub struct AddUsersDTO {
 }
 
 impl AddUsersDTO {
-    ///Creates a new [`AddUsersDTO`].
+    /// Creates a new [`AddUsersDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(album_users: Vec<AlbumUserAddDTO>) -> Self {
-        Self { album_users }
+    pub fn new(album_users: impl IntoIterator<Item = AlbumUserAddDTO>) -> Self {
+        Self {
+            album_users: album_users.into_iter().collect(),
+        }
     }
-
-    ///Sets `album_users`.
+    /// Sets `album_users`.
     #[must_use]
-    pub fn album_users(mut self, value: Vec<AlbumUserAddDTO>) -> Self {
-        self.album_users = value;
+    pub fn album_users(mut self, value: impl IntoIterator<Item = AlbumUserAddDTO>) -> Self {
+        self.album_users = value.into_iter().collect();
         self
     }
 }
@@ -40,7 +44,7 @@ impl AddUsersDTO {
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
 /// | `album_name` | [`String`] | ✓ | Album name |
-/// | `album_thumbnail_asset_id` | [`Uuid`](::uuid::Uuid) | ✓ | Thumbnail asset ID |
+/// | `album_thumbnail_asset_id` | [`AssetId`](crate::id::AssetId) | ✓ | Thumbnail asset ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 /// | `album_users` | [`Vec<AlbumUserResponseDTO>`](crate::albums::AlbumUserResponseDTO) | ✓ | First entry is always the album owner. Second entry is the auth user, if it differs from the owner. The rest are ordered alphabetically. |
 /// | `asset_count` | `i64` | ✓ | Number of assets |
 /// | `contributor_counts` | [`Vec<ContributorCountResponseDTO>`](crate::albums::ContributorCountResponseDTO) |  |  |
@@ -48,7 +52,7 @@ impl AddUsersDTO {
 /// | `description` | [`String`] | ✓ | Album description |
 /// | `end_date` | [`DateTime`](::chrono::DateTime) |  | UTC representation of (local) end date (latest asset) |
 /// | `has_shared_link` | `bool` | ✓ | Has shared link |
-/// | `id` | [`Uuid`](::uuid::Uuid) | ✓ | Album ID |
+/// | `id` | [`AlbumId`](crate::id::AlbumId) | ✓ | Album ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 /// | `is_activity_enabled` | `bool` | ✓ | Activity feed enabled |
 /// | `last_modified_asset_timestamp` | [`DateTime`](::chrono::DateTime) |  | Last modified asset timestamp |
 /// | `order` | [`AssetOrder`] |  |  |
@@ -57,15 +61,15 @@ impl AddUsersDTO {
 /// | `updated_at` | [`DateTime`](::chrono::DateTime) | ✓ | Last update date |
 ///
 /// See: <https://api.immich.app/models/AlbumResponseDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct AlbumResponseDTO {
     /// Album name (required)
     #[serde(rename = "albumName")]
     pub album_name: String,
-    /// Thumbnail asset ID (required)
+    /// Thumbnail asset ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
     #[serde(rename = "albumThumbnailAssetId")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub album_thumbnail_asset_id: Option<::uuid::Uuid>,
+    pub album_thumbnail_asset_id: Option<AssetId>,
     /// First entry is always the album owner. Second entry is the auth user, if it differs from the owner. The rest are ordered alphabetically. (required)
     #[serde(rename = "albumUsers")]
     pub album_users: Vec<AlbumUserResponseDTO>,
@@ -81,6 +85,7 @@ pub struct AlbumResponseDTO {
     /// Creation date (required)
     #[serde(rename = "createdAt")]
     pub created_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    /// Album description (required)
     pub description: String,
     /// UTC representation of (local) end date (latest asset)
     #[serde(rename = "endDate", default, skip_serializing_if = "::std::option::Option::is_none")]
@@ -88,7 +93,8 @@ pub struct AlbumResponseDTO {
     /// Has shared link (required)
     #[serde(rename = "hasSharedLink")]
     pub has_shared_link: bool,
-    pub id: ::uuid::Uuid,
+    /// Album ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
+    pub id: AlbumId,
     /// Activity feed enabled (required)
     #[serde(rename = "isActivityEnabled")]
     pub is_activity_enabled: bool,
@@ -101,6 +107,7 @@ pub struct AlbumResponseDTO {
     pub last_modified_asset_timestamp: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub order: Option<AssetOrder>,
+    /// Is shared album (required)
     pub shared: bool,
     /// UTC representation of (local) start date (earliest asset)
     #[serde(
@@ -115,17 +122,17 @@ pub struct AlbumResponseDTO {
 }
 
 impl AlbumResponseDTO {
-    ///Creates a new [`AlbumResponseDTO`].
+    /// Creates a new [`AlbumResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(
         album_name: impl Into<String>,
-        album_users: Vec<AlbumUserResponseDTO>,
+        album_users: impl IntoIterator<Item = AlbumUserResponseDTO>,
         asset_count: i64,
         created_at: ::chrono::DateTime<::chrono::offset::Utc>,
         description: impl Into<String>,
         has_shared_link: bool,
-        id: ::uuid::Uuid,
+        id: impl Into<AlbumId>,
         is_activity_enabled: bool,
         shared: bool,
         updated_at: ::chrono::DateTime<::chrono::offset::Utc>,
@@ -133,14 +140,14 @@ impl AlbumResponseDTO {
         Self {
             album_name: album_name.into(),
             album_thumbnail_asset_id: None,
-            album_users,
+            album_users: album_users.into_iter().collect(),
             asset_count,
             contributor_counts: Vec::new(),
             created_at,
             description: description.into(),
             end_date: None,
             has_shared_link,
-            id,
+            id: id.into(),
             is_activity_enabled,
             last_modified_asset_timestamp: None,
             order: None,
@@ -149,106 +156,91 @@ impl AlbumResponseDTO {
             updated_at,
         }
     }
-
-    ///Sets `album_name`.
+    /// Sets `album_name`.
     #[must_use]
     pub fn album_name(mut self, value: impl Into<String>) -> Self {
         self.album_name = value.into();
         self
     }
-
-    ///Sets `album_thumbnail_asset_id`.
+    /// Sets `album_thumbnail_asset_id`.
     #[must_use]
-    pub fn album_thumbnail_asset_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.album_thumbnail_asset_id = Some(value);
+    pub fn album_thumbnail_asset_id(mut self, value: impl Into<AssetId>) -> Self {
+        self.album_thumbnail_asset_id = Some(value.into());
         self
     }
-
-    ///Sets or clears `album_thumbnail_asset_id`.
+    /// Sets or clears `album_thumbnail_asset_id`.
     #[must_use]
-    pub fn set_album_thumbnail_asset_id(mut self, value: Option<::uuid::Uuid>) -> Self {
+    pub fn set_album_thumbnail_asset_id(mut self, value: Option<AssetId>) -> Self {
         self.album_thumbnail_asset_id = value;
         self
     }
-
-    ///Sets `album_users`.
+    /// Sets `album_users`.
     #[must_use]
-    pub fn album_users(mut self, value: Vec<AlbumUserResponseDTO>) -> Self {
-        self.album_users = value;
+    pub fn album_users(mut self, value: impl IntoIterator<Item = AlbumUserResponseDTO>) -> Self {
+        self.album_users = value.into_iter().collect();
         self
     }
-
-    ///Sets `asset_count`.
+    /// Sets `asset_count`.
     #[must_use]
     pub fn asset_count(mut self, value: i64) -> Self {
         self.asset_count = value;
         self
     }
-
-    ///Sets `contributor_counts`.
+    /// Sets `contributor_counts`.
     #[must_use]
-    pub fn contributor_counts(mut self, value: Vec<ContributorCountResponseDTO>) -> Self {
-        self.contributor_counts = value;
+    pub fn contributor_counts(mut self, value: impl IntoIterator<Item = ContributorCountResponseDTO>) -> Self {
+        self.contributor_counts = value.into_iter().collect();
         self
     }
-
-    ///Sets `created_at`.
+    /// Sets `created_at`.
     #[must_use]
     pub fn created_at(mut self, value: ::chrono::DateTime<::chrono::offset::Utc>) -> Self {
         self.created_at = value;
         self
     }
-
-    ///Sets `description`.
+    /// Sets `description`.
     #[must_use]
     pub fn description(mut self, value: impl Into<String>) -> Self {
         self.description = value.into();
         self
     }
-
-    ///Sets `end_date`.
+    /// Sets `end_date`.
     #[must_use]
     pub fn end_date(mut self, value: ::chrono::DateTime<::chrono::offset::Utc>) -> Self {
         self.end_date = Some(value);
         self
     }
-
-    ///Sets or clears `end_date`.
+    /// Sets or clears `end_date`.
     #[must_use]
     pub fn set_end_date(mut self, value: Option<::chrono::DateTime<::chrono::offset::Utc>>) -> Self {
         self.end_date = value;
         self
     }
-
-    ///Sets `has_shared_link`.
+    /// Sets `has_shared_link`.
     #[must_use]
     pub fn has_shared_link(mut self, value: bool) -> Self {
         self.has_shared_link = value;
         self
     }
-
-    ///Sets `id`.
+    /// Sets `id`.
     #[must_use]
-    pub fn id(mut self, value: ::uuid::Uuid) -> Self {
-        self.id = value;
+    pub fn id(mut self, value: impl Into<AlbumId>) -> Self {
+        self.id = value.into();
         self
     }
-
-    ///Sets `is_activity_enabled`.
+    /// Sets `is_activity_enabled`.
     #[must_use]
     pub fn is_activity_enabled(mut self, value: bool) -> Self {
         self.is_activity_enabled = value;
         self
     }
-
-    ///Sets `last_modified_asset_timestamp`.
+    /// Sets `last_modified_asset_timestamp`.
     #[must_use]
     pub fn last_modified_asset_timestamp(mut self, value: ::chrono::DateTime<::chrono::offset::Utc>) -> Self {
         self.last_modified_asset_timestamp = Some(value);
         self
     }
-
-    ///Sets or clears `last_modified_asset_timestamp`.
+    /// Sets or clears `last_modified_asset_timestamp`.
     #[must_use]
     pub fn set_last_modified_asset_timestamp(
         mut self,
@@ -257,43 +249,37 @@ impl AlbumResponseDTO {
         self.last_modified_asset_timestamp = value;
         self
     }
-
-    ///Sets `order`.
+    /// Sets `order`.
     #[must_use]
     pub fn order(mut self, value: AssetOrder) -> Self {
         self.order = Some(value);
         self
     }
-
-    ///Sets or clears `order`.
+    /// Sets or clears `order`.
     #[must_use]
     pub fn set_order(mut self, value: Option<AssetOrder>) -> Self {
         self.order = value;
         self
     }
-
-    ///Sets `shared`.
+    /// Sets `shared`.
     #[must_use]
     pub fn shared(mut self, value: bool) -> Self {
         self.shared = value;
         self
     }
-
-    ///Sets `start_date`.
+    /// Sets `start_date`.
     #[must_use]
     pub fn start_date(mut self, value: ::chrono::DateTime<::chrono::offset::Utc>) -> Self {
         self.start_date = Some(value);
         self
     }
-
-    ///Sets or clears `start_date`.
+    /// Sets or clears `start_date`.
     #[must_use]
     pub fn set_start_date(mut self, value: Option<::chrono::DateTime<::chrono::offset::Utc>>) -> Self {
         self.start_date = value;
         self
     }
-
-    ///Sets `updated_at`.
+    /// Sets `updated_at`.
     #[must_use]
     pub fn updated_at(mut self, value: ::chrono::DateTime<::chrono::offset::Utc>) -> Self {
         self.updated_at = value;
@@ -310,17 +296,20 @@ impl AlbumResponseDTO {
 /// | `shared` | `i64` | ✓ | Number of shared albums |
 ///
 /// See: <https://api.immich.app/models/AlbumStatisticsResponseDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct AlbumStatisticsResponseDTO {
     /// Number of non-shared albums (required)
     #[serde(rename = "notShared")]
     pub not_shared: i64,
+    /// Number of owned albums (required)
     pub owned: i64,
+    /// Number of shared albums (required)
     pub shared: i64,
 }
 
 impl AlbumStatisticsResponseDTO {
-    ///Creates a new [`AlbumStatisticsResponseDTO`].
+    /// Creates a new [`AlbumStatisticsResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(not_shared: i64, owned: i64, shared: i64) -> Self {
@@ -330,22 +319,19 @@ impl AlbumStatisticsResponseDTO {
             shared,
         }
     }
-
-    ///Sets `not_shared`.
+    /// Sets `not_shared`.
     #[must_use]
     pub fn not_shared(mut self, value: i64) -> Self {
         self.not_shared = value;
         self
     }
-
-    ///Sets `owned`.
+    /// Sets `owned`.
     #[must_use]
     pub fn owned(mut self, value: i64) -> Self {
         self.owned = value;
         self
     }
-
-    ///Sets `shared`.
+    /// Sets `shared`.
     #[must_use]
     pub fn shared(mut self, value: i64) -> Self {
         self.shared = value;
@@ -358,40 +344,40 @@ impl AlbumStatisticsResponseDTO {
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
 /// | `role` | [`AlbumUserRole`] |  | Album user role |
-/// | `user_id` | [`Uuid`](::uuid::Uuid) | ✓ | User ID |
+/// | `user_id` | [`UserId`](crate::id::UserId) | ✓ | User ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 ///
 /// See: <https://api.immich.app/models/AlbumUserAddDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct AlbumUserAddDTO {
+    /// Album user role
     #[serde(default = "crate::common::defaults::album_user_add_dto_role")]
     pub role: AlbumUserRole,
-    /// User ID (required)
+    /// User ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
     #[serde(rename = "userId")]
-    pub user_id: ::uuid::Uuid,
+    pub user_id: UserId,
 }
 
 impl AlbumUserAddDTO {
-    ///Creates a new [`AlbumUserAddDTO`].
+    /// Creates a new [`AlbumUserAddDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(user_id: ::uuid::Uuid) -> Self {
+    pub fn new(user_id: impl Into<UserId>) -> Self {
         Self {
             role: crate::common::defaults::album_user_add_dto_role(),
-            user_id,
+            user_id: user_id.into(),
         }
     }
-
-    ///Sets `role`.
+    /// Sets `role`.
     #[must_use]
     pub fn role(mut self, value: AlbumUserRole) -> Self {
         self.role = value;
         self
     }
-
-    ///Sets `user_id`.
+    /// Sets `user_id`.
     #[must_use]
-    pub fn user_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.user_id = value;
+    pub fn user_id(mut self, value: impl Into<UserId>) -> Self {
+        self.user_id = value.into();
         self
     }
 }
@@ -401,36 +387,39 @@ impl AlbumUserAddDTO {
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
 /// | `role` | [`AlbumUserRole`] | ✓ |  |
-/// | `user_id` | [`Uuid`](::uuid::Uuid) | ✓ | User ID |
+/// | `user_id` | [`UserId`](crate::id::UserId) | ✓ | User ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 ///
 /// See: <https://api.immich.app/models/AlbumUserCreateDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct AlbumUserCreateDTO {
+    /// (required)
     pub role: AlbumUserRole,
-    /// User ID (required)
+    /// User ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
     #[serde(rename = "userId")]
-    pub user_id: ::uuid::Uuid,
+    pub user_id: UserId,
 }
 
 impl AlbumUserCreateDTO {
-    ///Creates a new [`AlbumUserCreateDTO`].
+    /// Creates a new [`AlbumUserCreateDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(role: AlbumUserRole, user_id: ::uuid::Uuid) -> Self {
-        Self { role, user_id }
+    pub fn new(role: AlbumUserRole, user_id: impl Into<UserId>) -> Self {
+        Self {
+            role,
+            user_id: user_id.into(),
+        }
     }
-
-    ///Sets `role`.
+    /// Sets `role`.
     #[must_use]
     pub fn role(mut self, value: AlbumUserRole) -> Self {
         self.role = value;
         self
     }
-
-    ///Sets `user_id`.
+    /// Sets `user_id`.
     #[must_use]
-    pub fn user_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.user_id = value;
+    pub fn user_id(mut self, value: impl Into<UserId>) -> Self {
+        self.user_id = value.into();
         self
     }
 }
@@ -443,28 +432,29 @@ impl AlbumUserCreateDTO {
 /// | `user` | [`UserResponseDTO`] | ✓ |  |
 ///
 /// See: <https://api.immich.app/models/AlbumUserResponseDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct AlbumUserResponseDTO {
+    /// (required)
     pub role: AlbumUserRole,
+    /// (required)
     pub user: UserResponseDTO,
 }
 
 impl AlbumUserResponseDTO {
-    ///Creates a new [`AlbumUserResponseDTO`].
+    /// Creates a new [`AlbumUserResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(role: AlbumUserRole, user: UserResponseDTO) -> Self {
         Self { role, user }
     }
-
-    ///Sets `role`.
+    /// Sets `role`.
     #[must_use]
     pub fn role(mut self, value: AlbumUserRole) -> Self {
         self.role = value;
         self
     }
-
-    ///Sets `user`.
+    /// Sets `user`.
     #[must_use]
     pub fn user(mut self, value: UserResponseDTO) -> Self {
         self.user = value;
@@ -475,62 +465,104 @@ impl AlbumUserResponseDTO {
 /// Album user role
 ///
 /// See: <https://api.immich.app/models/AlbumUserRole>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[non_exhaustive]
 pub enum AlbumUserRole {
-    #[serde(rename = "editor")]
     Editor,
-    #[serde(rename = "owner")]
     Owner,
-    #[serde(rename = "viewer")]
     Viewer,
-    ///Unknown value returned by a newer version of the Immich server.
-    #[serde(other)]
-    UnknownValue,
+    /// Unknown value returned by a newer version of the Immich server.
+    Unknown(String),
 }
 
-#[allow(clippy::match_same_arms)]
+impl AlbumUserRole {
+    /// Returns the wire string representation of this enum value.
+    #[must_use]
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::Editor => "editor",
+            Self::Owner => "owner",
+            Self::Viewer => "viewer",
+            Self::Unknown(s) => s.as_str(),
+        }
+    }
+}
+
 impl ::std::fmt::Display for AlbumUserRole {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        match *self {
-            Self::Editor => f.write_str("editor"),
-            Self::Owner => f.write_str("owner"),
-            Self::Viewer => f.write_str("viewer"),
-            Self::UnknownValue => f.write_str("unknown"),
+        f.write_str(self.as_str())
+    }
+}
+
+impl From<&str> for AlbumUserRole {
+    fn from(value: &str) -> Self {
+        match value {
+            "editor" => Self::Editor,
+            "owner" => Self::Owner,
+            "viewer" => Self::Viewer,
+            other => Self::Unknown(other.to_owned()),
         }
+    }
+}
+
+impl From<String> for AlbumUserRole {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "editor" => Self::Editor,
+            "owner" => Self::Owner,
+            "viewer" => Self::Viewer,
+            _ => Self::Unknown(value),
+        }
+    }
+}
+
+impl From<&String> for AlbumUserRole {
+    fn from(value: &String) -> Self {
+        Self::from(value.as_str())
     }
 }
 
 impl ::std::str::FromStr for AlbumUserRole {
-    type Err = crate::common::error::ConversionError;
-    fn from_str(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        match value {
-            "editor" => Ok(Self::Editor),
-            "owner" => Ok(Self::Owner),
-            "viewer" => Ok(Self::Viewer),
-            _ => Err(format!("invalid value for {}: {}", "AlbumUserRole", value).into()),
+    type Err = ::std::convert::Infallible;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        Ok(Self::from(value))
+    }
+}
+
+impl ::serde::Serialize for AlbumUserRole {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: ::serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+
+impl<'de> ::serde::Deserialize<'de> for AlbumUserRole {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        struct EnumVisitor;
+        impl ::serde::de::Visitor<'_> for EnumVisitor {
+            type Value = AlbumUserRole;
+            fn expecting(&self, formatter: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                formatter.write_str("a string")
+            }
+            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(AlbumUserRole::from(value))
+            }
+            fn visit_string<E>(self, value: String) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(AlbumUserRole::from(value))
+            }
         }
-    }
-}
-
-impl TryFrom<&str> for AlbumUserRole {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<&String> for AlbumUserRole {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<String> for AlbumUserRole {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
+        deserializer.deserialize_str(EnumVisitor)
     }
 }
 
@@ -538,39 +570,44 @@ impl TryFrom<String> for AlbumUserRole {
 ///
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
-/// | `album_ids` | [`Vec<Uuid>`](::uuid::Uuid) | ✓ | Album IDs |
-/// | `asset_ids` | [`Vec<Uuid>`](::uuid::Uuid) | ✓ | Asset IDs |
+/// | `album_ids` | [`Vec<AlbumId>`](crate::id::AlbumId) | ✓ | Album IDs |
+/// | `asset_ids` | [`Vec<AssetId>`](crate::id::AssetId) | ✓ | Asset IDs |
 ///
 /// See: <https://api.immich.app/models/AlbumsAddAssetsDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct AlbumsAddAssetsDTO {
     /// Album IDs (required)
     #[serde(rename = "albumIds")]
-    pub album_ids: Vec<::uuid::Uuid>,
+    pub album_ids: Vec<AlbumId>,
     /// Asset IDs (required)
     #[serde(rename = "assetIds")]
-    pub asset_ids: Vec<::uuid::Uuid>,
+    pub asset_ids: Vec<AssetId>,
 }
 
 impl AlbumsAddAssetsDTO {
-    ///Creates a new [`AlbumsAddAssetsDTO`].
+    /// Creates a new [`AlbumsAddAssetsDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(album_ids: Vec<::uuid::Uuid>, asset_ids: Vec<::uuid::Uuid>) -> Self {
-        Self { album_ids, asset_ids }
+    pub fn new(
+        album_ids: impl IntoIterator<Item = impl Into<AlbumId>>,
+        asset_ids: impl IntoIterator<Item = impl Into<AssetId>>,
+    ) -> Self {
+        Self {
+            album_ids: album_ids.into_iter().map(Into::into).collect(),
+            asset_ids: asset_ids.into_iter().map(Into::into).collect(),
+        }
     }
-
-    ///Sets `album_ids`.
+    /// Sets `album_ids`.
     #[must_use]
-    pub fn album_ids(mut self, value: Vec<::uuid::Uuid>) -> Self {
-        self.album_ids = value;
+    pub fn album_ids(mut self, value: impl IntoIterator<Item = impl Into<AlbumId>>) -> Self {
+        self.album_ids = value.into_iter().map(Into::into).collect();
         self
     }
-
-    ///Sets `asset_ids`.
+    /// Sets `asset_ids`.
     #[must_use]
-    pub fn asset_ids(mut self, value: Vec<::uuid::Uuid>) -> Self {
-        self.asset_ids = value;
+    pub fn asset_ids(mut self, value: impl IntoIterator<Item = impl Into<AssetId>>) -> Self {
+        self.asset_ids = value.into_iter().map(Into::into).collect();
         self
     }
 }
@@ -583,36 +620,35 @@ impl AlbumsAddAssetsDTO {
 /// | `success` | `bool` | ✓ | Operation success |
 ///
 /// See: <https://api.immich.app/models/AlbumsAddAssetsResponseDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct AlbumsAddAssetsResponseDTO {
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub error: Option<BulkIdErrorReason>,
+    /// Operation success (required)
     pub success: bool,
 }
 
 impl AlbumsAddAssetsResponseDTO {
-    ///Creates a new [`AlbumsAddAssetsResponseDTO`].
+    /// Creates a new [`AlbumsAddAssetsResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(success: bool) -> Self {
         Self { error: None, success }
     }
-
-    ///Sets `error`.
+    /// Sets `error`.
     #[must_use]
     pub fn error(mut self, value: BulkIdErrorReason) -> Self {
         self.error = Some(value);
         self
     }
-
-    ///Sets or clears `error`.
+    /// Sets or clears `error`.
     #[must_use]
     pub fn set_error(mut self, value: Option<BulkIdErrorReason>) -> Self {
         self.error = value;
         self
     }
-
-    ///Sets `success`.
+    /// Sets `success`.
     #[must_use]
     pub fn success(mut self, value: bool) -> Self {
         self.success = value;
@@ -623,128 +659,212 @@ impl AlbumsAddAssetsResponseDTO {
 /// Asset sort order
 ///
 /// See: <https://api.immich.app/models/AssetOrder>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[non_exhaustive]
 pub enum AssetOrder {
-    #[serde(rename = "asc")]
     Asc,
-    #[serde(rename = "desc")]
     Desc,
-    ///Unknown value returned by a newer version of the Immich server.
-    #[serde(other)]
-    UnknownValue,
+    /// Unknown value returned by a newer version of the Immich server.
+    Unknown(String),
 }
 
-#[allow(clippy::match_same_arms)]
+impl AssetOrder {
+    /// Returns the wire string representation of this enum value.
+    #[must_use]
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::Asc => "asc",
+            Self::Desc => "desc",
+            Self::Unknown(s) => s.as_str(),
+        }
+    }
+}
+
 impl ::std::fmt::Display for AssetOrder {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        match *self {
-            Self::Asc => f.write_str("asc"),
-            Self::Desc => f.write_str("desc"),
-            Self::UnknownValue => f.write_str("unknown"),
+        f.write_str(self.as_str())
+    }
+}
+
+impl From<&str> for AssetOrder {
+    fn from(value: &str) -> Self {
+        match value {
+            "asc" => Self::Asc,
+            "desc" => Self::Desc,
+            other => Self::Unknown(other.to_owned()),
         }
+    }
+}
+
+impl From<String> for AssetOrder {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "asc" => Self::Asc,
+            "desc" => Self::Desc,
+            _ => Self::Unknown(value),
+        }
+    }
+}
+
+impl From<&String> for AssetOrder {
+    fn from(value: &String) -> Self {
+        Self::from(value.as_str())
     }
 }
 
 impl ::std::str::FromStr for AssetOrder {
-    type Err = crate::common::error::ConversionError;
-    fn from_str(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        match value {
-            "asc" => Ok(Self::Asc),
-            "desc" => Ok(Self::Desc),
-            _ => Err(format!("invalid value for {}: {}", "AssetOrder", value).into()),
+    type Err = ::std::convert::Infallible;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        Ok(Self::from(value))
+    }
+}
+
+impl ::serde::Serialize for AssetOrder {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: ::serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+
+impl<'de> ::serde::Deserialize<'de> for AssetOrder {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        struct EnumVisitor;
+        impl ::serde::de::Visitor<'_> for EnumVisitor {
+            type Value = AssetOrder;
+            fn expecting(&self, formatter: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                formatter.write_str("a string")
+            }
+            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(AssetOrder::from(value))
+            }
+            fn visit_string<E>(self, value: String) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(AssetOrder::from(value))
+            }
         }
-    }
-}
-
-impl TryFrom<&str> for AssetOrder {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<&String> for AssetOrder {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<String> for AssetOrder {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
+        deserializer.deserialize_str(EnumVisitor)
     }
 }
 
 /// Error reason
 ///
 /// See: <https://api.immich.app/models/BulkIdErrorReason>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[non_exhaustive]
 pub enum BulkIdErrorReason {
-    #[serde(rename = "duplicate")]
     Duplicate,
-    #[serde(rename = "no_permission")]
     NoPermission,
-    #[serde(rename = "not_found")]
     NotFound,
-    #[serde(rename = "unknown")]
     Unknown,
-    #[serde(rename = "validation")]
     Validation,
-    ///Unknown value returned by a newer version of the Immich server.
-    #[serde(other)]
-    UnknownValue,
+    /// Unknown value returned by a newer version of the Immich server.
+    UnknownValue(String),
 }
 
-#[allow(clippy::match_same_arms)]
+impl BulkIdErrorReason {
+    /// Returns the wire string representation of this enum value.
+    #[must_use]
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::Duplicate => "duplicate",
+            Self::NoPermission => "no_permission",
+            Self::NotFound => "not_found",
+            Self::Unknown => "unknown",
+            Self::Validation => "validation",
+            Self::UnknownValue(s) => s.as_str(),
+        }
+    }
+}
+
 impl ::std::fmt::Display for BulkIdErrorReason {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        match *self {
-            Self::Duplicate => f.write_str("duplicate"),
-            Self::NoPermission => f.write_str("no_permission"),
-            Self::NotFound => f.write_str("not_found"),
-            Self::Unknown => f.write_str("unknown"),
-            Self::Validation => f.write_str("validation"),
-            Self::UnknownValue => f.write_str("unknown"),
+        f.write_str(self.as_str())
+    }
+}
+
+impl From<&str> for BulkIdErrorReason {
+    fn from(value: &str) -> Self {
+        match value {
+            "duplicate" => Self::Duplicate,
+            "no_permission" => Self::NoPermission,
+            "not_found" => Self::NotFound,
+            "unknown" => Self::Unknown,
+            "validation" => Self::Validation,
+            other => Self::UnknownValue(other.to_owned()),
         }
+    }
+}
+
+impl From<String> for BulkIdErrorReason {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "duplicate" => Self::Duplicate,
+            "no_permission" => Self::NoPermission,
+            "not_found" => Self::NotFound,
+            "unknown" => Self::Unknown,
+            "validation" => Self::Validation,
+            _ => Self::UnknownValue(value),
+        }
+    }
+}
+
+impl From<&String> for BulkIdErrorReason {
+    fn from(value: &String) -> Self {
+        Self::from(value.as_str())
     }
 }
 
 impl ::std::str::FromStr for BulkIdErrorReason {
-    type Err = crate::common::error::ConversionError;
-    fn from_str(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        match value {
-            "duplicate" => Ok(Self::Duplicate),
-            "no_permission" => Ok(Self::NoPermission),
-            "not_found" => Ok(Self::NotFound),
-            "unknown" => Ok(Self::Unknown),
-            "validation" => Ok(Self::Validation),
-            _ => Err(format!("invalid value for {}: {}", "BulkIdErrorReason", value).into()),
+    type Err = ::std::convert::Infallible;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        Ok(Self::from(value))
+    }
+}
+
+impl ::serde::Serialize for BulkIdErrorReason {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: ::serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+
+impl<'de> ::serde::Deserialize<'de> for BulkIdErrorReason {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        struct EnumVisitor;
+        impl ::serde::de::Visitor<'_> for EnumVisitor {
+            type Value = BulkIdErrorReason;
+            fn expecting(&self, formatter: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                formatter.write_str("a string")
+            }
+            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(BulkIdErrorReason::from(value))
+            }
+            fn visit_string<E>(self, value: String) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(BulkIdErrorReason::from(value))
+            }
         }
-    }
-}
-
-impl TryFrom<&str> for BulkIdErrorReason {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<&String> for BulkIdErrorReason {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<String> for BulkIdErrorReason {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
+        deserializer.deserialize_str(EnumVisitor)
     }
 }
 
@@ -754,11 +874,12 @@ impl TryFrom<String> for BulkIdErrorReason {
 /// |-------|------|:--------:|-------------|
 /// | `error` | [`BulkIdErrorReason`] |  |  |
 /// | `error_message` | [`String`] |  |  |
-/// | `id` | [`Uuid`](::uuid::Uuid) | ✓ | ID |
+/// | `id` | [`Uuid`](::uuid::Uuid) | ✓ | ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 /// | `success` | `bool` | ✓ | Whether operation succeeded |
 ///
 /// See: <https://api.immich.app/models/BulkIdResponseDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct BulkIdResponseDTO {
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub error: Option<BulkIdErrorReason>,
@@ -768,12 +889,14 @@ pub struct BulkIdResponseDTO {
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub error_message: Option<String>,
+    /// ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
     pub id: ::uuid::Uuid,
+    /// Whether operation succeeded (required)
     pub success: bool,
 }
 
 impl BulkIdResponseDTO {
-    ///Creates a new [`BulkIdResponseDTO`].
+    /// Creates a new [`BulkIdResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(id: ::uuid::Uuid, success: bool) -> Self {
@@ -784,43 +907,37 @@ impl BulkIdResponseDTO {
             success,
         }
     }
-
-    ///Sets `error`.
+    /// Sets `error`.
     #[must_use]
     pub fn error(mut self, value: BulkIdErrorReason) -> Self {
         self.error = Some(value);
         self
     }
-
-    ///Sets or clears `error`.
+    /// Sets or clears `error`.
     #[must_use]
     pub fn set_error(mut self, value: Option<BulkIdErrorReason>) -> Self {
         self.error = value;
         self
     }
-
-    ///Sets `error_message`.
+    /// Sets `error_message`.
     #[must_use]
     pub fn error_message(mut self, value: impl Into<String>) -> Self {
         self.error_message = Some(value.into());
         self
     }
-
-    ///Sets or clears `error_message`.
+    /// Sets or clears `error_message`.
     #[must_use]
     pub fn set_error_message(mut self, value: Option<String>) -> Self {
         self.error_message = value;
         self
     }
-
-    ///Sets `id`.
+    /// Sets `id`.
     #[must_use]
     pub fn id(mut self, value: ::uuid::Uuid) -> Self {
         self.id = value;
         self
     }
-
-    ///Sets `success`.
+    /// Sets `success`.
     #[must_use]
     pub fn success(mut self, value: bool) -> Self {
         self.success = value;
@@ -835,23 +952,26 @@ impl BulkIdResponseDTO {
 /// | `ids` | [`Vec<Uuid>`](::uuid::Uuid) | ✓ | IDs to process |
 ///
 /// See: <https://api.immich.app/models/BulkIdsDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct BulkIdsDTO {
+    /// IDs to process (required)
     pub ids: Vec<::uuid::Uuid>,
 }
 
 impl BulkIdsDTO {
-    ///Creates a new [`BulkIdsDTO`].
+    /// Creates a new [`BulkIdsDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(ids: Vec<::uuid::Uuid>) -> Self {
-        Self { ids }
+    pub fn new(ids: impl IntoIterator<Item = impl Into<::uuid::Uuid>>) -> Self {
+        Self {
+            ids: ids.into_iter().map(Into::into).collect(),
+        }
     }
-
-    ///Sets `ids`.
+    /// Sets `ids`.
     #[must_use]
-    pub fn ids(mut self, value: Vec<::uuid::Uuid>) -> Self {
-        self.ids = value;
+    pub fn ids(mut self, value: impl IntoIterator<Item = impl Into<::uuid::Uuid>>) -> Self {
+        self.ids = value.into_iter().map(Into::into).collect();
         self
     }
 }
@@ -861,38 +981,40 @@ impl BulkIdsDTO {
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
 /// | `asset_count` | `i64` | ✓ | Number of assets contributed |
-/// | `user_id` | [`Uuid`](::uuid::Uuid) | ✓ | User ID |
+/// | `user_id` | [`UserId`](crate::id::UserId) | ✓ | User ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 ///
 /// See: <https://api.immich.app/models/ContributorCountResponseDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct ContributorCountResponseDTO {
     /// Number of assets contributed (required)
     #[serde(rename = "assetCount")]
     pub asset_count: i64,
-    /// User ID (required)
+    /// User ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
     #[serde(rename = "userId")]
-    pub user_id: ::uuid::Uuid,
+    pub user_id: UserId,
 }
 
 impl ContributorCountResponseDTO {
-    ///Creates a new [`ContributorCountResponseDTO`].
+    /// Creates a new [`ContributorCountResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(asset_count: i64, user_id: ::uuid::Uuid) -> Self {
-        Self { asset_count, user_id }
+    pub fn new(asset_count: i64, user_id: impl Into<UserId>) -> Self {
+        Self {
+            asset_count,
+            user_id: user_id.into(),
+        }
     }
-
-    ///Sets `asset_count`.
+    /// Sets `asset_count`.
     #[must_use]
     pub fn asset_count(mut self, value: i64) -> Self {
         self.asset_count = value;
         self
     }
-
-    ///Sets `user_id`.
+    /// Sets `user_id`.
     #[must_use]
-    pub fn user_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.user_id = value;
+    pub fn user_id(mut self, value: impl Into<UserId>) -> Self {
+        self.user_id = value.into();
         self
     }
 }
@@ -903,11 +1025,12 @@ impl ContributorCountResponseDTO {
 /// |-------|------|:--------:|-------------|
 /// | `album_name` | [`String`] | ✓ | Album name |
 /// | `album_users` | [`Vec<AlbumUserCreateDTO>`](crate::albums::AlbumUserCreateDTO) |  | Album users |
-/// | `asset_ids` | [`Vec<Uuid>`](::uuid::Uuid) |  | Initial asset IDs |
+/// | `asset_ids` | [`Vec<AssetId>`](crate::id::AssetId) |  | Initial asset IDs |
 /// | `description` | [`String`] |  | Album description |
 ///
 /// See: <https://api.immich.app/models/CreateAlbumDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct CreateAlbumDTO {
     /// Album name (required)
     #[serde(rename = "albumName")]
@@ -917,13 +1040,14 @@ pub struct CreateAlbumDTO {
     pub album_users: Vec<AlbumUserCreateDTO>,
     /// Initial asset IDs
     #[serde(rename = "assetIds", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
-    pub asset_ids: Vec<::uuid::Uuid>,
+    pub asset_ids: Vec<AssetId>,
+    /// Album description
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub description: Option<String>,
 }
 
 impl CreateAlbumDTO {
-    ///Creates a new [`CreateAlbumDTO`].
+    /// Creates a new [`CreateAlbumDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(album_name: impl Into<String>) -> Self {
@@ -934,36 +1058,31 @@ impl CreateAlbumDTO {
             description: None,
         }
     }
-
-    ///Sets `album_name`.
+    /// Sets `album_name`.
     #[must_use]
     pub fn album_name(mut self, value: impl Into<String>) -> Self {
         self.album_name = value.into();
         self
     }
-
-    ///Sets `album_users`.
+    /// Sets `album_users`.
     #[must_use]
-    pub fn album_users(mut self, value: Vec<AlbumUserCreateDTO>) -> Self {
-        self.album_users = value;
+    pub fn album_users(mut self, value: impl IntoIterator<Item = AlbumUserCreateDTO>) -> Self {
+        self.album_users = value.into_iter().collect();
         self
     }
-
-    ///Sets `asset_ids`.
+    /// Sets `asset_ids`.
     #[must_use]
-    pub fn asset_ids(mut self, value: Vec<::uuid::Uuid>) -> Self {
-        self.asset_ids = value;
+    pub fn asset_ids(mut self, value: impl IntoIterator<Item = impl Into<AssetId>>) -> Self {
+        self.asset_ids = value.into_iter().map(Into::into).collect();
         self
     }
-
-    ///Sets `description`.
+    /// Sets `description`.
     #[must_use]
     pub fn description(mut self, value: impl Into<String>) -> Self {
         self.description = Some(value.into());
         self
     }
-
-    ///Sets or clears `description`.
+    /// Sets or clears `description`.
     #[must_use]
     pub fn set_description(mut self, value: Option<String>) -> Self {
         self.description = value;
@@ -977,97 +1096,92 @@ impl CreateAlbumDTO {
 /// |-------|------|:--------:|-------------|
 /// | `city` | [`String`] | ✓ | City name |
 /// | `country` | [`String`] | ✓ | Country name |
-/// | `id` | [`Uuid`](::uuid::Uuid) | ✓ | Asset ID |
+/// | `id` | [`AssetId`](crate::id::AssetId) | ✓ | Asset ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 /// | `lat` | `f64` | ✓ | Latitude |
 /// | `lon` | `f64` | ✓ | Longitude |
 /// | `state` | [`String`] | ✓ | State/Province name |
 ///
 /// See: <https://api.immich.app/models/MapMarkerResponseDto>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct MapMarkerResponseDTO {
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// City name (required)
     pub city: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Country name (required)
     pub country: Option<String>,
-    pub id: ::uuid::Uuid,
+    /// Asset ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
+    pub id: AssetId,
+    /// Latitude (required)
     pub lat: f64,
+    /// Longitude (required)
     pub lon: f64,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// State/Province name (required)
     pub state: Option<String>,
 }
 
 impl MapMarkerResponseDTO {
-    ///Creates a new [`MapMarkerResponseDTO`].
+    /// Creates a new [`MapMarkerResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(id: ::uuid::Uuid, lat: f64, lon: f64) -> Self {
+    pub fn new(id: impl Into<AssetId>, lat: f64, lon: f64) -> Self {
         Self {
             city: None,
             country: None,
-            id,
+            id: id.into(),
             lat,
             lon,
             state: None,
         }
     }
-
-    ///Sets `city`.
+    /// Sets `city`.
     #[must_use]
     pub fn city(mut self, value: impl Into<String>) -> Self {
         self.city = Some(value.into());
         self
     }
-
-    ///Sets or clears `city`.
+    /// Sets or clears `city`.
     #[must_use]
     pub fn set_city(mut self, value: Option<String>) -> Self {
         self.city = value;
         self
     }
-
-    ///Sets `country`.
+    /// Sets `country`.
     #[must_use]
     pub fn country(mut self, value: impl Into<String>) -> Self {
         self.country = Some(value.into());
         self
     }
-
-    ///Sets or clears `country`.
+    /// Sets or clears `country`.
     #[must_use]
     pub fn set_country(mut self, value: Option<String>) -> Self {
         self.country = value;
         self
     }
-
-    ///Sets `id`.
+    /// Sets `id`.
     #[must_use]
-    pub fn id(mut self, value: ::uuid::Uuid) -> Self {
-        self.id = value;
+    pub fn id(mut self, value: impl Into<AssetId>) -> Self {
+        self.id = value.into();
         self
     }
-
-    ///Sets `lat`.
+    /// Sets `lat`.
     #[must_use]
     pub fn lat(mut self, value: f64) -> Self {
         self.lat = value;
         self
     }
-
-    ///Sets `lon`.
+    /// Sets `lon`.
     #[must_use]
     pub fn lon(mut self, value: f64) -> Self {
         self.lon = value;
         self
     }
-
-    ///Sets `state`.
+    /// Sets `state`.
     #[must_use]
     pub fn state(mut self, value: impl Into<String>) -> Self {
         self.state = Some(value.into());
         self
     }
-
-    ///Sets or clears `state`.
+    /// Sets or clears `state`.
     #[must_use]
     pub fn set_state(mut self, value: Option<String>) -> Self {
         self.state = value;
@@ -1080,13 +1194,14 @@ impl MapMarkerResponseDTO {
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
 /// | `album_name` | [`String`] |  | Album name |
-/// | `album_thumbnail_asset_id` | [`Uuid`](::uuid::Uuid) |  | Album thumbnail asset ID |
+/// | `album_thumbnail_asset_id` | [`AssetId`](crate::id::AssetId) |  | Album thumbnail asset ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 /// | `description` | [`String`] |  | Album description |
 /// | `is_activity_enabled` | `bool` |  | Enable activity feed |
 /// | `order` | [`AssetOrder`] |  |  |
 ///
 /// See: <https://api.immich.app/models/UpdateAlbumDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[non_exhaustive]
 pub struct UpdateAlbumDTO {
     /// Album name
     #[serde(
@@ -1095,13 +1210,14 @@ pub struct UpdateAlbumDTO {
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub album_name: Option<String>,
-    /// Album thumbnail asset ID
+    /// Album thumbnail asset ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
     #[serde(
         rename = "albumThumbnailAssetId",
         default,
         skip_serializing_if = "::std::option::Option::is_none"
     )]
-    pub album_thumbnail_asset_id: Option<::uuid::Uuid>,
+    pub album_thumbnail_asset_id: Option<AssetId>,
+    /// Album description
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub description: Option<String>,
     /// Enable activity feed
@@ -1116,7 +1232,7 @@ pub struct UpdateAlbumDTO {
 }
 
 impl UpdateAlbumDTO {
-    ///Creates a new [`UpdateAlbumDTO`].
+    /// Creates a new [`UpdateAlbumDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new() -> Self {
@@ -1128,71 +1244,61 @@ impl UpdateAlbumDTO {
             order: None,
         }
     }
-
-    ///Sets `album_name`.
+    /// Sets `album_name`.
     #[must_use]
     pub fn album_name(mut self, value: impl Into<String>) -> Self {
         self.album_name = Some(value.into());
         self
     }
-
-    ///Sets or clears `album_name`.
+    /// Sets or clears `album_name`.
     #[must_use]
     pub fn set_album_name(mut self, value: Option<String>) -> Self {
         self.album_name = value;
         self
     }
-
-    ///Sets `album_thumbnail_asset_id`.
+    /// Sets `album_thumbnail_asset_id`.
     #[must_use]
-    pub fn album_thumbnail_asset_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.album_thumbnail_asset_id = Some(value);
+    pub fn album_thumbnail_asset_id(mut self, value: impl Into<AssetId>) -> Self {
+        self.album_thumbnail_asset_id = Some(value.into());
         self
     }
-
-    ///Sets or clears `album_thumbnail_asset_id`.
+    /// Sets or clears `album_thumbnail_asset_id`.
     #[must_use]
-    pub fn set_album_thumbnail_asset_id(mut self, value: Option<::uuid::Uuid>) -> Self {
+    pub fn set_album_thumbnail_asset_id(mut self, value: Option<AssetId>) -> Self {
         self.album_thumbnail_asset_id = value;
         self
     }
-
-    ///Sets `description`.
+    /// Sets `description`.
     #[must_use]
     pub fn description(mut self, value: impl Into<String>) -> Self {
         self.description = Some(value.into());
         self
     }
-
-    ///Sets or clears `description`.
+    /// Sets or clears `description`.
     #[must_use]
     pub fn set_description(mut self, value: Option<String>) -> Self {
         self.description = value;
         self
     }
-
-    ///Sets `is_activity_enabled`.
+    /// Sets `is_activity_enabled`.
     #[must_use]
     pub fn is_activity_enabled(mut self, value: bool) -> Self {
         self.is_activity_enabled = Some(value);
         self
     }
-
-    ///Sets or clears `is_activity_enabled`.
+    /// Sets or clears `is_activity_enabled`.
     #[must_use]
     pub fn set_is_activity_enabled(mut self, value: Option<bool>) -> Self {
         self.is_activity_enabled = value;
         self
     }
-
-    ///Sets `order`.
+    /// Sets `order`.
     #[must_use]
     pub fn order(mut self, value: AssetOrder) -> Self {
         self.order = Some(value);
         self
     }
-
-    ///Sets or clears `order`.
+    /// Sets or clears `order`.
     #[must_use]
     pub fn set_order(mut self, value: Option<AssetOrder>) -> Self {
         self.order = value;
@@ -1207,20 +1313,21 @@ impl UpdateAlbumDTO {
 /// | `role` | [`AlbumUserRole`] | ✓ |  |
 ///
 /// See: <https://api.immich.app/models/UpdateAlbumUserDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct UpdateAlbumUserDTO {
+    /// (required)
     pub role: AlbumUserRole,
 }
 
 impl UpdateAlbumUserDTO {
-    ///Creates a new [`UpdateAlbumUserDTO`].
+    /// Creates a new [`UpdateAlbumUserDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(role: AlbumUserRole) -> Self {
         Self { role }
     }
-
-    ///Sets `role`.
+    /// Sets `role`.
     #[must_use]
     pub fn role(mut self, value: AlbumUserRole) -> Self {
         self.role = value;

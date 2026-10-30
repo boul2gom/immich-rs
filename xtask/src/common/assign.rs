@@ -1,26 +1,16 @@
 use std::collections::{HashMap, HashSet};
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct RuleTracker {
     pub used_tags: HashSet<&'static str>,
     pub used_sysconfig: HashSet<&'static str>,
     pub used_prefixes: HashSet<&'static str>,
 }
 
-impl Default for RuleTracker {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl RuleTracker {
     #[must_use]
     pub fn new() -> Self {
-        Self {
-            used_tags: HashSet::new(),
-            used_sysconfig: HashSet::new(),
-            used_prefixes: HashSet::new(),
-        }
+        Self::default()
     }
 }
 
@@ -35,6 +25,29 @@ pub fn item_ident(item: &syn::Item) -> Option<String> {
     }
 }
 
+fn is_builtin_ident(name: &str) -> bool {
+    matches!(
+        name,
+        "String"
+            | "str"
+            | "i64"
+            | "f64"
+            | "bool"
+            | "usize"
+            | "isize"
+            | "u64"
+            | "u32"
+            | "i32"
+            | "Uuid"
+            | "f32"
+            | "u8"
+            | "i8"
+            | "u16"
+            | "i16"
+            | "Value"
+    ) || name.starts_with("DateTime")
+}
+
 pub fn assign_module<S1: std::hash::BuildHasher, S2: std::hash::BuildHasher>(
     item: &syn::Item,
     schema_tag_map: &HashMap<String, HashSet<String, S1>, S2>,
@@ -46,7 +59,18 @@ pub fn assign_module<S1: std::hash::BuildHasher, S2: std::hash::BuildHasher>(
             && let syn::Type::Path(tp) = i.self_ty.as_ref()
             && let Some(seg) = tp.path.segments.last()
         {
-            return assign_by_name(&seg.ident.to_string(), schema_tag_map, rename_map, tracker);
+            let self_ident = seg.ident.to_string();
+            // For `impl From<DomainNewtype> for String`, route to `DomainNewtype`'s module
+            if is_builtin_ident(&self_ident)
+                && let Some((trait_path, _)) = &i.trait_
+                && let Some(trait_seg) = trait_path.segments.last()
+                && let syn::PathArguments::AngleBracketed(args) = &trait_seg.arguments
+                && let Some(syn::GenericArgument::Type(syn::Type::Path(arg_tp))) = args.args.first()
+                && let Some(arg_seg) = arg_tp.path.segments.last()
+            {
+                return assign_by_name(&arg_seg.ident.to_string(), schema_tag_map, rename_map, tracker);
+            }
+            return assign_by_name(&self_ident, schema_tag_map, rename_map, tracker);
         }
         return "common".into();
     };
@@ -64,31 +88,30 @@ pub fn assign_by_name<S1: std::hash::BuildHasher, S2: std::hash::BuildHasher>(
     for (prefix, module) in crate::common::tables::SYSCONFIG_SUB {
         if rust_name.starts_with(prefix) {
             tracker.used_sysconfig.insert(prefix);
-            return module.to_string();
+            return (*module).to_string();
         }
     }
 
     let original = rename_map.get(rust_name).map_or(rust_name, std::string::String::as_str);
 
-    if let Some(tags) = schema_tag_map.get(original) {
-        let primary = pick_primary_tag(tags);
-        if let Some(tag) = primary {
-            if tag == "Deprecated" {
-                return "deprecated".into();
-            }
-            for (t, module) in crate::common::tables::TAG_MODULE {
-                if *t == tag {
-                    tracker.used_tags.insert(t);
-                    if *module == "system/config" {
-                        for (prefix, sub) in crate::common::tables::SYSCONFIG_SUB {
-                            if rust_name.starts_with(prefix) {
-                                tracker.used_sysconfig.insert(prefix);
-                                return sub.to_string();
-                            }
+    if let Some(tags) = schema_tag_map.get(original)
+        && let Some(tag) = pick_primary_tag(tags)
+    {
+        if tag == "Deprecated" {
+            return "deprecated".into();
+        }
+        for (t, module) in crate::common::tables::TAG_MODULE {
+            if *t == tag {
+                tracker.used_tags.insert(t);
+                if *module == "system/config" {
+                    for (prefix, sub) in crate::common::tables::SYSCONFIG_SUB {
+                        if rust_name.starts_with(prefix) {
+                            tracker.used_sysconfig.insert(prefix);
+                            return (*sub).to_string();
                         }
                     }
-                    return module.to_string();
                 }
+                return (*module).to_string();
             }
         }
     }
@@ -107,11 +130,7 @@ pub fn assign_by_name<S1: std::hash::BuildHasher, S2: std::hash::BuildHasher>(
         return module.to_string();
     }
 
-    let builtins = [
-        "String", "i64", "f64", "bool", "usize", "isize", "u64", "u32", "i32", "Uuid", "f32", "u8", "i8", "u16", "i16",
-        "Value",
-    ];
-    if builtins.contains(&rust_name) || rust_name.starts_with("DateTime") {
+    if is_builtin_ident(rust_name) {
         return "common".into();
     }
 

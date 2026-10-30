@@ -26,6 +26,7 @@ fn resolve_inner_type<S: std::hash::BuildHasher>(
 /// 1. `.into_paginator(self) -> #paginator_ident<'a>` on `#builder_ident<'a>`
 /// 2. Struct `#paginator_ident<'a>` with `.pages(self)` and `.items(self)`.
 #[must_use]
+#[allow(clippy::too_many_lines)]
 pub fn generate_paginator<S: std::hash::BuildHasher>(
     builder_ident: &proc_macro2::Ident,
     endpoint: &EndpointDef,
@@ -161,7 +162,7 @@ pub fn generate_paginator<S: std::hash::BuildHasher>(
             let skip_ident = format_ident!("{skip_param}");
 
             let pages_body = quote! {
-                let mut builder = self.builder;
+                let builder = self.builder;
                 let mut current_skip = builder.#skip_ident.unwrap_or(0);
                 let take = builder.#take_ident.unwrap_or(100);
                 async_stream::try_stream! {
@@ -215,7 +216,8 @@ pub fn generate_paginator<S: std::hash::BuildHasher>(
     (into_paginator_method, paginator_struct)
 }
 
-/// Specialized paginators for Search endpoints (`search_assets`, `search_smart`).
+/// Specialized paginators for Search endpoints (`search_assets`, `search_smart`),
+/// preserving all builder parameters (`key`, `slug`, `request_config` headers/timeouts) across pages.
 #[must_use]
 pub fn generate_search_body_paginator(
     builder_ident: &proc_macro2::Ident,
@@ -224,7 +226,6 @@ pub fn generate_search_body_paginator(
     let builder_str = builder_ident.to_string();
     let base_name = builder_str.strip_suffix("Builder").unwrap_or(&builder_str);
     let paginator_ident = format_ident!("{base_name}Paginator");
-    let method_ident = format_ident!("{method_name}");
 
     let into_paginator_method = quote! {
         /// Creates a paginator for this request, providing streams over pages or individual items.
@@ -235,6 +236,57 @@ pub fn generate_search_body_paginator(
     };
 
     let paginator_doc = format!(" Paginator for [`{builder_ident}`].");
+
+    let pages_stream_impl = if method_name == "search_assets" {
+        quote! {
+            let mut builder = self.builder;
+            async_stream::try_stream! {
+                loop {
+                    let res = builder.clone().send().await?;
+                    let assets = res.assets;
+                    let is_empty = assets.items.is_empty();
+                    let next_cursor = assets.next_cursor.filter(|c| !c.is_empty());
+                    let next_page = assets
+                        .next_page
+                        .as_deref()
+                        .and_then(|p| p.parse::<u64>().ok())
+                        .and_then(std::num::NonZeroU64::new);
+                    yield assets.items;
+                    if is_empty {
+                        break;
+                    } else if let Some(cursor) = next_cursor {
+                        builder.body.cursor = Some(cursor);
+                        builder.body.page = None;
+                    } else if let Some(page) = next_page {
+                        builder.body.page = Some(page);
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+    } else {
+        quote! {
+            let mut builder = self.builder;
+            async_stream::try_stream! {
+                loop {
+                    let res = builder.clone().send().await?;
+                    let assets = res.assets;
+                    let is_empty = assets.items.is_empty();
+                    let next_page = assets
+                        .next_page
+                        .as_deref()
+                        .and_then(|p| p.parse::<u64>().ok())
+                        .and_then(std::num::NonZeroU64::new);
+                    yield assets.items;
+                    match next_page {
+                        Some(page) if !is_empty => builder.body.page = Some(page),
+                        _ => break,
+                    }
+                }
+            }
+        }
+    };
 
     let paginator_struct = quote! {
         #[doc = #paginator_doc]
@@ -248,25 +300,7 @@ pub fn generate_search_body_paginator(
             /// Returns an asynchronous [`Stream`](futures_core::Stream) yielding pages of items.
             #[must_use = "streams do nothing unless polled"]
             pub fn pages(self) -> impl futures_core::Stream<Item = Result<Vec<immich_models::assets::AssetResponseDTO>, crate::Error>> + 'a {
-                let client = self.builder.client;
-                let mut body = (*self.builder.body).clone();
-                async_stream::try_stream! {
-                    loop {
-                        let res = client.search().#method_ident(&body).send().await?;
-                        let assets = res.assets;
-                        let is_empty = assets.items.is_empty();
-                        let next = assets
-                            .next_page
-                            .as_deref()
-                            .and_then(|p| p.parse::<u64>().ok())
-                            .and_then(std::num::NonZeroU64::new);
-                        yield assets.items;
-                        match next {
-                            Some(page) if !is_empty => body.page = Some(page),
-                            _ => break,
-                        }
-                    }
-                }
+                #pages_stream_impl
             }
 
             /// Returns an asynchronous [`Stream`](futures_core::Stream) yielding individual items, flattened across pages.

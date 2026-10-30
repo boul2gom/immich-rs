@@ -42,7 +42,7 @@ pub fn detect_paginator(op: &Value, response_schema: &Value, spec: &Value) -> Op
         }
     }
 
-    // 1. Direct array response pagination (e.g. searchMemories returning Vec<MemoryResponseDTO> with page & size)
+    // 1. Direct array response pagination (e.g. searchMemories returning Vec<MemoryResponseDto> with page & size)
     if response_schema.get("type").and_then(|t| t.as_str()) == Some("array") {
         let items_schema = &response_schema["items"];
         let (item_inner_type, _) = super::openapi::resolve_rust_type(items_schema);
@@ -94,40 +94,47 @@ pub fn detect_paginator(op: &Value, response_schema: &Value, spec: &Value) -> Op
     }
 
     if let Some(props) = schema.get("properties").and_then(|p| p.as_object()) {
-        let mut has_next_field = None;
-        let mut items_field = None;
-        let mut item_inner_type = String::new();
+        let has_next_field = if props.contains_key("nextCursor") && is_cursor {
+            Some("next_cursor".to_string())
+        } else if props.contains_key("hasNextPage") {
+            Some("has_next_page".to_string())
+        } else if props.contains_key("nextCursor") {
+            Some("next_cursor".to_string())
+        } else {
+            None
+        };
 
-        for (k, v) in props {
-            if k == "hasNextPage" || k == "nextCursor" {
-                has_next_field = Some(crate::common::camel_to_snake(k));
-            } else if v.get("type").and_then(|t| t.as_str()) == Some("array") {
-                items_field = Some(crate::common::camel_to_snake(k));
-                let items_schema = &v["items"];
-                let (rt, _) = super::openapi::resolve_rust_type(items_schema);
+        // Prioritize the explicit `"items"` property first before scanning other array properties
+        let candidate_array = props
+            .get("items")
+            .filter(|v| v.get("type").and_then(|t| t.as_str()) == Some("array"))
+            .map(|v| ("items", v))
+            .or_else(|| {
+                props
+                    .iter()
+                    .find(|(_, v)| v.get("type").and_then(|t| t.as_str()) == Some("array"))
+                    .map(|(k, v)| (k.as_str(), v))
+            });
 
-                if rt == "serde_json::Value" && k == "items" {
-                    if let Some(ref_str) = response_schema.get("$ref").and_then(|v| v.as_str()) {
-                        let name = ref_str.split('/').next_back().unwrap();
-                        let mut rust_name = name.to_string();
-                        if rust_name.ends_with("Dto") {
-                            rust_name = rust_name.replace("Dto", "");
-                        }
-                        item_inner_type = format!("{rust_name}ItemsItem");
-                    } else {
-                        item_inner_type = "serde_json::Value".to_string();
-                    }
+        if let (Some(hnf), Some((arr_key, arr_val))) = (has_next_field, candidate_array) {
+            let items_field = crate::common::camel_to_snake(arr_key);
+            let items_schema = &arr_val["items"];
+            let (rt, _) = super::openapi::resolve_rust_type(items_schema);
+            let item_inner_type = if rt == "serde_json::Value" && arr_key == "items" {
+                if let Some(ref_str) = response_schema.get("$ref").and_then(|v| v.as_str()) {
+                    let name = ref_str.split('/').next_back().unwrap();
+                    crate::common::naming::rename_type(&format!("{name}ItemsItem"))
                 } else {
-                    item_inner_type = rt;
+                    "serde_json::Value".to_string()
                 }
-            }
-        }
+            } else {
+                rt
+            };
 
-        if let (Some(hnf), Some(inf)) = (has_next_field, items_field) {
             return Some(PaginatorDef {
                 kind: PaginationKind::Wrapped {
                     has_next_field: hnf,
-                    items_field: inf,
+                    items_field,
                     is_cursor,
                 },
                 item_inner_type,

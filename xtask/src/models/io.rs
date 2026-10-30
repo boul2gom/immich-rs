@@ -1,7 +1,9 @@
+use std::fmt::Write;
+
 use super::{HashMap, HashSet, ImportCollector, Path, Result};
 use crate::common::assign::item_ident;
 
-pub fn clear_generated_dir(out_dir: &Path) -> Result<()> {
+pub(super) fn clear_generated_dir(out_dir: &Path) -> Result<()> {
     if !out_dir.exists() {
         return Ok(());
     }
@@ -17,9 +19,15 @@ pub fn clear_generated_dir(out_dir: &Path) -> Result<()> {
     Ok(())
 }
 
-pub fn write_modules(out_dir: &Path, module_items: &HashMap<String, Vec<syn::Item>>, version: &str) -> Result<()> {
-    // Map all generated types to their modules
+pub(super) fn write_modules(
+    out_dir: &Path,
+    module_items: &HashMap<String, Vec<syn::Item>>,
+    version: &str,
+) -> Result<()> {
     let mut type_to_module: HashMap<String, String> = HashMap::new();
+    for (id_name, _) in crate::common::id_mapping::ALL_TYPED_IDS {
+        type_to_module.insert((*id_name).to_string(), "id".to_string());
+    }
     for (module_path, items) in module_items {
         for item in items {
             if let Some(ident) = item_ident(item) {
@@ -36,7 +44,7 @@ pub fn write_modules(out_dir: &Path, module_items: &HashMap<String, Vec<syn::Ite
         }
 
         let last_part = module_path.split('/').next_back().unwrap_or(module_path);
-        vfs.set_module_doc(module_path, format!("//! OpenAPI data models for `{last_part}`.\n"));
+        vfs.set_module_doc(module_path, format!("//! `OpenAPI` data models for `{last_part}`.\n"));
 
         let mut all_items = items.clone();
 
@@ -64,25 +72,20 @@ pub fn write_modules(out_dir: &Path, module_items: &HashMap<String, Vec<syn::Ite
         all_items = use_items;
 
         let generated_file = syn::File {
-            frontmatter: None,
             shebang: None,
+            frontmatter: None,
             attrs: vec![],
             items: all_items,
         };
 
-        let mut code = prettyplease::unparse(&generated_file);
-        crate::common::fmt::post_process_formatting(&mut code);
-
+        let code = crate::common::fmt::unparse_with_spacing(&generated_file);
         vfs.add_file(module_path, code);
     }
 
-    vfs.set_module_doc(
-        "",
-        "//! Generated OpenAPI data models for the Immich photo and video server.\n".to_string(),
-    );
-    vfs.add_file("id", ID_RS_CONTENT.to_string());
+    vfs.set_module_doc("", "#![doc = include_str!(\"../README.md\")]\n".to_string());
+    vfs.add_file("id", render_id_module());
     let root_content = format!(
-        "pub use id::*;\n\n/// Target Immich OpenAPI version from which these models were generated.\n\
+        "pub use id::*;\n\n/// Target Immich `OpenAPI` version from which these models were generated.\n\
          pub const TARGET_IMMICH_VERSION: &str = \"{version}\";\n"
     );
     vfs.add_module_content("", root_content);
@@ -93,23 +96,36 @@ pub fn write_modules(out_dir: &Path, module_items: &HashMap<String, Vec<syn::Ite
     Ok(())
 }
 
-const ID_RS_CONTENT: &str = r#"//! Strongly typed entity identifiers for Immich.
-//!
-//! Provides type-safe wrappers around [`uuid::Uuid`] for domain entities such as
-//! [`AssetId`], [`AlbumId`], [`UserId`], [`TagId`], and others.
-//!
-//! Each identifier is `#[serde(transparent)]` and implements [`std::ops::Deref<Target = uuid::Uuid>`],
-//! allowing direct access to UUID methods while preventing accidental ID mixing at compile time.
+fn render_id_module() -> String {
+    let mut out = String::from(ID_RS_HEADER);
+    out.push('\n');
+    for (name, doc) in crate::common::id_mapping::ALL_TYPED_IDS {
+        let _ = writeln!(out, "define_id!({name}, {doc:?});");
+    }
+    out
+}
 
+const ID_RS_HEADER: &str = r"//! Strongly typed entity identifiers for Immich.
+//!
+//! Provides zero-cost `#[repr(transparent)]` wrappers around [`uuid::Uuid`] for domain entities
+//! such as [`AssetId`], [`AlbumId`], [`UserId`], [`TagId`], and others.
+//!
+//! Each identifier is `#[serde(transparent)]` and implements [`std::ops::Deref<Target = uuid::Uuid>`]
+//! and [`std::borrow::Borrow<uuid::Uuid>`], allowing direct access to UUID methods while preventing
+//! accidental ID mixing at compile time.
+
+use std::borrow::Borrow;
 use std::fmt;
 use std::ops::Deref;
 use std::str::FromStr;
+
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 macro_rules! define_id {
     ($name:ident, $doc:expr) => {
         #[doc = $doc]
+        #[repr(transparent)]
         #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
         #[serde(transparent)]
         pub struct $name(pub Uuid);
@@ -162,6 +178,13 @@ macro_rules! define_id {
             }
         }
 
+        impl Borrow<Uuid> for $name {
+            #[inline]
+            fn borrow(&self) -> &Uuid {
+                &self.0
+            }
+        }
+
         impl From<Uuid> for $name {
             #[inline]
             fn from(uuid: Uuid) -> Self {
@@ -176,10 +199,31 @@ macro_rules! define_id {
             }
         }
 
+        impl From<&$name> for $name {
+            #[inline]
+            fn from(id: &$name) -> Self {
+                *id
+            }
+        }
+
         impl From<$name> for Uuid {
             #[inline]
             fn from(id: $name) -> Self {
                 id.0
+            }
+        }
+
+        impl From<&$name> for Uuid {
+            #[inline]
+            fn from(id: &$name) -> Self {
+                id.0
+            }
+        }
+
+        impl From<$name> for String {
+            #[inline]
+            fn from(id: $name) -> Self {
+                id.0.to_string()
             }
         }
 
@@ -218,17 +262,4 @@ macro_rules! define_id {
         }
     };
 }
-
-define_id!(AssetId, "A strongly typed identifier for an Immich asset.");
-define_id!(AlbumId, "A strongly typed identifier for an Immich album.");
-define_id!(UserId, "A strongly typed identifier for an Immich user.");
-define_id!(TagId, "A strongly typed identifier for an Immich tag.");
-define_id!(LibraryId, "A strongly typed identifier for an Immich library.");
-define_id!(ApiKeyId, "A strongly typed identifier for an Immich API key.");
-define_id!(PersonId, "A strongly typed identifier for an Immich person or recognized face.");
-define_id!(MemoryId, "A strongly typed identifier for an Immich memory.");
-define_id!(StackId, "A strongly typed identifier for an Immich asset stack.");
-define_id!(ActivityId, "A strongly typed identifier for an Immich activity.");
-define_id!(PartnerId, "A strongly typed identifier for an Immich partner sharing relationship.");
-define_id!(WorkflowId, "A strongly typed identifier for an Immich automation workflow.");
-"#;
+";

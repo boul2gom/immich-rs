@@ -1,11 +1,13 @@
+#![cfg(all(feature = "fs", not(target_arch = "wasm32")))]
+
 mod common;
 
 use std::pin::pin;
 
 use anyhow::Result;
 use futures_util::StreamExt;
+use immich_models::admin::maintenance::IntegrityReport;
 use immich_models::albums::CreateAlbumDTO;
-use immich_models::maintenance::admin::IntegrityReport;
 use immich_rs::{UploadOptions, calculate_file_checksum};
 use pretty_assertions::assert_eq;
 use tempfile::tempdir;
@@ -157,7 +159,7 @@ async fn upload_asset_auto_resolves_metadata_and_retries_on_503() -> Result<()> 
 
     let options = UploadOptions::new(&file_path).checksum(&checksum).is_favorite(true);
     let res = client.upload_asset(options).await?;
-    assert_eq!(res.id, expected_id);
+    assert_eq!(res.id, immich_models::id::AssetId::from(expected_id));
 
     // The successful attempt must carry the auto-resolved metadata and the file content.
     let requests = server.received_requests().await.expect("recording enabled");
@@ -205,8 +207,16 @@ async fn upload_asset_explicit_metadata_overrides_auto_resolution() -> Result<()
     let options = UploadOptions::new(&file_path)
         .device_asset_id("custom-asset-id")
         .device_id("custom-device")
-        .file_created_at("2020-01-02T03:04:05.000Z")
-        .file_modified_at("2021-02-03T04:05:06.000Z");
+        .file_created_at(
+            chrono::DateTime::parse_from_rfc3339("2020-01-02T03:04:05.000Z")
+                .unwrap()
+                .with_timezone(&chrono::Utc),
+        )
+        .file_modified_at(
+            chrono::DateTime::parse_from_rfc3339("2021-02-03T04:05:06.000Z")
+                .unwrap()
+                .with_timezone(&chrono::Utc),
+        );
     client.upload_asset(options).await?;
 
     let requests = server.received_requests().await.expect("recording enabled");
@@ -262,7 +272,7 @@ async fn upload_profile_image_streams_file_and_retries_on_503() -> Result<()> {
         .await;
 
     let res = client.upload_profile_image(&file_path).await?;
-    assert_eq!(res.user_id, user_id);
+    assert_eq!(res.user_id, immich_models::id::UserId::from(user_id));
 
     let requests = server.received_requests().await.expect("recording enabled");
     let body = String::from_utf8_lossy(&requests.last().unwrap().body);
@@ -328,7 +338,13 @@ async fn upload_bulk_returns_distinct_results_and_isolates_failures() -> Result<
             Err(other) => panic!("unexpected error: {other:?}"),
         }
     }
-    assert_eq!(ok_ids, std::collections::BTreeSet::from([id1, id2]));
+    assert_eq!(
+        ok_ids,
+        std::collections::BTreeSet::from([
+            immich_models::id::AssetId::from(id1),
+            immich_models::id::AssetId::from(id2)
+        ])
+    );
     assert_eq!(failures, 1);
     Ok(())
 }
@@ -363,7 +379,10 @@ async fn upload_bulk_with_zero_concurrency_is_clamped_and_completes() -> Result<
         .await
         .expect("stream must not hang")
         .expect("one item")?;
-    assert_eq!(first.uploaded().expect("uploaded dto").id, id);
+    assert_eq!(
+        first.uploaded().expect("uploaded dto").id,
+        immich_models::id::AssetId::from(id)
+    );
     assert!(stream.next().await.is_none());
     Ok(())
 }
@@ -543,7 +562,8 @@ async fn cursor_based_paginator_streams_until_next_cursor_is_none() -> Result<()
 
     let mut pages = pin!(
         client
-            .maintenance_admin()
+            .admin()
+            .maintenance()
             .get_integrity_report(IntegrityReport::MissingFile)
             .into_paginator()
             .pages()
@@ -587,10 +607,10 @@ async fn query_array_parameters_serialize_cleanly_without_urlencoded_error() -> 
 
 #[test]
 fn forward_compatible_enums_and_dto_constructors_work() {
-    // 1. Unknown enum values deserialize into UnknownValue instead of failing
+    // 1. Unknown enum values deserialize into Unknown(String) instead of failing
     let report: IntegrityReport = serde_json::from_str("\"future-check-v99\"").unwrap();
-    assert_eq!(report, IntegrityReport::UnknownValue);
-    assert_eq!(report.to_string(), "unknown");
+    assert_eq!(report, IntegrityReport::Unknown("future-check-v99".to_string()));
+    assert_eq!(report.to_string(), "future-check-v99");
 
     // 2. DTO constructor + fluent setter
     let dto = CreateAlbumDTO::new("Summer Trip").description("Photos from vacation");
@@ -604,15 +624,13 @@ fn enums_parse_known_values_and_reject_unknown_ones() {
     use immich_models::albums::{AlbumUserRole, AssetOrder};
 
     assert_eq!("editor".parse::<AlbumUserRole>().unwrap(), AlbumUserRole::Editor);
-    assert_eq!(AlbumUserRole::try_from("viewer").unwrap(), AlbumUserRole::Viewer);
-    assert_eq!(
-        AlbumUserRole::try_from(String::from("owner")).unwrap(),
-        AlbumUserRole::Owner
-    );
+    assert_eq!(AlbumUserRole::from("viewer"), AlbumUserRole::Viewer);
+    assert_eq!(AlbumUserRole::from(String::from("owner")), AlbumUserRole::Owner);
     assert_eq!("asc".parse::<AssetOrder>().unwrap(), AssetOrder::Asc);
 
-    let err = "nonsense".parse::<AlbumUserRole>().unwrap_err();
-    assert!(err.to_string().contains("nonsense"));
+    let parsed = "nonsense".parse::<AlbumUserRole>().unwrap();
+    assert_eq!(parsed, AlbumUserRole::Unknown("nonsense".to_string()));
+    assert_eq!(parsed.to_string(), "nonsense");
 
     // Display round-trips through FromStr.
     assert_eq!(
@@ -726,7 +744,7 @@ async fn search_assets_stream_follows_next_page_tokens() -> Result<()> {
         .await;
 
     let body = MetadataSearchDTO::new();
-    let mut pages = pin!(client.search().search_assets(&body).into_paginator().pages());
+    let mut pages = pin!(client.search().search_assets(body).into_paginator().pages());
     let mut ids = Vec::new();
     while let Some(items) = pages.next().await {
         ids.extend(items?.into_iter().map(|a| a.id.to_string()));

@@ -34,8 +34,8 @@
   </a>
 </p>
 <p align="center">
-  <a href="https://github.com/boul2gom/immich-rs/blob/main/LICENSE.md">
-    <img src="https://img.shields.io/github/license/boul2gom/immich-rs?label=License&logo=Github" alt="License">
+  <a href="https://github.com/boul2gom/immich-rs/blob/main/LICENSE-MIT">
+    <img src="https://img.shields.io/badge/License-MIT%20OR%20Apache--2.0-blue.svg" alt="License">
   </a>
   <a href="https://github.com/boul2gom/immich-rs/stargazers">
     <img src="https://img.shields.io/github/stars/boul2gom/immich-rs?label=Stars&logo=Github" alt="Stars">
@@ -75,7 +75,7 @@ serde_json = "1.0.154"
 ### Deserializing an API Response
 
 ```rust,no_run
-use immich_models::assets::AssetResponseDto;
+use immich_models::assets::AssetResponseDTO;
 
 fn main() -> Result<(), serde_json::Error> {
     let json_data = r#"{
@@ -97,8 +97,8 @@ fn main() -> Result<(), serde_json::Error> {
         "duration": "0:00:00.000000"
     }"#;
 
-    let asset: AssetResponseDto = serde_json::from_str(json_data)?;
-    println!("Asset ID: {}, Type: {:?}", asset.id, asset.r#type);
+    let asset: AssetResponseDTO = serde_json::from_str(json_data)?;
+    println!("Asset ID: {}, Type: {:?}", asset.id, asset.type_);
 
     Ok(())
 }
@@ -129,38 +129,39 @@ println!("Asset ID: {asset_id}");
 | Module | Schema Coverage |
 |---|---|
 | `activities` | Activity feed, comments, reactions |
+| `admin` | Admin operations (database, maintenance, notifications) |
 | `albums` | Album metadata, asset mapping, user sharing |
 | `api_keys` | API keys, secret hashing, permissions |
-| `assets` | Upload DTOs, metadata, jobs, EXIF data |
+| `assets` | Upload DTOs, metadata, jobs, EXIF data, faces, stacks |
 | `authentication` | Login credentials, auth tokens, logout requests |
-| `database` | Database maintenance and vacuuming DTOs |
+| `clusters` | People and face cluster groups |
 | `duplicates` | Duplicate asset detection and merging |
 | `jobs` | Job statuses, command queues, job parameters |
 | `libraries` | Storage libraries, scanning options |
-| `maintenance` | Server maintenance operations |
 | `map` | Geo-reverse coding, markers, map bounds |
 | `memories` | Time-based memories and highlights |
 | `notifications` | In-app notifications and alerts |
 | `partners` | Partner sharing and permissions |
 | `people` | Person recognition, face crops, naming |
+| `plugins` | Server plugins and integrations |
 | `queues` | Background task queues |
 | `search` | Search filters, vector smart search, exploration |
 | `server` | Server configuration, stats, ping |
 | `sessions` | Active sessions and devices |
 | `shared_links` | Public and password-protected sharing links |
 | `sync` | Delta sync tokens, mobile sync state |
-| `system` | Storage statistics, hardware acceleration profiles |
+| `system` | Storage statistics, hardware acceleration profiles, config |
 | `tags` | Custom tags and entity tags |
 | `timeline` | Bucket timeline, month/year aggregations |
 | `trash` | Soft deletion and trash cleanup |
-| `users` | User profiles, preferences, quotas |
+| `users` | User profiles, preferences, quotas, admin user management |
 | `workflows` | Workflow definitions and triggers |
 
 ---
 
 ## 🛠️ Code Generation & Synchronization
 
-All models in this crate are generated automatically from Immich's official OpenAPI specification.
+All models in this crate are generated automatically from Immich's official `OpenAPI` specification.
 
 To regenerate or sync with a new Immich release, use the `xtask` CLI within the `immich-rs` workspace:
 
@@ -179,4 +180,9 @@ Contributions are welcome! Please feel free to open an issue or submit a Pull Re
 
 ## 📄 License
 
-This project is licensed under the [GNU General Public License v3.0](https://github.com/boul2gom/immich-rs/blob/main/LICENSE.md).
+Licensed under either of:
+
+* Apache License, Version 2.0 ([LICENSE-APACHE](https://github.com/boul2gom/immich-rs/blob/main/LICENSE-APACHE))
+* MIT license ([LICENSE-MIT](https://github.com/boul2gom/immich-rs/blob/main/LICENSE-MIT))
+
+at your option.

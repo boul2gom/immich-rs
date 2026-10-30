@@ -1,62 +1,59 @@
-//! High-level upload helper that streams a file to Immich without loading it
-//! entirely into memory.
+//! High-level upload helpers that stream files or in-memory bytes to Immich.
 //!
-//! This is a thin wrapper around the generated [`Assets::upload_asset`](crate::api::assets::Assets::upload_asset) endpoint
-//! that handles file I/O, MIME detection, and SHA-1 checksum computation.
+//! Wraps the generated [`Assets::upload_asset`](crate::api::assets::Assets::upload_asset) endpoint
+//! with MIME detection, SHA-1 checksum headers, progress reporting, and idempotence-aware retries.
 
-#[cfg(feature = "fs")]
 use std::borrow::Cow;
-#[cfg(feature = "fs")]
+#[cfg(all(feature = "fs", not(target_arch = "wasm32")))]
 use std::path::Path;
 
-#[cfg(feature = "fs")]
-use chrono::DateTime;
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use immich_models::assets::AssetMediaResponseDTO;
-#[cfg(feature = "fs")]
+#[cfg(all(feature = "fs", not(target_arch = "wasm32")))]
 use immich_models::users::CreateProfileImageResponseDTO;
+use reqwest::Method;
 use reqwest::multipart::{Form, Part};
-#[cfg(feature = "fs")]
+#[cfg(all(feature = "fs", not(target_arch = "wasm32")))]
 use tokio::fs::File;
 
 use crate::client::ImmichClient;
 use crate::error::{Error, Result};
-#[cfg(feature = "fs")]
+#[cfg(all(feature = "fs", not(target_arch = "wasm32")))]
 use crate::progress::{ProgressReader, ProgressSender, TransferProgress};
-#[cfg(feature = "fs")]
 use crate::utils::mime::get_mime_type_for_file;
 
-/// Options for uploading an in-memory asset (bytes).
+/// Options for uploading an in-memory asset (`Vec<u8>`).
 #[derive(Debug, Clone)]
+#[non_exhaustive]
 pub struct UploadBytesOptions<'a> {
-    /// File name with extension (e.g. "photo.jpg").
-    pub file_name: &'a str,
-    /// Device identifier. Defaults to "immich-rs".
-    pub device_id: &'a str,
-    /// Unique device asset ID (used for deduplication).
-    pub device_asset_id: &'a str,
-    /// File creation date (RFC 3339). Defaults to current time if empty.
-    pub file_created_at: &'a str,
-    /// File modification date (RFC 3339). Defaults to current time if empty.
-    pub file_modified_at: &'a str,
-    /// Is the file marked as favorite.
+    /// File name with extension (e.g. `"photo.jpg"`).
+    pub file_name: Cow<'a, str>,
+    /// Device identifier (`None` defaults to `"immich-rs"`).
+    pub device_id: Option<Cow<'a, str>>,
+    /// Unique device asset ID (`None` defaults to `"{file_name}-{byte_len}"`).
+    pub device_asset_id: Option<Cow<'a, str>>,
+    /// File creation timestamp (`None` defaults to current UTC time).
+    pub file_created_at: Option<DateTime<Utc>>,
+    /// File modification timestamp (`None` defaults to `file_created_at` or current UTC time).
+    pub file_modified_at: Option<DateTime<Utc>>,
+    /// Whether the uploaded asset should be marked as favorite.
     pub is_favorite: bool,
-    /// MIME type. If None, guessed from `file_name`.
-    pub mime_type: Option<&'a str>,
+    /// Explicit MIME type (`None` guesses from `file_name`).
+    pub mime_type: Option<Cow<'a, str>>,
     /// Optional SHA-1 checksum header (`x-immich-checksum`).
-    pub checksum: Option<&'a str>,
+    pub checksum: Option<Cow<'a, str>>,
 }
 
 impl<'a> UploadBytesOptions<'a> {
     /// Creates a new `UploadBytesOptions` for the specified file name.
     #[must_use]
-    pub fn new(file_name: &'a str) -> Self {
+    pub fn new(file_name: impl Into<Cow<'a, str>>) -> Self {
         Self {
-            file_name,
-            device_id: "immich-rs",
-            device_asset_id: "",
-            file_created_at: "",
-            file_modified_at: "",
+            file_name: file_name.into(),
+            device_id: None,
+            device_asset_id: None,
+            file_created_at: None,
+            file_modified_at: None,
             is_favorite: false,
             mime_type: None,
             checksum: None,
@@ -65,29 +62,29 @@ impl<'a> UploadBytesOptions<'a> {
 
     /// Sets the device identifier.
     #[must_use]
-    pub fn device_id(mut self, device_id: &'a str) -> Self {
-        self.device_id = device_id;
+    pub fn device_id(mut self, device_id: impl Into<Cow<'a, str>>) -> Self {
+        self.device_id = Some(device_id.into());
         self
     }
 
     /// Sets the unique device asset ID.
     #[must_use]
-    pub fn device_asset_id(mut self, device_asset_id: &'a str) -> Self {
-        self.device_asset_id = device_asset_id;
+    pub fn device_asset_id(mut self, device_asset_id: impl Into<Cow<'a, str>>) -> Self {
+        self.device_asset_id = Some(device_asset_id.into());
         self
     }
 
-    /// Sets the file creation timestamp (RFC 3339).
+    /// Sets the file creation timestamp.
     #[must_use]
-    pub fn file_created_at(mut self, file_created_at: &'a str) -> Self {
-        self.file_created_at = file_created_at;
+    pub fn file_created_at(mut self, file_created_at: DateTime<Utc>) -> Self {
+        self.file_created_at = Some(file_created_at);
         self
     }
 
-    /// Sets the file modification timestamp (RFC 3339).
+    /// Sets the file modification timestamp.
     #[must_use]
-    pub fn file_modified_at(mut self, file_modified_at: &'a str) -> Self {
-        self.file_modified_at = file_modified_at;
+    pub fn file_modified_at(mut self, file_modified_at: DateTime<Utc>) -> Self {
+        self.file_modified_at = Some(file_modified_at);
         self
     }
 
@@ -98,38 +95,39 @@ impl<'a> UploadBytesOptions<'a> {
         self
     }
 
-    /// Sets the explicit MIME type (e.g. "image/jpeg").
+    /// Sets the explicit MIME type (e.g. `"image/jpeg"`).
     #[must_use]
-    pub fn mime_type(mut self, mime_type: &'a str) -> Self {
-        self.mime_type = Some(mime_type);
+    pub fn mime_type(mut self, mime_type: impl Into<Cow<'a, str>>) -> Self {
+        self.mime_type = Some(mime_type.into());
         self
     }
 
     /// Sets the optional SHA-1 checksum header (`x-immich-checksum`).
     #[must_use]
-    pub fn checksum(mut self, checksum: &'a str) -> Self {
-        self.checksum = Some(checksum);
+    pub fn checksum(mut self, checksum: impl Into<Cow<'a, str>>) -> Self {
+        self.checksum = Some(checksum.into());
         self
     }
 }
 
-/// Options for uploading a single asset.
-#[cfg(feature = "fs")]
+/// Options for streaming a single file asset upload from disk.
+#[cfg(all(feature = "fs", not(target_arch = "wasm32")))]
 #[derive(Debug, Clone)]
+#[non_exhaustive]
 pub struct UploadOptions<'a> {
     /// Path to the file to upload.
     pub path: &'a Path,
-    /// Unique device asset ID (used for deduplication).
-    pub device_asset_id: &'a str,
-    /// Device identifier.
-    pub device_id: &'a str,
-    /// File creation date.
-    pub file_created_at: &'a str,
-    /// File modification date.
-    pub file_modified_at: &'a str,
-    /// Is the file marked as favorite.
+    /// Unique device asset ID (`None` defaults to `"{file_name}-{byte_len}"`).
+    pub device_asset_id: Option<Cow<'a, str>>,
+    /// Device identifier (`None` defaults to `"immich-rs"`).
+    pub device_id: Option<Cow<'a, str>>,
+    /// File creation timestamp (`None` resolves from OS metadata).
+    pub file_created_at: Option<DateTime<Utc>>,
+    /// File modification timestamp (`None` resolves from OS metadata).
+    pub file_modified_at: Option<DateTime<Utc>>,
+    /// Whether the uploaded asset should be marked as favorite.
     pub is_favorite: bool,
-    /// SHA1 checksum for deduplication.
+    /// Optional SHA-1 checksum header (`x-immich-checksum`).
     pub checksum: Option<Cow<'a, str>>,
     /// Optional progress notification listener.
     pub progress: Option<ProgressSender>,
@@ -139,20 +137,20 @@ pub struct UploadOptions<'a> {
     pub live_photo_video_id: Option<immich_models::id::AssetId>,
 }
 
-#[cfg(feature = "fs")]
+#[cfg(all(feature = "fs", not(target_arch = "wasm32")))]
 impl<'a> UploadOptions<'a> {
-    /// Creates a new `UploadOptions` with the given file path and empty metadata.
+    /// Creates a new `UploadOptions` for `path`.
     ///
-    /// Any metadata fields left empty (`""`) will be automatically resolved from the file's
-    /// OS metadata when [`ImmichClient::upload_asset`] is called.
+    /// Unset metadata fields (`None`) are automatically resolved from the file's OS metadata
+    /// when [`ImmichClient::upload_asset`] is called.
     #[must_use]
-    pub fn new(path: &'a Path) -> Self {
+    pub const fn new(path: &'a Path) -> Self {
         Self {
             path,
-            device_asset_id: "",
-            device_id: "",
-            file_created_at: "",
-            file_modified_at: "",
+            device_asset_id: None,
+            device_id: None,
+            file_created_at: None,
+            file_modified_at: None,
             is_favorite: false,
             checksum: None,
             progress: None,
@@ -163,29 +161,29 @@ impl<'a> UploadOptions<'a> {
 
     /// Sets the unique device asset ID.
     #[must_use]
-    pub fn device_asset_id(mut self, device_asset_id: &'a str) -> Self {
-        self.device_asset_id = device_asset_id;
+    pub fn device_asset_id(mut self, device_asset_id: impl Into<Cow<'a, str>>) -> Self {
+        self.device_asset_id = Some(device_asset_id.into());
         self
     }
 
     /// Sets the device identifier.
     #[must_use]
-    pub fn device_id(mut self, device_id: &'a str) -> Self {
-        self.device_id = device_id;
+    pub fn device_id(mut self, device_id: impl Into<Cow<'a, str>>) -> Self {
+        self.device_id = Some(device_id.into());
         self
     }
 
-    /// Sets the file creation timestamp (RFC 3339).
+    /// Sets the file creation timestamp.
     #[must_use]
-    pub fn file_created_at(mut self, file_created_at: &'a str) -> Self {
-        self.file_created_at = file_created_at;
+    pub fn file_created_at(mut self, file_created_at: DateTime<Utc>) -> Self {
+        self.file_created_at = Some(file_created_at);
         self
     }
 
-    /// Sets the file modification timestamp (RFC 3339).
+    /// Sets the file modification timestamp.
     #[must_use]
-    pub fn file_modified_at(mut self, file_modified_at: &'a str) -> Self {
-        self.file_modified_at = file_modified_at;
+    pub fn file_modified_at(mut self, file_modified_at: DateTime<Utc>) -> Self {
+        self.file_modified_at = Some(file_modified_at);
         self
     }
 
@@ -236,75 +234,87 @@ impl<'a> UploadOptions<'a> {
 }
 
 impl ImmichClient {
-    /// Uploads an asset from in-memory bytes.
+    /// Uploads an asset from in-memory bytes with automatic transient retry support.
     ///
-    /// Usable in all environments including WebAssembly (browser), serverless, and native.
+    /// Usable in all environments including WebAssembly (`wasm32-unknown-unknown`), serverless, and native.
     ///
     /// # Errors
-    /// Returns an error if the API request fails or the MIME type is invalid.
+    ///
+    /// Returns an error if the MIME type is invalid or if the API request fails after retries.
     pub async fn upload_asset_bytes(
         &self,
-        bytes: Vec<u8>,
+        bytes: impl Into<Vec<u8>>,
         options: UploadBytesOptions<'_>,
     ) -> Result<AssetMediaResponseDTO> {
-        let now_str = Utc::now().to_rfc3339();
-        let resolved_created = if options.file_created_at.is_empty() {
-            &now_str
-        } else {
-            options.file_created_at
-        };
-        let resolved_modified = if options.file_modified_at.is_empty() {
-            &now_str
-        } else {
-            options.file_modified_at
-        };
+        let bytes = bytes.into();
+        let now = crate::core::time::utc_now();
+        let created_dt = options.file_created_at.unwrap_or(now);
+        let modified_dt = options.file_modified_at.unwrap_or(created_dt);
+        let created_str = created_dt.to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
+        let modified_str = modified_dt.to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
+
         let bytes_len = bytes.len();
-        let auto_asset_id;
-        let resolved_device_asset_id = if options.device_asset_id.is_empty() {
-            auto_asset_id = format!("{}-{bytes_len}", options.file_name);
-            &auto_asset_id
-        } else {
-            options.device_asset_id
-        };
+        let resolved_device_asset_id = options
+            .device_asset_id
+            .unwrap_or_else(|| Cow::Owned(format!("{}-{bytes_len}", options.file_name)));
+        let resolved_device_id = options.device_id.unwrap_or(Cow::Borrowed("immich-rs"));
 
-        let mime = options.mime_type.map_or_else(
-            || crate::utils::mime::get_mime_type_for_file(options.file_name),
-            ToString::to_string,
-        );
-
-        let part = Part::bytes(bytes)
-            .file_name(options.file_name.to_owned())
-            .mime_str(&mime)
-            .map_err(|e| Error::Validation(format!("Invalid mime type: {e}")))?;
-
+        let mime = options
+            .mime_type
+            .unwrap_or_else(|| Cow::Owned(get_mime_type_for_file(options.file_name.as_ref())));
         let is_fav_str = if options.is_favorite { "true" } else { "false" };
+        let mut attempt = 0;
 
-        let form = Form::new()
-            .text("deviceAssetId", resolved_device_asset_id.to_string())
-            .text("deviceId", options.device_id.to_string())
-            .text("fileCreatedAt", resolved_created.to_string())
-            .text("fileModifiedAt", resolved_modified.to_string())
-            .text("isFavorite", is_fav_str.to_string())
-            .part("assetData", part);
+        loop {
+            let part = Part::bytes(bytes.clone())
+                .file_name(options.file_name.to_string())
+                .mime_str(mime.as_ref())
+                .map_err(|e| Error::Validation(format!("invalid MIME type: {e}")))?;
 
-        let mut req = self.assets().upload_asset(form);
-        if let Some(checksum) = options.checksum {
-            req = req.x_immich_checksum(checksum);
+            let form = Form::new()
+                .text("deviceAssetId", resolved_device_asset_id.to_string())
+                .text("deviceId", resolved_device_id.to_string())
+                .text("fileCreatedAt", created_str.clone())
+                .text("fileModifiedAt", modified_str.clone())
+                .text("isFavorite", is_fav_str)
+                .part("assetData", part);
+
+            let mut req = self.assets().upload_asset(form);
+            if let Some(checksum) = &options.checksum {
+                req = req.x_immich_checksum(checksum.as_ref());
+            }
+
+            match req.send().await {
+                Ok(res) => return Ok(res),
+                Err(e) if attempt < self.inner.retry_policy.max_attempts => {
+                    if crate::core::retry::should_retry_for_method(&e, Some(&Method::POST)) {
+                        attempt += 1;
+                        let delay = e
+                            .retry_after()
+                            .unwrap_or_else(|| self.inner.retry_policy.delay(attempt));
+                        tracing::warn!(
+                            attempt = attempt,
+                            max_attempts = self.inner.retry_policy.max_attempts,
+                            ?delay,
+                            error = %e,
+                            "Transient error during upload_asset_bytes, retrying"
+                        );
+                        crate::core::time::sleep(delay).await;
+                        continue;
+                    }
+                    return Err(e);
+                }
+                Err(e) => return Err(e),
+            }
         }
-
-        req.send().await
     }
 
-    /// Upload a single asset to Immich with proper memory streaming (no full-RAM loading).
-    ///
-    /// This uses `multipart/form-data` to stream the file from disk directly to the network.
-    /// If `device_asset_id`, `device_id`, `file_created_at`, or `file_modified_at` are empty,
-    /// sensible defaults are automatically derived from the file's metadata.
+    /// Uploads a single file asset to Immich by streaming directly from disk without full-RAM buffering.
     ///
     /// # Errors
     ///
     /// Returns an error if the file cannot be opened, read, or if the API request fails.
-    #[cfg(feature = "fs")]
+    #[cfg(all(feature = "fs", not(target_arch = "wasm32")))]
     pub async fn upload_asset(&self, options: UploadOptions<'_>) -> Result<AssetMediaResponseDTO> {
         let file_name = options
             .path
@@ -314,29 +324,23 @@ impl ImmichClient {
             .to_string();
 
         let metadata = tokio::fs::metadata(options.path).await?;
-        let modified_dt: DateTime<Utc> = metadata.modified().map_or_else(|_| Utc::now(), DateTime::<Utc>::from);
-        let created_dt: DateTime<Utc> = metadata.created().map_or(modified_dt, DateTime::<Utc>::from);
+        let default_modified: DateTime<Utc> = metadata
+            .modified()
+            .map_or_else(|_| crate::core::time::utc_now(), DateTime::<Utc>::from);
+        let default_created: DateTime<Utc> = metadata.created().map_or(default_modified, DateTime::<Utc>::from);
 
-        let resolved_modified: Cow<'_, str> = if options.file_modified_at.is_empty() {
-            Cow::Owned(modified_dt.to_rfc3339())
-        } else {
-            Cow::Borrowed(options.file_modified_at)
-        };
-        let resolved_created: Cow<'_, str> = if options.file_created_at.is_empty() {
-            Cow::Owned(created_dt.to_rfc3339())
-        } else {
-            Cow::Borrowed(options.file_created_at)
-        };
-        let resolved_device_asset_id: Cow<'_, str> = if options.device_asset_id.is_empty() {
-            Cow::Owned(format!("{file_name}-{}", metadata.len()))
-        } else {
-            Cow::Borrowed(options.device_asset_id)
-        };
-        let resolved_device_id: &str = if options.device_id.is_empty() {
-            "immich-rs"
-        } else {
-            options.device_id
-        };
+        let resolved_modified = options
+            .file_modified_at
+            .unwrap_or(default_modified)
+            .to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
+        let resolved_created = options
+            .file_created_at
+            .unwrap_or(default_created)
+            .to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
+        let resolved_device_asset_id = options
+            .device_asset_id
+            .unwrap_or_else(|| Cow::Owned(format!("{file_name}-{}", metadata.len())));
+        let resolved_device_id = options.device_id.unwrap_or(Cow::Borrowed("immich-rs"));
 
         let file_len = metadata.len();
         let mime_type = get_mime_type_for_file(options.path);
@@ -352,13 +356,13 @@ impl ImmichClient {
             let part = Part::stream_with_length(body, file_len)
                 .file_name(file_name.clone())
                 .mime_str(&mime_type)
-                .map_err(|e| Error::Validation(format!("Invalid mime type: {e}")))?;
+                .map_err(|e| Error::Validation(format!("invalid MIME type: {e}")))?;
 
             let mut form = Form::new()
                 .text("deviceAssetId", resolved_device_asset_id.to_string())
-                .text("deviceId", resolved_device_id.to_owned())
-                .text("fileCreatedAt", resolved_created.to_string())
-                .text("fileModifiedAt", resolved_modified.to_string())
+                .text("deviceId", resolved_device_id.to_string())
+                .text("fileCreatedAt", resolved_created.clone())
+                .text("fileModifiedAt", resolved_modified.clone())
                 .text("isFavorite", is_fav_str)
                 .part("assetData", part);
 
@@ -375,7 +379,7 @@ impl ImmichClient {
                 let sidecar_part = Part::stream_with_length(reqwest::Body::from(sidecar_file), sidecar_len)
                     .file_name(sidecar_name)
                     .mime_str(&sidecar_mime)
-                    .map_err(|e| Error::Validation(format!("Invalid sidecar mime type: {e}")))?;
+                    .map_err(|e| Error::Validation(format!("invalid sidecar MIME type: {e}")))?;
                 form = form.part("sidecarData", sidecar_part);
             }
 
@@ -391,7 +395,7 @@ impl ImmichClient {
             match req.send().await {
                 Ok(res) => return Ok(res),
                 Err(e) if attempt < self.inner.retry_policy.max_attempts => {
-                    if crate::core::retry::should_retry(&e) {
+                    if crate::core::retry::should_retry_for_method(&e, Some(&Method::POST)) {
                         attempt += 1;
                         let delay = e
                             .retry_after()
@@ -403,7 +407,7 @@ impl ImmichClient {
                             error = %e,
                             "Transient error during upload_asset, retrying"
                         );
-                        tokio::time::sleep(delay).await;
+                        crate::core::time::sleep(delay).await;
                         continue;
                     }
                     return Err(e);
@@ -413,12 +417,12 @@ impl ImmichClient {
         }
     }
 
-    /// Upload a profile image (multipart/form-data).
+    /// Uploads a user profile image (`multipart/form-data`) from disk.
     ///
     /// # Errors
     ///
     /// Returns an error if the file cannot be opened, read, or if the API request fails.
-    #[cfg(feature = "fs")]
+    #[cfg(all(feature = "fs", not(target_arch = "wasm32")))]
     pub async fn upload_profile_image<P: AsRef<Path>>(&self, file_path: P) -> Result<CreateProfileImageResponseDTO> {
         let path = file_path.as_ref();
         let file_name = path
@@ -438,14 +442,14 @@ impl ImmichClient {
             let part = Part::stream_with_length(body, file_len)
                 .file_name(file_name.clone())
                 .mime_str(&mime_type)
-                .map_err(|e| Error::Validation(format!("Invalid mime type: {e}")))?;
+                .map_err(|e| Error::Validation(format!("invalid MIME type: {e}")))?;
 
             let form = Form::new().part("file", part);
 
             match self.users().create_profile_image(form).await {
                 Ok(res) => return Ok(res),
                 Err(e) if attempt < self.inner.retry_policy.max_attempts => {
-                    if crate::core::retry::should_retry(&e) {
+                    if crate::core::retry::should_retry_for_method(&e, Some(&Method::POST)) {
                         attempt += 1;
                         let delay = e
                             .retry_after()
@@ -457,7 +461,7 @@ impl ImmichClient {
                             error = %e,
                             "Transient error during upload_profile_image, retrying"
                         );
-                        tokio::time::sleep(delay).await;
+                        crate::core::time::sleep(delay).await;
                         continue;
                     }
                     return Err(e);
@@ -470,8 +474,9 @@ impl ImmichClient {
     /// Uploads a Live Photo by first uploading its companion video, then uploading the photo linked to the video ID.
     ///
     /// # Errors
+    ///
     /// Returns an error if either the video or photo upload fails.
-    #[cfg(feature = "fs")]
+    #[cfg(all(feature = "fs", not(target_arch = "wasm32")))]
     pub async fn upload_live_photo(
         &self,
         photo_path: impl AsRef<Path>,
@@ -486,8 +491,9 @@ impl ImmichClient {
     /// Uploads an asset along with its XMP sidecar file in a single multipart request.
     ///
     /// # Errors
+    ///
     /// Returns an error if the asset or sidecar cannot be read, or if the API request fails.
-    #[cfg(feature = "fs")]
+    #[cfg(all(feature = "fs", not(target_arch = "wasm32")))]
     pub async fn upload_with_sidecar(
         &self,
         asset_path: impl AsRef<Path>,

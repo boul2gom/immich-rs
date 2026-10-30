@@ -1,0 +1,216 @@
+---
+source: xtask/tests/codegen_snapshots.rs
+expression: rendered
+---
+/// Fluent request builder for [`Assets::get_asset_info`].
+#[derive(Debug, Clone)]
+#[must_use = "request builders are lazy and do nothing unless awaited or sent"]
+pub struct GetAssetInfoBuilder<'a> {
+    client: &'a crate::ImmichClient,
+    request_config: crate::core::RequestConfig,
+    id: immich_models::id::AssetId,
+    key: Option<String>,
+}
+impl GetAssetInfoBuilder<'_> {
+    /// Overrides or sets the timeout for this specific request.
+    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.request_config.set_timeout(timeout);
+        self
+    }
+    /// Adds a custom HTTP header to this specific request.
+    ///
+    /// Invalid header names or values are recorded and surfaced as [`Error::Validation`](crate::Error::Validation)
+    /// when the request is sent.
+    pub fn header(
+        mut self,
+        key: impl TryInto<reqwest::header::HeaderName>,
+        value: impl TryInto<reqwest::header::HeaderValue>,
+    ) -> Self {
+        self.request_config.insert_header(key, value);
+        self
+    }
+    /// Optional share key
+    pub fn key(mut self, value: impl Into<String>) -> Self {
+        self.key = Some(value.into());
+        self
+    }
+    /// Sets or clears `key`.
+    pub fn set_key(mut self, value: Option<String>) -> Self {
+        self.key = value;
+        self
+    }
+    /// Sends the HTTP request and awaits the server response.
+    ///
+    /// # Errors
+    ///
+    /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
+    pub async fn send(
+        self,
+    ) -> Result<immich_models::assets::AssetResponseDTO, crate::Error> {
+        #[derive(serde::Serialize)]
+        struct QueryParams<'b> {
+            #[serde(rename = "key", skip_serializing_if = "Option::is_none")]
+            key: Option<&'b String>,
+        }
+        tracing::trace!(
+            module = "assets", method = "GET", path = "/assets/{id}", "HTTP request"
+        );
+        let __seg_1 = self.id.to_string();
+        let mut request = self
+            .client
+            .prepare_request_segments(
+                reqwest::Method::GET,
+                &[
+                    crate::core::PathSegment::Static("assets"),
+                    crate::core::PathSegment::Param(__seg_1.as_str()),
+                ],
+            )?;
+        request = self.request_config.apply(request)?;
+        let query = QueryParams {
+            key: self.key.as_ref(),
+        };
+        request = request.query(&query);
+        let response = self
+            .client
+            .execute::<immich_models::assets::AssetResponseDTO>("assets", request)
+            .await?;
+        Ok(response)
+    }
+}
+impl<'a> std::future::IntoFuture for GetAssetInfoBuilder<'a> {
+    type Output = Result<immich_models::assets::AssetResponseDTO, crate::Error>;
+    type IntoFuture = crate::BoxFuture<'a, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        Box::pin(self.send())
+    }
+}
+/// Fluent request builder for [`Assets::logout_o_auth`].
+#[derive(Debug, Clone)]
+#[must_use = "request builders are lazy and do nothing unless awaited or sent"]
+pub struct LogoutOAuthBuilder<'a> {
+    client: &'a crate::ImmichClient,
+    request_config: crate::core::RequestConfig,
+    body: immich_models::authentication::OAuthLogoutDTO,
+}
+impl LogoutOAuthBuilder<'_> {
+    /// Overrides or sets the timeout for this specific request.
+    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.request_config.set_timeout(timeout);
+        self
+    }
+    /// Adds a custom HTTP header to this specific request.
+    ///
+    /// Invalid header names or values are recorded and surfaced as [`Error::Validation`](crate::Error::Validation)
+    /// when the request is sent.
+    pub fn header(
+        mut self,
+        key: impl TryInto<reqwest::header::HeaderName>,
+        value: impl TryInto<reqwest::header::HeaderValue>,
+    ) -> Self {
+        self.request_config.insert_header(key, value);
+        self
+    }
+    /// Sends the HTTP request and awaits the server response.
+    ///
+    /// # Errors
+    ///
+    /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
+    pub async fn send(self) -> Result<(), crate::Error> {
+        tracing::trace!(
+            module = "assets", method = "POST", path = "/oauth/backchannel-logout",
+            "HTTP request"
+        );
+        let mut request = self
+            .client
+            .prepare_request(reqwest::Method::POST, "/oauth/backchannel-logout")?;
+        request = self.request_config.apply(request)?;
+        let encoded_body = serde_urlencoded::to_string(&self.body)
+            .map_err(|e| crate::Error::Validation(
+                format!("Failed to URL-encode form body: {e}"),
+            ))?;
+        request = request
+            .header(reqwest::header::CONTENT_TYPE, "application/x-www-form-urlencoded")
+            .body(encoded_body);
+        self.client.execute_unit("assets", request).await?;
+        Ok(())
+    }
+}
+impl<'a> std::future::IntoFuture for LogoutOAuthBuilder<'a> {
+    type Output = Result<(), crate::Error>;
+    type IntoFuture = crate::BoxFuture<'a, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        Box::pin(self.send())
+    }
+}
+/// Client handle for `Assets` endpoints.
+#[derive(Debug, Clone, Copy)]
+pub struct Assets<'a> {
+    client: &'a crate::ImmichClient,
+}
+impl<'a> Assets<'a> {
+    #[inline]
+    pub(crate) const fn new(client: &'a crate::ImmichClient) -> Self {
+        Self { client }
+    }
+    /// Returns a sub-client handle for [`faces::Faces`] endpoints.
+    #[must_use]
+    pub const fn faces(&self) -> faces::Faces<'a> {
+        faces::Faces::new(self.client)
+    }
+    /// Retrieve an asset
+    ///
+    /// ### Parameters
+    ///
+    /// | Name | Type | Required | Description |
+    /// |------|------|:--------:|-------------|
+    /// | `id` | `AssetId` | ✓ | Asset identifier |
+    /// | `key` | `String` |  | Optional share key |
+    ///
+    /// ### Responses
+    ///
+    /// | Code | Description |
+    /// |------|-------------|
+    /// | `200` | Asset details |
+    ///
+    /// **Returns:** `AssetResponseDTO`
+    ///
+    /// # Errors
+    /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
+    pub fn get_asset_info(
+        &self,
+        id: impl Into<immich_models::id::AssetId>,
+    ) -> GetAssetInfoBuilder<'a> {
+        GetAssetInfoBuilder {
+            client: self.client,
+            request_config: crate::core::RequestConfig::default(),
+            id: id.into(),
+            key: None,
+        }
+    }
+    /// Back-channel `OAuth` logout
+    ///
+    /// ### Parameters
+    ///
+    /// | Name | Type | Required | Description |
+    /// |------|------|:--------:|-------------|
+    /// | `body` | `OAuthLogoutDTO` | ✓ | Form URL-encoded request body |
+    ///
+    /// ### Responses
+    ///
+    /// | Code | Description |
+    /// |------|-------------|
+    /// | `200` | Back-channel logout |
+    ///
+    /// # Errors
+    /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
+    pub fn logout_o_auth(
+        &self,
+        body: impl Into<immich_models::authentication::OAuthLogoutDTO>,
+    ) -> LogoutOAuthBuilder<'a> {
+        LogoutOAuthBuilder {
+            client: self.client,
+            request_config: crate::core::RequestConfig::default(),
+            body: body.into(),
+        }
+    }
+}

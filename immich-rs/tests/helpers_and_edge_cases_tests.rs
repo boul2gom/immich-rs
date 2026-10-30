@@ -1,3 +1,5 @@
+#![cfg(all(feature = "fs", not(target_arch = "wasm32")))]
+
 mod common;
 
 use std::collections::HashMap;
@@ -79,40 +81,64 @@ fn auth_env_resolution_respects_variable_precedence() -> Result<()> {
 
 #[tokio::test]
 async fn download_cancellation_cleans_up_temporary_file() -> Result<()> {
-    let (client, server) = common::mock_client(0).await;
-    let asset_id = uuid::Uuid::parse_str("00000000-0000-0000-0000-000000000099").unwrap();
+    use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
-    // Set up mock returning infinite or delayed data
-    Mock::given(method("GET"))
-        .and(path(format!("/assets/{asset_id}/original")))
-        .respond_with(
-            ResponseTemplate::new(200)
-                .set_body_raw(vec![42u8; 100_000], "application/octet-stream")
-                .set_delay(std::time::Duration::from_millis(500)),
-        )
-        .mount(&server)
-        .await;
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await?;
+    let addr = listener.local_addr()?;
 
+    let client = immich_rs::ImmichClient::builder()
+        .base_url(format!("http://{addr}"))
+        .api_key("test-key")
+        .build()?;
+
+    let asset_id =
+        immich_models::id::AssetId::from(uuid::Uuid::parse_str("00000000-0000-0000-0000-000000000099").unwrap());
     let dir = tempdir()?;
     let dest = dir.path().join("cancelled.jpg");
 
-    // Run download with a very short timeout so it drops before completing
+    // Pre-create a sentinel destination file that should remain intact
+    tokio::fs::write(&dest, b"pre-existing file content").await?;
+
+    let server_task = tokio::spawn(async move {
+        if let Ok((mut socket, _)) = listener.accept().await {
+            let mut buf = [0u8; 1024];
+            let _ = socket.read(&mut buf).await;
+            // Send headers + first chunk
+            let response = "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nContent-Type: application/octet-stream\r\n\r\n4\r\nTEST\r\n";
+            let _ = socket.write_all(response.as_bytes()).await;
+            let _ = socket.flush().await;
+
+            // Wait until cancelled
+            let _ = socket.read(&mut buf).await;
+        }
+    });
+
+    // Start download
     let dl_future = client.download(asset_id, &dest);
-    let _ = tokio::time::timeout(std::time::Duration::from_millis(20), dl_future).await;
+
+    // Cancel the download future after 60ms while waiting for the next chunk
+    let _ = tokio::time::timeout(std::time::Duration::from_millis(60), dl_future).await;
+
+    // Drop server task
+    server_task.abort();
 
     // Give asynchronous filesystem drop a brief moment
     tokio::time::sleep(std::time::Duration::from_millis(50)).await;
 
-    // Ensure neither the destination nor the temporary file remains on disk
-    let remaining_files: Vec<_> = std::fs::read_dir(dir.path())?
-        .filter_map(|e| e.ok().map(|e| e.file_name()))
+    // Verify:
+    // 1. No temporary `.tmp` files exist in dir
+    let entries: Vec<_> = std::fs::read_dir(dir.path())?
+        .filter_map(|e| e.ok().map(|e| e.file_name().to_string_lossy().into_owned()))
         .collect();
 
-    assert_eq!(
-        remaining_files,
-        Vec::<std::ffi::OsString>::new(),
-        "temporary file must be removed when future is cancelled/dropped"
+    assert!(
+        !entries.iter().any(|f| f.contains(".tmp")),
+        "all temporary files must be cleaned up on drop: found {entries:?}"
     );
+
+    // 2. Pre-existing destination file was preserved
+    let dest_content = tokio::fs::read(&dest).await?;
+    assert_eq!(dest_content, b"pre-existing file content");
 
     Ok(())
 }
@@ -195,8 +221,8 @@ async fn upload_asset_reports_progress_via_callback_and_watch_channel() -> Resul
     let progress_reports = std::sync::Arc::new(std::sync::atomic::AtomicU64::new(0));
     let last_percentage = std::sync::Arc::new(std::sync::atomic::AtomicU32::new(0));
 
-    let pr_clone = progress_reports.clone();
-    let lp_clone = last_percentage.clone();
+    let pr_clone = std::sync::Arc::clone(&progress_reports);
+    let lp_clone = std::sync::Arc::clone(&last_percentage);
 
     let options = immich_rs::UploadOptions::new(&file_path).on_progress(move |p| {
         pr_clone.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
@@ -207,7 +233,7 @@ async fn upload_asset_reports_progress_via_callback_and_watch_channel() -> Resul
     });
 
     let res = client.upload_asset(options).await?;
-    assert_eq!(res.id, expected_id);
+    assert_eq!(res.id, immich_models::id::AssetId::from(expected_id));
     assert!(
         progress_reports.load(std::sync::atomic::Ordering::Relaxed) > 0,
         "callback must be called at least once"
@@ -223,7 +249,7 @@ async fn upload_asset_reports_progress_via_callback_and_watch_channel() -> Resul
     let options2 = immich_rs::UploadOptions::new(&file_path).progress_sender(tx);
 
     let res2 = client.upload_asset(options2).await?;
-    assert_eq!(res2.id, expected_id);
+    assert_eq!(res2.id, immich_models::id::AssetId::from(expected_id));
 
     let final_progress = *rx.borrow_and_update();
     assert_eq!(final_progress.transferred, 128 * 1024);
@@ -251,7 +277,7 @@ async fn download_with_progress_and_download_to_writer_report_accurate_progress(
 
     // Test download_to_writer_with_progress via callback
     let total_reported = std::sync::Arc::new(std::sync::atomic::AtomicU64::new(0));
-    let tr_clone = total_reported.clone();
+    let tr_clone = std::sync::Arc::clone(&total_reported);
     let progress_sender = immich_rs::ProgressSender::Callback(std::sync::Arc::new(move |p| {
         tr_clone.store(p.transferred, std::sync::atomic::Ordering::Relaxed);
     }));
@@ -305,7 +331,7 @@ async fn upload_asset_bytes_sends_in_memory_data_correctly() -> Result<()> {
         .is_favorite(true);
 
     let res = client.upload_asset_bytes(payload, options).await?;
-    assert_eq!(res.id, fake_asset_id);
+    assert_eq!(res.id, immich_models::id::AssetId::from(fake_asset_id));
 
     Ok(())
 }

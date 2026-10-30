@@ -1,71 +1,117 @@
 use std::sync::Arc;
 use std::task::{Context, Poll};
-use std::time::Duration;
+use std::time::{Duration, UNIX_EPOCH};
 
+use reqwest::{Method, StatusCode};
 use tower_layer::Layer;
 use tower_service::Service;
 
 use crate::BoxFuture;
 use crate::error::Error;
 
+/// Default maximum backoff delay between retry attempts (`60s`).
+pub(crate) const DEFAULT_MAX_RETRY_DELAY: Duration = Duration::from_secs(60);
+
 /// Exponential backoff retry policy with jitter.
 #[derive(Clone, Debug)]
-pub struct RetryPolicy {
-    pub max_attempts: u32,
+pub(crate) struct RetryPolicy {
+    pub(crate) max_attempts: u32,
     base_delay: Duration,
+    pub(crate) max_delay: Duration,
 }
 
 impl RetryPolicy {
     /// Creates a new `RetryPolicy` with the given maximum number of retry attempts.
     #[must_use]
-    pub fn default_with_max(max_attempts: u32) -> Self {
+    pub(crate) const fn default_with_max(max_attempts: u32) -> Self {
         Self {
             max_attempts,
             base_delay: Duration::from_millis(200),
+            max_delay: DEFAULT_MAX_RETRY_DELAY,
         }
     }
 
-    /// Exponential backoff + jitter (± 20%), starting at `base_delay` on attempt 1.
+    /// Exponential backoff + jitter (± 20%), starting at `base_delay` on attempt 1
+    /// and clamped to `self.max_delay` (`60s` by default).
     #[must_use]
-    pub fn delay(&self, attempt: u32) -> Duration {
-        let exponent = attempt.saturating_sub(1).min(6);
+    pub(crate) fn delay(&self, attempt: u32) -> Duration {
+        let exponent = attempt.saturating_sub(1).min(10);
         let base = self.base_delay * (1u32 << exponent);
         let jitter = 0.8 + rand::random::<f64>() * 0.4;
         let delay = base.mul_f64(jitter);
-        delay.min(Duration::from_secs(60))
+        delay.min(self.max_delay)
     }
 }
 
-/// Returns `true` if the status code represents a transient server failure.
+/// Parses an HTTP `Retry-After` header formatted either as integer delta-seconds
+/// or an RFC 9110 HTTP-date, clamped to `max_delay`.
 #[must_use]
-pub fn is_transient(status: reqwest::StatusCode) -> bool {
-    matches!(status.as_u16(), 429 | 502 | 503 | 504)
+pub(crate) fn parse_retry_after(headers: &reqwest::header::HeaderMap, max_delay: Duration) -> Option<Duration> {
+    let raw = headers.get(reqwest::header::RETRY_AFTER)?.to_str().ok()?.trim();
+
+    if let Ok(secs) = raw.parse::<u64>() {
+        return Some(Duration::from_secs(secs).min(max_delay));
+    }
+
+    let target_time = httpdate::parse_http_date(raw).ok()?;
+    let now_time = UNIX_EPOCH + crate::core::time::unix_now();
+    let delta = target_time.duration_since(now_time).unwrap_or(Duration::ZERO);
+    Some(delta.min(max_delay))
 }
 
-/// Returns `true` if the error is considered transient and safe to retry.
+/// Returns `true` if `method` is HTTP-idempotent (`GET`, `HEAD`, `PUT`, `DELETE`, `OPTIONS`, `TRACE`).
 #[must_use]
-pub fn should_retry(err: &Error) -> bool {
+pub(crate) fn is_idempotent_method(method: &Method) -> bool {
+    matches!(
+        *method,
+        Method::GET | Method::HEAD | Method::PUT | Method::DELETE | Method::OPTIONS | Method::TRACE
+    )
+}
+
+/// Returns `true` if `status` is eligible for automatic retry under `method`.
+///
+/// - `429 Too Many Requests`, `502 Bad Gateway`, `503 Service Unavailable`, and `504 Gateway Timeout`
+///   are retryable for all replayable requests.
+/// - `500 Internal Server Error` is retryable **only** when `method` is explicitly known to be idempotent.
+#[must_use]
+pub(crate) fn is_retryable_status(status: StatusCode, method: Option<&Method>) -> bool {
+    match status.as_u16() {
+        429 | 502 | 503 | 504 => true,
+        500 => method.is_some_and(is_idempotent_method),
+        _ => false,
+    }
+}
+
+/// Returns `true` if `err` is considered transient and safe to retry for `method`.
+#[must_use]
+pub(crate) fn should_retry_for_method(err: &Error, method: Option<&Method>) -> bool {
     match err {
         #[cfg(not(target_arch = "wasm32"))]
         Error::Transport(e) => e.is_connect() || e.is_timeout(),
         #[cfg(target_arch = "wasm32")]
         Error::Transport(e) => e.is_timeout(),
-        e if e.status().is_some_and(is_transient) => true,
+        e if e.status().is_some_and(|s| is_retryable_status(s, method)) => true,
         e if e.retry_after().is_some() => true,
         _ => false,
     }
 }
 
-/// A Tower [`Layer`] that automatically retries transient network errors and 5xx/429 server responses.
+/// Returns `true` if `err` is unconditionally transient regardless of HTTP method.
+#[must_use]
+pub(crate) fn should_retry(err: &Error) -> bool {
+    should_retry_for_method(err, None)
+}
+
+/// A Tower [`Layer`] that automatically retries transient network errors and eligible 5xx/429 responses.
 #[derive(Clone, Debug)]
-pub struct RetryLayer {
+pub(crate) struct RetryLayer {
     policy: Arc<RetryPolicy>,
 }
 
 impl RetryLayer {
     /// Creates a new `RetryLayer` with the provided [`RetryPolicy`].
     #[must_use]
-    pub fn new(policy: RetryPolicy) -> Self {
+    pub(crate) fn new(policy: RetryPolicy) -> Self {
         Self {
             policy: Arc::new(policy),
         }
@@ -85,14 +131,14 @@ impl<S> Layer<S> for RetryLayer {
 
 /// A Tower [`Service`] that retries requests upon transient transport or API failures.
 #[derive(Clone, Debug)]
-pub struct RetryService<S> {
+pub(crate) struct RetryService<S> {
     inner: S,
     policy: Arc<RetryPolicy>,
 }
 
 impl<S> Service<reqwest::Request> for RetryService<S>
 where
-    S: Service<reqwest::Request, Response = reqwest::Response, Error = Error> + Clone + Send + 'static,
+    S: Service<reqwest::Request, Response = reqwest::Response, Error = Error> + Clone + crate::MaybeSend + 'static,
     S::Future: crate::MaybeSend + 'static,
 {
     type Response = reqwest::Response;
@@ -112,6 +158,7 @@ where
             let mut current = req;
 
             loop {
+                let method = current.method().clone();
                 let saved = if attempt < policy.max_attempts {
                     current.try_clone()
                 } else {
@@ -121,33 +168,29 @@ where
                 match inner.call(current).await {
                     Ok(resp) => {
                         let status = resp.status();
-                        if is_transient(status)
+                        if is_retryable_status(status, Some(&method))
                             && attempt < policy.max_attempts
                             && let Some(next) = saved
                         {
                             attempt += 1;
-                            let retry_after = resp
-                                .headers()
-                                .get(reqwest::header::RETRY_AFTER)
-                                .and_then(|h| h.to_str().ok())
-                                .and_then(|s| s.parse::<u64>().ok())
-                                .map(|secs| Duration::from_secs(secs.min(60)));
+                            let retry_after = parse_retry_after(resp.headers(), policy.max_delay);
                             let delay = retry_after.unwrap_or_else(|| policy.delay(attempt));
                             tracing::warn!(
                                 attempt = attempt,
                                 max_attempts = policy.max_attempts,
                                 ?delay,
                                 status = %status,
+                                method = %method,
                                 "Transient HTTP status error, retrying HTTP request"
                             );
-                            tokio::time::sleep(delay).await;
+                            crate::core::time::sleep(delay).await;
                             current = next;
                             continue;
                         }
                         return Ok(resp);
                     }
                     Err(err) => {
-                        if should_retry(&err)
+                        if should_retry_for_method(&err, Some(&method))
                             && attempt < policy.max_attempts
                             && let Some(next) = saved
                         {
@@ -157,10 +200,11 @@ where
                                 attempt = attempt,
                                 max_attempts = policy.max_attempts,
                                 ?delay,
+                                method = %method,
                                 error = %err,
                                 "Transient transport error, retrying HTTP request"
                             );
-                            tokio::time::sleep(delay).await;
+                            crate::core::time::sleep(delay).await;
                             current = next;
                             continue;
                         }
@@ -173,64 +217,5 @@ where
 }
 
 #[cfg(test)]
-pub(crate) mod tests {
-    use reqwest::StatusCode;
-
-    use super::*;
-
-    #[test]
-    fn retry_policy_delay_increases_exponentially_and_respects_jitter_bounds() {
-        let policy = RetryPolicy::default_with_max(5);
-
-        // Attempt 1: base delay is 200ms, jitter is 0.8..1.2 -> 160ms..240ms
-        for _ in 0..20 {
-            let d1 = policy.delay(1);
-            assert!(
-                d1 >= Duration::from_millis(160) && d1 <= Duration::from_millis(240),
-                "attempt 1 delay {d1:?} out of [160ms, 240ms]"
-            );
-        }
-
-        // Attempt 2: base delay is 400ms -> 320ms..480ms
-        for _ in 0..20 {
-            let d2 = policy.delay(2);
-            assert!(
-                d2 >= Duration::from_millis(320) && d2 <= Duration::from_millis(480),
-                "attempt 2 delay {d2:?} out of [320ms, 480ms]"
-            );
-        }
-
-        // Attempt 3: base delay is 800ms -> 640ms..960ms
-        for _ in 0..20 {
-            let d3 = policy.delay(3);
-            assert!(
-                d3 >= Duration::from_millis(640) && d3 <= Duration::from_millis(960),
-                "attempt 3 delay {d3:?} out of [640ms, 960ms]"
-            );
-        }
-    }
-
-    #[test]
-    fn retry_policy_delay_is_clamped_at_sixty_seconds() {
-        let policy = RetryPolicy::default_with_max(10);
-        let max_delay = policy.delay(10);
-        assert!(max_delay <= Duration::from_secs(60));
-    }
-
-    #[test]
-    fn is_transient_status_code_coverage() {
-        // Transient
-        assert!(is_transient(StatusCode::TOO_MANY_REQUESTS));
-        assert!(is_transient(StatusCode::BAD_GATEWAY));
-        assert!(is_transient(StatusCode::SERVICE_UNAVAILABLE));
-        assert!(is_transient(StatusCode::GATEWAY_TIMEOUT));
-
-        // Non-transient
-        assert!(!is_transient(StatusCode::OK));
-        assert!(!is_transient(StatusCode::BAD_REQUEST));
-        assert!(!is_transient(StatusCode::UNAUTHORIZED));
-        assert!(!is_transient(StatusCode::FORBIDDEN));
-        assert!(!is_transient(StatusCode::NOT_FOUND));
-        assert!(!is_transient(StatusCode::CONFLICT));
-    }
-}
+#[path = "retry_tests.rs"]
+mod tests;

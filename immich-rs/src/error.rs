@@ -1,25 +1,27 @@
 use std::time::Duration;
 
-use reqwest::StatusCode;
+use reqwest::{Method, StatusCode};
 
-/// High-level category of an API or HTTP error.
+/// High-level category of an API, HTTP, or real-time transport error.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum ErrorKind {
-    /// Client error: 400 Bad Request.
+    /// Client error: `400 Bad Request`.
     BadRequest,
-    /// Authentication error: 401 Unauthorized.
+    /// Authentication error: `401 Unauthorized`.
     Unauthorized,
-    /// Authorization error: 403 Forbidden.
+    /// Authorization error: `403 Forbidden`.
     Forbidden,
-    /// Resource not found: 404 Not Found.
+    /// Resource not found: `404 Not Found`.
     NotFound,
-    /// Resource conflict: 409 Conflict.
+    /// Resource conflict: `409 Conflict`.
     Conflict,
-    /// Server error: 500, 502, 503, or 504.
+    /// Server error: `500`, `502`, `503`, or `504`.
     InternalServerError,
-    /// Rate limit exceeded: 429 Too Many Requests.
+    /// Rate limit exceeded: `429 Too Many Requests`.
     RateLimited,
+    /// Real-time Socket.IO connection or protocol error.
+    SocketIo,
     /// Any other unclassified status code.
     Unknown,
 }
@@ -101,11 +103,11 @@ impl std::fmt::Display for ApiErrorDetails {
 #[derive(Debug, thiserror::Error)]
 #[non_exhaustive]
 pub enum Error {
-    /// Authentication failure (401 Unauthorized or 403 Forbidden).
+    /// Error related to authentication or OAuth operations.
     #[error("Authentication error: {0}")]
     Auth(ApiErrorDetails),
 
-    /// Error related to asset operations (upload, download, metadata).
+    /// Error related to asset operations (upload, download, faces, stacks, metadata).
     #[error("Asset error: {0}")]
     Asset(ApiErrorDetails),
 
@@ -149,6 +151,10 @@ pub enum Error {
     /// Local client-side parameter validation error.
     #[error("local validation error: {0}")]
     Validation(String),
+
+    /// Real-time Socket.IO connection or protocol error.
+    #[error("Socket.IO error: {0}")]
+    SocketIo(String),
 }
 
 impl From<immich_models::common::error::ConversionError> for Error {
@@ -240,12 +246,8 @@ pub fn classify_error_code(status: StatusCode, message: &str, error_field: Optio
 impl Error {
     pub(crate) async fn from_api_response(module: &'static str, resp: reqwest::Response) -> Self {
         let status = resp.status();
-        let retry_after = resp
-            .headers()
-            .get(reqwest::header::RETRY_AFTER)
-            .and_then(|h| h.to_str().ok())
-            .and_then(|s| s.parse::<u64>().ok())
-            .map(|secs| Duration::from_secs(secs.min(60)));
+        let retry_after =
+            crate::core::retry::parse_retry_after(resp.headers(), crate::core::retry::DEFAULT_MAX_RETRY_DELAY);
 
         let body_bytes = resp.bytes().await.unwrap_or_default();
         let body: Option<ApiErrorBody> = serde_json::from_slice(&body_bytes).ok();
@@ -286,11 +288,13 @@ impl Error {
         };
 
         match module {
-            "authentication" | "auth" => Self::Auth(details),
-            "assets" | "asset" | "download" | "faces" | "stacks" => Self::Asset(details),
+            "authentication" | "auth" | "oauth" => Self::Auth(details),
+            s if s.starts_with("asset") || matches!(s, "download" | "faces" | "stacks") => Self::Asset(details),
             "albums" | "album" => Self::Album(details),
-            "systemconfig" | "config" => Self::Config(details),
-            "users" | "user" => Self::User(details),
+            s if s.starts_with("system/config") || s.starts_with("system_config") || s == "config" => {
+                Self::Config(details)
+            }
+            s if s.starts_with("user") => Self::User(details),
             _ => Self::Api { module, details },
         }
     }
@@ -305,9 +309,12 @@ impl Error {
             | Self::Config(d)
             | Self::User(d)
             | Self::Api { details: d, .. } => Some(d),
-            Self::Transport(_) | Self::Serialization(_) | Self::Io(_) | Self::InvalidUrl(_) | Self::Validation(_) => {
-                None
-            }
+            Self::Transport(_)
+            | Self::Serialization(_)
+            | Self::Io(_)
+            | Self::InvalidUrl(_)
+            | Self::Validation(_)
+            | Self::SocketIo(_) => None,
         }
     }
 
@@ -323,12 +330,15 @@ impl Error {
         None
     }
 
-    /// Returns the classified [`ErrorKind`] for HTTP API errors.
+    /// Returns the classified [`ErrorKind`] for HTTP API or Socket.IO errors.
     #[must_use]
     pub const fn kind(&self) -> Option<ErrorKind> {
-        match self.api_details() {
-            Some(d) => Some(d.kind),
-            None => None,
+        match self {
+            Self::SocketIo(_) => Some(ErrorKind::SocketIo),
+            _ => match self.api_details() {
+                Some(d) => Some(d.kind),
+                None => None,
+            },
         }
     }
 
@@ -407,9 +417,17 @@ impl Error {
         }
     }
 
-    /// Returns `true` if the error is transient and eligible for automatic retry.
+    /// Returns `true` if the error is unconditionally transient and eligible for automatic retry
+    /// regardless of HTTP method (`429`, `502`, `503`, `504`, `Retry-After`, or network timeout/connect).
     #[must_use]
     pub fn is_retryable(&self) -> bool {
         crate::core::retry::should_retry(self)
+    }
+
+    /// Returns `true` if the error is eligible for automatic retry under the given HTTP `method`
+    /// (treating `500 Internal Server Error` as retryable only on idempotent methods).
+    #[must_use]
+    pub fn is_retryable_for_method(&self, method: &Method) -> bool {
+        crate::core::retry::should_retry_for_method(self, Some(method))
     }
 }

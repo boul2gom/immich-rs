@@ -1,36 +1,34 @@
 // @generated Made by @boul2gom with `immich-rs` - do not edit by hand.
 // Re-run `cargo xtask generate` to update.
+#![allow(clippy::struct_excessive_bools, clippy::too_many_lines)]
 
 //! API endpoints for `shared_links`.
 
+use immich_models::id::{AlbumId, SharedLinkId};
 use immich_models::shared_links::{
     AssetIdsDTO, AssetIdsResponseDTO, SharedLinkCreateDTO, SharedLinkEditDTO, SharedLinkLoginDTO, SharedLinkResponseDTO,
 };
 
 /// Fluent request builder for [`SharedLinks::add_shared_link_assets`].
-#[derive(serde::Serialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 #[must_use = "request builders are lazy and do nothing unless awaited or sent"]
 pub struct AddSharedLinkAssetsBuilder<'a> {
-    #[serde(skip)]
     client: &'a crate::ImmichClient,
-    #[serde(skip)]
-    pub request_config: crate::core::RequestConfig,
-    #[serde(skip)]
-    pub id: uuid::Uuid,
-    #[serde(skip)]
-    pub body: &'a AssetIdsDTO,
+    request_config: crate::core::RequestConfig,
+    id: SharedLinkId,
+    body: AssetIdsDTO,
 }
 
-/// Type alias for [`AddSharedLinkAssetsBuilder`].
-pub type AddSharedLinkAssetsArgs<'a> = AddSharedLinkAssetsBuilder<'a>;
 impl AddSharedLinkAssetsBuilder<'_> {
     /// Overrides or sets the timeout for this specific request.
     pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
         self.request_config.set_timeout(timeout);
         self
     }
-
     /// Adds a custom HTTP header to this specific request.
+    ///
+    /// Invalid header names or values are recorded and surfaced as [`Error::Validation`](crate::Error::Validation)
+    /// when the request is sent.
     pub fn header(
         mut self,
         key: impl TryInto<reqwest::header::HeaderName>,
@@ -39,26 +37,29 @@ impl AddSharedLinkAssetsBuilder<'_> {
         self.request_config.insert_header(key, value);
         self
     }
-
     /// Sends the HTTP request and awaits the server response.
     ///
     /// # Errors
     ///
-    /// Returns an error if the API returns an HTTP 4xx/5xx or if deserialization fails.
+    /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
     pub async fn send(self) -> Result<Vec<AssetIdsResponseDTO>, crate::Error> {
         tracing::trace!(
-            module = "SharedLinks",
+            module = "shared_links",
             method = "PUT",
             path = "/shared-links/{id}/assets",
             "HTTP request"
         );
-
-        let mut request = self
-            .client
-            .prepare_request(reqwest::Method::PUT, &format!("/shared-links/{}/assets", self.id))?;
-        request = self.request_config.apply(request);
-        request = request.json(self.body);
-
+        let __seg_1 = self.id.to_string();
+        let mut request = self.client.prepare_request_segments(
+            reqwest::Method::PUT,
+            &[
+                crate::core::PathSegment::Static("shared-links"),
+                crate::core::PathSegment::Param(__seg_1.as_str()),
+                crate::core::PathSegment::Static("assets"),
+            ],
+        )?;
+        request = self.request_config.apply(request)?;
+        request = request.json(&self.body);
         let response = self
             .client
             .execute::<Vec<AssetIdsResponseDTO>>("shared_links", request)
@@ -76,27 +77,24 @@ impl<'a> std::future::IntoFuture for AddSharedLinkAssetsBuilder<'a> {
 }
 
 /// Fluent request builder for [`SharedLinks::create_shared_link`].
-#[derive(serde::Serialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 #[must_use = "request builders are lazy and do nothing unless awaited or sent"]
 pub struct CreateSharedLinkBuilder<'a> {
-    #[serde(skip)]
     client: &'a crate::ImmichClient,
-    #[serde(skip)]
-    pub request_config: crate::core::RequestConfig,
-    #[serde(skip)]
-    pub body: &'a SharedLinkCreateDTO,
+    request_config: crate::core::RequestConfig,
+    body: SharedLinkCreateDTO,
 }
 
-/// Type alias for [`CreateSharedLinkBuilder`].
-pub type CreateSharedLinkArgs<'a> = CreateSharedLinkBuilder<'a>;
 impl CreateSharedLinkBuilder<'_> {
     /// Overrides or sets the timeout for this specific request.
     pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
         self.request_config.set_timeout(timeout);
         self
     }
-
     /// Adds a custom HTTP header to this specific request.
+    ///
+    /// Invalid header names or values are recorded and surfaced as [`Error::Validation`](crate::Error::Validation)
+    /// when the request is sent.
     pub fn header(
         mut self,
         key: impl TryInto<reqwest::header::HeaderName>,
@@ -105,24 +103,21 @@ impl CreateSharedLinkBuilder<'_> {
         self.request_config.insert_header(key, value);
         self
     }
-
     /// Sends the HTTP request and awaits the server response.
     ///
     /// # Errors
     ///
-    /// Returns an error if the API returns an HTTP 4xx/5xx or if deserialization fails.
+    /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
     pub async fn send(self) -> Result<SharedLinkResponseDTO, crate::Error> {
         tracing::trace!(
-            module = "SharedLinks",
+            module = "shared_links",
             method = "POST",
             path = "/shared-links",
             "HTTP request"
         );
-
         let mut request = self.client.prepare_request(reqwest::Method::POST, "/shared-links")?;
-        request = self.request_config.apply(request);
-        request = request.json(self.body);
-
+        request = self.request_config.apply(request)?;
+        request = request.json(&self.body);
         let response = self
             .client
             .execute::<SharedLinkResponseDTO>("shared_links", request)
@@ -140,29 +135,25 @@ impl<'a> std::future::IntoFuture for CreateSharedLinkBuilder<'a> {
 }
 
 /// Fluent request builder for [`SharedLinks::get_all_shared_links`].
-#[derive(serde::Serialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 #[must_use = "request builders are lazy and do nothing unless awaited or sent"]
 pub struct GetAllSharedLinksBuilder<'a> {
-    #[serde(skip)]
     client: &'a crate::ImmichClient,
-    #[serde(skip)]
-    pub request_config: crate::core::RequestConfig,
-    #[serde(rename = "albumId", skip_serializing_if = "Option::is_none")]
-    pub album_id: Option<immich_models::id::AlbumId>,
-    #[serde(rename = "id", skip_serializing_if = "Option::is_none")]
-    pub id: Option<uuid::Uuid>,
+    request_config: crate::core::RequestConfig,
+    album_id: Option<AlbumId>,
+    id: Option<SharedLinkId>,
 }
 
-/// Type alias for [`GetAllSharedLinksBuilder`].
-pub type GetAllSharedLinksArgs<'a> = GetAllSharedLinksBuilder<'a>;
 impl GetAllSharedLinksBuilder<'_> {
     /// Overrides or sets the timeout for this specific request.
     pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
         self.request_config.set_timeout(timeout);
         self
     }
-
     /// Adds a custom HTTP header to this specific request.
+    ///
+    /// Invalid header names or values are recorded and surfaced as [`Error::Validation`](crate::Error::Validation)
+    /// when the request is sent.
     pub fn header(
         mut self,
         key: impl TryInto<reqwest::header::HeaderName>,
@@ -171,48 +162,52 @@ impl GetAllSharedLinksBuilder<'_> {
         self.request_config.insert_header(key, value);
         self
     }
-
     /// Filter by album ID
-    pub fn album_id(mut self, value: impl Into<immich_models::id::AlbumId>) -> Self {
+    pub fn album_id(mut self, value: impl Into<AlbumId>) -> Self {
         self.album_id = Some(value.into());
         self
     }
-
     /// Sets or clears `albumId`.
-    pub fn set_album_id(mut self, value: Option<immich_models::id::AlbumId>) -> Self {
+    pub fn set_album_id(mut self, value: Option<AlbumId>) -> Self {
         self.album_id = value;
         self
     }
-
     /// Filter by shared link ID
-    pub fn id(mut self, value: uuid::Uuid) -> Self {
-        self.id = Some(value);
+    pub fn id(mut self, value: impl Into<SharedLinkId>) -> Self {
+        self.id = Some(value.into());
         self
     }
-
     /// Sets or clears `id`.
-    pub fn set_id(mut self, value: Option<uuid::Uuid>) -> Self {
+    pub fn set_id(mut self, value: Option<SharedLinkId>) -> Self {
         self.id = value;
         self
     }
-
     /// Sends the HTTP request and awaits the server response.
     ///
     /// # Errors
     ///
-    /// Returns an error if the API returns an HTTP 4xx/5xx or if deserialization fails.
+    /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
     pub async fn send(self) -> Result<Vec<SharedLinkResponseDTO>, crate::Error> {
+        #[derive(serde::Serialize)]
+        struct QueryParams<'b> {
+            #[serde(rename = "albumId", skip_serializing_if = "Option::is_none")]
+            album_id: Option<&'b AlbumId>,
+            #[serde(rename = "id", skip_serializing_if = "Option::is_none")]
+            id: Option<&'b SharedLinkId>,
+        }
         tracing::trace!(
-            module = "SharedLinks",
+            module = "shared_links",
             method = "GET",
             path = "/shared-links",
             "HTTP request"
         );
-
         let mut request = self.client.prepare_request(reqwest::Method::GET, "/shared-links")?;
-        request = self.request_config.apply(request);
-        request = request.query(&self);
-
+        request = self.request_config.apply(request)?;
+        let query = QueryParams {
+            album_id: self.album_id.as_ref(),
+            id: self.id.as_ref(),
+        };
+        request = request.query(&query);
         let response = self
             .client
             .execute::<Vec<SharedLinkResponseDTO>>("shared_links", request)
@@ -230,29 +225,25 @@ impl<'a> std::future::IntoFuture for GetAllSharedLinksBuilder<'a> {
 }
 
 /// Fluent request builder for [`SharedLinks::get_my_shared_link`].
-#[derive(serde::Serialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 #[must_use = "request builders are lazy and do nothing unless awaited or sent"]
 pub struct GetMySharedLinkBuilder<'a> {
-    #[serde(skip)]
     client: &'a crate::ImmichClient,
-    #[serde(skip)]
-    pub request_config: crate::core::RequestConfig,
-    #[serde(rename = "key", skip_serializing_if = "Option::is_none")]
-    pub key: Option<String>,
-    #[serde(rename = "slug", skip_serializing_if = "Option::is_none")]
-    pub slug: Option<String>,
+    request_config: crate::core::RequestConfig,
+    key: Option<String>,
+    slug: Option<String>,
 }
 
-/// Type alias for [`GetMySharedLinkBuilder`].
-pub type GetMySharedLinkArgs<'a> = GetMySharedLinkBuilder<'a>;
 impl GetMySharedLinkBuilder<'_> {
     /// Overrides or sets the timeout for this specific request.
     pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
         self.request_config.set_timeout(timeout);
         self
     }
-
     /// Adds a custom HTTP header to this specific request.
+    ///
+    /// Invalid header names or values are recorded and surfaced as [`Error::Validation`](crate::Error::Validation)
+    /// when the request is sent.
     pub fn header(
         mut self,
         key: impl TryInto<reqwest::header::HeaderName>,
@@ -261,48 +252,52 @@ impl GetMySharedLinkBuilder<'_> {
         self.request_config.insert_header(key, value);
         self
     }
-
     /// Sets `key`.
     pub fn key(mut self, value: impl Into<String>) -> Self {
         self.key = Some(value.into());
         self
     }
-
     /// Sets or clears `key`.
     pub fn set_key(mut self, value: Option<String>) -> Self {
         self.key = value;
         self
     }
-
     /// Sets `slug`.
     pub fn slug(mut self, value: impl Into<String>) -> Self {
         self.slug = Some(value.into());
         self
     }
-
     /// Sets or clears `slug`.
     pub fn set_slug(mut self, value: Option<String>) -> Self {
         self.slug = value;
         self
     }
-
     /// Sends the HTTP request and awaits the server response.
     ///
     /// # Errors
     ///
-    /// Returns an error if the API returns an HTTP 4xx/5xx or if deserialization fails.
+    /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
     pub async fn send(self) -> Result<SharedLinkResponseDTO, crate::Error> {
+        #[derive(serde::Serialize)]
+        struct QueryParams<'b> {
+            #[serde(rename = "key", skip_serializing_if = "Option::is_none")]
+            key: Option<&'b String>,
+            #[serde(rename = "slug", skip_serializing_if = "Option::is_none")]
+            slug: Option<&'b String>,
+        }
         tracing::trace!(
-            module = "SharedLinks",
+            module = "shared_links",
             method = "GET",
             path = "/shared-links/me",
             "HTTP request"
         );
-
         let mut request = self.client.prepare_request(reqwest::Method::GET, "/shared-links/me")?;
-        request = self.request_config.apply(request);
-        request = request.query(&self);
-
+        request = self.request_config.apply(request)?;
+        let query = QueryParams {
+            key: self.key.as_ref(),
+            slug: self.slug.as_ref(),
+        };
+        request = request.query(&query);
         let response = self
             .client
             .execute::<SharedLinkResponseDTO>("shared_links", request)
@@ -320,27 +315,24 @@ impl<'a> std::future::IntoFuture for GetMySharedLinkBuilder<'a> {
 }
 
 /// Fluent request builder for [`SharedLinks::get_shared_link_by_id`].
-#[derive(serde::Serialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 #[must_use = "request builders are lazy and do nothing unless awaited or sent"]
 pub struct GetSharedLinkByIdBuilder<'a> {
-    #[serde(skip)]
     client: &'a crate::ImmichClient,
-    #[serde(skip)]
-    pub request_config: crate::core::RequestConfig,
-    #[serde(skip)]
-    pub id: uuid::Uuid,
+    request_config: crate::core::RequestConfig,
+    id: SharedLinkId,
 }
 
-/// Type alias for [`GetSharedLinkByIdBuilder`].
-pub type GetSharedLinkByIdArgs<'a> = GetSharedLinkByIdBuilder<'a>;
 impl GetSharedLinkByIdBuilder<'_> {
     /// Overrides or sets the timeout for this specific request.
     pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
         self.request_config.set_timeout(timeout);
         self
     }
-
     /// Adds a custom HTTP header to this specific request.
+    ///
+    /// Invalid header names or values are recorded and surfaced as [`Error::Validation`](crate::Error::Validation)
+    /// when the request is sent.
     pub fn header(
         mut self,
         key: impl TryInto<reqwest::header::HeaderName>,
@@ -349,25 +341,27 @@ impl GetSharedLinkByIdBuilder<'_> {
         self.request_config.insert_header(key, value);
         self
     }
-
     /// Sends the HTTP request and awaits the server response.
     ///
     /// # Errors
     ///
-    /// Returns an error if the API returns an HTTP 4xx/5xx or if deserialization fails.
+    /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
     pub async fn send(self) -> Result<SharedLinkResponseDTO, crate::Error> {
         tracing::trace!(
-            module = "SharedLinks",
+            module = "shared_links",
             method = "GET",
             path = "/shared-links/{id}",
             "HTTP request"
         );
-
-        let mut request = self
-            .client
-            .prepare_request(reqwest::Method::GET, &format!("/shared-links/{}", self.id))?;
-        request = self.request_config.apply(request);
-
+        let __seg_1 = self.id.to_string();
+        let mut request = self.client.prepare_request_segments(
+            reqwest::Method::GET,
+            &[
+                crate::core::PathSegment::Static("shared-links"),
+                crate::core::PathSegment::Param(__seg_1.as_str()),
+            ],
+        )?;
+        request = self.request_config.apply(request)?;
         let response = self
             .client
             .execute::<SharedLinkResponseDTO>("shared_links", request)
@@ -385,27 +379,24 @@ impl<'a> std::future::IntoFuture for GetSharedLinkByIdBuilder<'a> {
 }
 
 /// Fluent request builder for [`SharedLinks::remove_shared_link`].
-#[derive(serde::Serialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 #[must_use = "request builders are lazy and do nothing unless awaited or sent"]
 pub struct RemoveSharedLinkBuilder<'a> {
-    #[serde(skip)]
     client: &'a crate::ImmichClient,
-    #[serde(skip)]
-    pub request_config: crate::core::RequestConfig,
-    #[serde(skip)]
-    pub id: uuid::Uuid,
+    request_config: crate::core::RequestConfig,
+    id: SharedLinkId,
 }
 
-/// Type alias for [`RemoveSharedLinkBuilder`].
-pub type RemoveSharedLinkArgs<'a> = RemoveSharedLinkBuilder<'a>;
 impl RemoveSharedLinkBuilder<'_> {
     /// Overrides or sets the timeout for this specific request.
     pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
         self.request_config.set_timeout(timeout);
         self
     }
-
     /// Adds a custom HTTP header to this specific request.
+    ///
+    /// Invalid header names or values are recorded and surfaced as [`Error::Validation`](crate::Error::Validation)
+    /// when the request is sent.
     pub fn header(
         mut self,
         key: impl TryInto<reqwest::header::HeaderName>,
@@ -414,24 +405,27 @@ impl RemoveSharedLinkBuilder<'_> {
         self.request_config.insert_header(key, value);
         self
     }
-
     /// Sends the HTTP request and awaits the server response.
     ///
     /// # Errors
     ///
-    /// Returns an error if the API returns an HTTP 4xx/5xx or if deserialization fails.
+    /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
     pub async fn send(self) -> Result<(), crate::Error> {
         tracing::trace!(
-            module = "SharedLinks",
+            module = "shared_links",
             method = "DELETE",
             path = "/shared-links/{id}",
             "HTTP request"
         );
-
-        let mut request = self
-            .client
-            .prepare_request(reqwest::Method::DELETE, &format!("/shared-links/{}", self.id))?;
-        request = self.request_config.apply(request);
+        let __seg_1 = self.id.to_string();
+        let mut request = self.client.prepare_request_segments(
+            reqwest::Method::DELETE,
+            &[
+                crate::core::PathSegment::Static("shared-links"),
+                crate::core::PathSegment::Param(__seg_1.as_str()),
+            ],
+        )?;
+        request = self.request_config.apply(request)?;
         self.client.execute_unit("shared_links", request).await?;
         Ok(())
     }
@@ -446,29 +440,25 @@ impl<'a> std::future::IntoFuture for RemoveSharedLinkBuilder<'a> {
 }
 
 /// Fluent request builder for [`SharedLinks::remove_shared_link_assets`].
-#[derive(serde::Serialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 #[must_use = "request builders are lazy and do nothing unless awaited or sent"]
 pub struct RemoveSharedLinkAssetsBuilder<'a> {
-    #[serde(skip)]
     client: &'a crate::ImmichClient,
-    #[serde(skip)]
-    pub request_config: crate::core::RequestConfig,
-    #[serde(skip)]
-    pub id: uuid::Uuid,
-    #[serde(skip)]
-    pub body: &'a AssetIdsDTO,
+    request_config: crate::core::RequestConfig,
+    id: SharedLinkId,
+    body: AssetIdsDTO,
 }
 
-/// Type alias for [`RemoveSharedLinkAssetsBuilder`].
-pub type RemoveSharedLinkAssetsArgs<'a> = RemoveSharedLinkAssetsBuilder<'a>;
 impl RemoveSharedLinkAssetsBuilder<'_> {
     /// Overrides or sets the timeout for this specific request.
     pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
         self.request_config.set_timeout(timeout);
         self
     }
-
     /// Adds a custom HTTP header to this specific request.
+    ///
+    /// Invalid header names or values are recorded and surfaced as [`Error::Validation`](crate::Error::Validation)
+    /// when the request is sent.
     pub fn header(
         mut self,
         key: impl TryInto<reqwest::header::HeaderName>,
@@ -477,26 +467,29 @@ impl RemoveSharedLinkAssetsBuilder<'_> {
         self.request_config.insert_header(key, value);
         self
     }
-
     /// Sends the HTTP request and awaits the server response.
     ///
     /// # Errors
     ///
-    /// Returns an error if the API returns an HTTP 4xx/5xx or if deserialization fails.
+    /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
     pub async fn send(self) -> Result<Vec<AssetIdsResponseDTO>, crate::Error> {
         tracing::trace!(
-            module = "SharedLinks",
+            module = "shared_links",
             method = "DELETE",
             path = "/shared-links/{id}/assets",
             "HTTP request"
         );
-
-        let mut request = self
-            .client
-            .prepare_request(reqwest::Method::DELETE, &format!("/shared-links/{}/assets", self.id))?;
-        request = self.request_config.apply(request);
-        request = request.json(self.body);
-
+        let __seg_1 = self.id.to_string();
+        let mut request = self.client.prepare_request_segments(
+            reqwest::Method::DELETE,
+            &[
+                crate::core::PathSegment::Static("shared-links"),
+                crate::core::PathSegment::Param(__seg_1.as_str()),
+                crate::core::PathSegment::Static("assets"),
+            ],
+        )?;
+        request = self.request_config.apply(request)?;
+        request = request.json(&self.body);
         let response = self
             .client
             .execute::<Vec<AssetIdsResponseDTO>>("shared_links", request)
@@ -514,31 +507,26 @@ impl<'a> std::future::IntoFuture for RemoveSharedLinkAssetsBuilder<'a> {
 }
 
 /// Fluent request builder for [`SharedLinks::shared_link_login`].
-#[derive(serde::Serialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 #[must_use = "request builders are lazy and do nothing unless awaited or sent"]
 pub struct SharedLinkLoginBuilder<'a> {
-    #[serde(skip)]
     client: &'a crate::ImmichClient,
-    #[serde(skip)]
-    pub request_config: crate::core::RequestConfig,
-    #[serde(rename = "key", skip_serializing_if = "Option::is_none")]
-    pub key: Option<String>,
-    #[serde(rename = "slug", skip_serializing_if = "Option::is_none")]
-    pub slug: Option<String>,
-    #[serde(skip)]
-    pub body: &'a SharedLinkLoginDTO,
+    request_config: crate::core::RequestConfig,
+    key: Option<String>,
+    slug: Option<String>,
+    body: SharedLinkLoginDTO,
 }
 
-/// Type alias for [`SharedLinkLoginBuilder`].
-pub type SharedLinkLoginArgs<'a> = SharedLinkLoginBuilder<'a>;
 impl SharedLinkLoginBuilder<'_> {
     /// Overrides or sets the timeout for this specific request.
     pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
         self.request_config.set_timeout(timeout);
         self
     }
-
     /// Adds a custom HTTP header to this specific request.
+    ///
+    /// Invalid header names or values are recorded and surfaced as [`Error::Validation`](crate::Error::Validation)
+    /// when the request is sent.
     pub fn header(
         mut self,
         key: impl TryInto<reqwest::header::HeaderName>,
@@ -547,51 +535,55 @@ impl SharedLinkLoginBuilder<'_> {
         self.request_config.insert_header(key, value);
         self
     }
-
     /// Sets `key`.
     pub fn key(mut self, value: impl Into<String>) -> Self {
         self.key = Some(value.into());
         self
     }
-
     /// Sets or clears `key`.
     pub fn set_key(mut self, value: Option<String>) -> Self {
         self.key = value;
         self
     }
-
     /// Sets `slug`.
     pub fn slug(mut self, value: impl Into<String>) -> Self {
         self.slug = Some(value.into());
         self
     }
-
     /// Sets or clears `slug`.
     pub fn set_slug(mut self, value: Option<String>) -> Self {
         self.slug = value;
         self
     }
-
     /// Sends the HTTP request and awaits the server response.
     ///
     /// # Errors
     ///
-    /// Returns an error if the API returns an HTTP 4xx/5xx or if deserialization fails.
+    /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
     pub async fn send(self) -> Result<SharedLinkResponseDTO, crate::Error> {
+        #[derive(serde::Serialize)]
+        struct QueryParams<'b> {
+            #[serde(rename = "key", skip_serializing_if = "Option::is_none")]
+            key: Option<&'b String>,
+            #[serde(rename = "slug", skip_serializing_if = "Option::is_none")]
+            slug: Option<&'b String>,
+        }
         tracing::trace!(
-            module = "SharedLinks",
+            module = "shared_links",
             method = "POST",
             path = "/shared-links/login",
             "HTTP request"
         );
-
         let mut request = self
             .client
             .prepare_request(reqwest::Method::POST, "/shared-links/login")?;
-        request = self.request_config.apply(request);
-        request = request.query(&self);
-        request = request.json(self.body);
-
+        request = self.request_config.apply(request)?;
+        let query = QueryParams {
+            key: self.key.as_ref(),
+            slug: self.slug.as_ref(),
+        };
+        request = request.query(&query);
+        request = request.json(&self.body);
         let response = self
             .client
             .execute::<SharedLinkResponseDTO>("shared_links", request)
@@ -609,29 +601,25 @@ impl<'a> std::future::IntoFuture for SharedLinkLoginBuilder<'a> {
 }
 
 /// Fluent request builder for [`SharedLinks::update_shared_link`].
-#[derive(serde::Serialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 #[must_use = "request builders are lazy and do nothing unless awaited or sent"]
 pub struct UpdateSharedLinkBuilder<'a> {
-    #[serde(skip)]
     client: &'a crate::ImmichClient,
-    #[serde(skip)]
-    pub request_config: crate::core::RequestConfig,
-    #[serde(skip)]
-    pub id: uuid::Uuid,
-    #[serde(skip)]
-    pub body: &'a SharedLinkEditDTO,
+    request_config: crate::core::RequestConfig,
+    id: SharedLinkId,
+    body: SharedLinkEditDTO,
 }
 
-/// Type alias for [`UpdateSharedLinkBuilder`].
-pub type UpdateSharedLinkArgs<'a> = UpdateSharedLinkBuilder<'a>;
 impl UpdateSharedLinkBuilder<'_> {
     /// Overrides or sets the timeout for this specific request.
     pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
         self.request_config.set_timeout(timeout);
         self
     }
-
     /// Adds a custom HTTP header to this specific request.
+    ///
+    /// Invalid header names or values are recorded and surfaced as [`Error::Validation`](crate::Error::Validation)
+    /// when the request is sent.
     pub fn header(
         mut self,
         key: impl TryInto<reqwest::header::HeaderName>,
@@ -640,26 +628,28 @@ impl UpdateSharedLinkBuilder<'_> {
         self.request_config.insert_header(key, value);
         self
     }
-
     /// Sends the HTTP request and awaits the server response.
     ///
     /// # Errors
     ///
-    /// Returns an error if the API returns an HTTP 4xx/5xx or if deserialization fails.
+    /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
     pub async fn send(self) -> Result<SharedLinkResponseDTO, crate::Error> {
         tracing::trace!(
-            module = "SharedLinks",
+            module = "shared_links",
             method = "PATCH",
             path = "/shared-links/{id}",
             "HTTP request"
         );
-
-        let mut request = self
-            .client
-            .prepare_request(reqwest::Method::PATCH, &format!("/shared-links/{}", self.id))?;
-        request = self.request_config.apply(request);
-        request = request.json(self.body);
-
+        let __seg_1 = self.id.to_string();
+        let mut request = self.client.prepare_request_segments(
+            reqwest::Method::PATCH,
+            &[
+                crate::core::PathSegment::Static("shared-links"),
+                crate::core::PathSegment::Param(__seg_1.as_str()),
+            ],
+        )?;
+        request = self.request_config.apply(request)?;
+        request = request.json(&self.body);
         let response = self
             .client
             .execute::<SharedLinkResponseDTO>("shared_links", request)
@@ -676,84 +666,98 @@ impl<'a> std::future::IntoFuture for UpdateSharedLinkBuilder<'a> {
     }
 }
 
-///Client handle for `SharedLinks` endpoints.
+/// Client handle for `SharedLinks` endpoints.
 #[derive(Debug, Clone, Copy)]
 pub struct SharedLinks<'a> {
     client: &'a crate::ImmichClient,
 }
 
 impl<'a> SharedLinks<'a> {
-    pub(crate) fn new(client: &'a crate::ImmichClient) -> Self {
+    #[inline]
+    pub(crate) const fn new(client: &'a crate::ImmichClient) -> Self {
         Self { client }
     }
-
     /// Add assets to a shared link
+    ///
     /// Add assets to a specific shared link by its ID. This endpoint is only relevant for shared link of type individual.
     ///
     /// ### Parameters
     ///
     /// | Name | Type | Required | Description |
-    /// |--------|--------|:--------:|--------|
-    /// | `id` | `uuid::Uuid` | ✓ |  |
-    /// | `body` | `AssetIdsDTO` | ✅ | Request body |
+    /// |------|------|:--------:|-------------|
+    /// | `id` | `SharedLinkId` | ✓ |  |
+    /// | `body` | `AssetIdsDTO` | ✓ | JSON request body |
     ///
     /// ### Responses
     ///
     /// | Code | Description |
-    /// |--------|--------|
+    /// |------|-------------|
     /// | `200` |  |
     ///
     /// **Returns:** `Vec<AssetIdsResponseDTO>`
-    pub fn add_shared_link_assets(&self, id: uuid::Uuid, body: &'a AssetIdsDTO) -> AddSharedLinkAssetsBuilder<'a> {
+    ///
+    /// # Errors
+    /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
+    pub fn add_shared_link_assets(
+        &self,
+        id: impl Into<SharedLinkId>,
+        body: impl Into<AssetIdsDTO>,
+    ) -> AddSharedLinkAssetsBuilder<'a> {
         AddSharedLinkAssetsBuilder {
             client: self.client,
             request_config: crate::core::RequestConfig::default(),
-            id,
-            body,
+            id: id.into(),
+            body: body.into(),
         }
     }
-
     /// Create a shared link
+    ///
     /// Create a new shared link.
     ///
     /// ### Parameters
     ///
     /// | Name | Type | Required | Description |
-    /// |--------|--------|:--------:|--------|
-    /// | `body` | `SharedLinkCreateDTO` | ✅ | Request body |
+    /// |------|------|:--------:|-------------|
+    /// | `body` | `SharedLinkCreateDTO` | ✓ | JSON request body |
     ///
     /// ### Responses
     ///
     /// | Code | Description |
-    /// |--------|--------|
+    /// |------|-------------|
     /// | `201` |  |
     ///
     /// **Returns:** `SharedLinkResponseDTO`
-    pub fn create_shared_link(&self, body: &'a SharedLinkCreateDTO) -> CreateSharedLinkBuilder<'a> {
+    ///
+    /// # Errors
+    /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
+    pub fn create_shared_link(&self, body: impl Into<SharedLinkCreateDTO>) -> CreateSharedLinkBuilder<'a> {
         CreateSharedLinkBuilder {
             client: self.client,
             request_config: crate::core::RequestConfig::default(),
-            body,
+            body: body.into(),
         }
     }
-
     /// Retrieve all shared links
+    ///
     /// Retrieve a list of all shared links.
     ///
     /// ### Parameters
     ///
     /// | Name | Type | Required | Description |
-    /// |--------|--------|:--------:|--------|
-    /// | `albumId` | `uuid::Uuid` |  | Filter by album ID |
-    /// | `id` | `uuid::Uuid` |  | Filter by shared link ID |
+    /// |------|------|:--------:|-------------|
+    /// | `album_id` | `AlbumId` |  | Filter by album ID |
+    /// | `id` | `SharedLinkId` |  | Filter by shared link ID |
     ///
     /// ### Responses
     ///
     /// | Code | Description |
-    /// |--------|--------|
+    /// |------|-------------|
     /// | `200` |  |
     ///
     /// **Returns:** `Vec<SharedLinkResponseDTO>`
+    ///
+    /// # Errors
+    /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
     pub fn get_all_shared_links(&self) -> GetAllSharedLinksBuilder<'a> {
         GetAllSharedLinksBuilder {
             client: self.client,
@@ -762,24 +766,27 @@ impl<'a> SharedLinks<'a> {
             id: None,
         }
     }
-
     /// Retrieve current shared link
+    ///
     /// Retrieve the current shared link associated with authentication method.
     ///
     /// ### Parameters
     ///
     /// | Name | Type | Required | Description |
-    /// |--------|--------|:--------:|--------|
+    /// |------|------|:--------:|-------------|
     /// | `key` | `String` |  |  |
     /// | `slug` | `String` |  |  |
     ///
     /// ### Responses
     ///
     /// | Code | Description |
-    /// |--------|--------|
+    /// |------|-------------|
     /// | `200` |  |
     ///
     /// **Returns:** `SharedLinkResponseDTO`
+    ///
+    /// # Errors
+    /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
     pub fn get_my_shared_link(&self) -> GetMySharedLinkBuilder<'a> {
         GetMySharedLinkBuilder {
             client: self.client,
@@ -788,134 +795,153 @@ impl<'a> SharedLinks<'a> {
             slug: None,
         }
     }
-
     /// Retrieve a shared link
+    ///
     /// Retrieve a specific shared link by its ID.
     ///
     /// ### Parameters
     ///
     /// | Name | Type | Required | Description |
-    /// |--------|--------|:--------:|--------|
-    /// | `id` | `uuid::Uuid` | ✓ |  |
+    /// |------|------|:--------:|-------------|
+    /// | `id` | `SharedLinkId` | ✓ |  |
     ///
     /// ### Responses
     ///
     /// | Code | Description |
-    /// |--------|--------|
+    /// |------|-------------|
     /// | `200` |  |
     ///
     /// **Returns:** `SharedLinkResponseDTO`
-    pub fn get_shared_link_by_id(&self, id: uuid::Uuid) -> GetSharedLinkByIdBuilder<'a> {
+    ///
+    /// # Errors
+    /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
+    pub fn get_shared_link_by_id(&self, id: impl Into<SharedLinkId>) -> GetSharedLinkByIdBuilder<'a> {
         GetSharedLinkByIdBuilder {
             client: self.client,
             request_config: crate::core::RequestConfig::default(),
-            id,
+            id: id.into(),
         }
     }
-
     /// Delete a shared link
+    ///
     /// Delete a specific shared link by its ID.
     ///
     /// ### Parameters
     ///
     /// | Name | Type | Required | Description |
-    /// |--------|--------|:--------:|--------|
-    /// | `id` | `uuid::Uuid` | ✓ |  |
+    /// |------|------|:--------:|-------------|
+    /// | `id` | `SharedLinkId` | ✓ |  |
     ///
     /// ### Responses
     ///
     /// | Code | Description |
-    /// |--------|--------|
+    /// |------|-------------|
     /// | `204` |  |
-    pub fn remove_shared_link(&self, id: uuid::Uuid) -> RemoveSharedLinkBuilder<'a> {
+    ///
+    /// # Errors
+    /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
+    pub fn remove_shared_link(&self, id: impl Into<SharedLinkId>) -> RemoveSharedLinkBuilder<'a> {
         RemoveSharedLinkBuilder {
             client: self.client,
             request_config: crate::core::RequestConfig::default(),
-            id,
+            id: id.into(),
         }
     }
-
     /// Remove assets from a shared link
+    ///
     /// Remove assets from a specific shared link by its ID. This endpoint is only relevant for shared link of type individual.
     ///
     /// ### Parameters
     ///
     /// | Name | Type | Required | Description |
-    /// |--------|--------|:--------:|--------|
-    /// | `id` | `uuid::Uuid` | ✓ |  |
-    /// | `body` | `AssetIdsDTO` | ✅ | Request body |
+    /// |------|------|:--------:|-------------|
+    /// | `id` | `SharedLinkId` | ✓ |  |
+    /// | `body` | `AssetIdsDTO` | ✓ | JSON request body |
     ///
     /// ### Responses
     ///
     /// | Code | Description |
-    /// |--------|--------|
+    /// |------|-------------|
     /// | `200` |  |
     ///
     /// **Returns:** `Vec<AssetIdsResponseDTO>`
+    ///
+    /// # Errors
+    /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
     pub fn remove_shared_link_assets(
         &self,
-        id: uuid::Uuid,
-        body: &'a AssetIdsDTO,
+        id: impl Into<SharedLinkId>,
+        body: impl Into<AssetIdsDTO>,
     ) -> RemoveSharedLinkAssetsBuilder<'a> {
         RemoveSharedLinkAssetsBuilder {
             client: self.client,
             request_config: crate::core::RequestConfig::default(),
-            id,
-            body,
+            id: id.into(),
+            body: body.into(),
         }
     }
-
     /// Shared link login
+    ///
     /// Login to a password protected shared link
     ///
     /// ### Parameters
     ///
     /// | Name | Type | Required | Description |
-    /// |--------|--------|:--------:|--------|
+    /// |------|------|:--------:|-------------|
     /// | `key` | `String` |  |  |
     /// | `slug` | `String` |  |  |
-    /// | `body` | `SharedLinkLoginDTO` | ✅ | Request body |
+    /// | `body` | `SharedLinkLoginDTO` | ✓ | JSON request body |
     ///
     /// ### Responses
     ///
     /// | Code | Description |
-    /// |--------|--------|
+    /// |------|-------------|
     /// | `201` |  |
     ///
     /// **Returns:** `SharedLinkResponseDTO`
-    pub fn shared_link_login(&self, body: &'a SharedLinkLoginDTO) -> SharedLinkLoginBuilder<'a> {
+    ///
+    /// # Errors
+    /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
+    pub fn shared_link_login(&self, body: impl Into<SharedLinkLoginDTO>) -> SharedLinkLoginBuilder<'a> {
         SharedLinkLoginBuilder {
             client: self.client,
             request_config: crate::core::RequestConfig::default(),
             key: None,
             slug: None,
-            body,
+            body: body.into(),
         }
     }
-
     /// Update a shared link
+    ///
     /// Update an existing shared link by its ID.
     ///
     /// ### Parameters
     ///
     /// | Name | Type | Required | Description |
-    /// |--------|--------|:--------:|--------|
-    /// | `id` | `uuid::Uuid` | ✓ |  |
-    /// | `body` | `SharedLinkEditDTO` | ✅ | Request body |
+    /// |------|------|:--------:|-------------|
+    /// | `id` | `SharedLinkId` | ✓ |  |
+    /// | `body` | `SharedLinkEditDTO` | ✓ | JSON request body |
     ///
     /// ### Responses
     ///
     /// | Code | Description |
-    /// |--------|--------|
+    /// |------|-------------|
     /// | `200` |  |
     ///
     /// **Returns:** `SharedLinkResponseDTO`
-    pub fn update_shared_link(&self, id: uuid::Uuid, body: &'a SharedLinkEditDTO) -> UpdateSharedLinkBuilder<'a> {
+    ///
+    /// # Errors
+    /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
+    pub fn update_shared_link(
+        &self,
+        id: impl Into<SharedLinkId>,
+        body: impl Into<SharedLinkEditDTO>,
+    ) -> UpdateSharedLinkBuilder<'a> {
         UpdateSharedLinkBuilder {
             client: self.client,
             request_config: crate::core::RequestConfig::default(),
-            id,
-            body,
+            id: id.into(),
+            body: body.into(),
         }
     }
 }

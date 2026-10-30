@@ -1,5 +1,5 @@
-#![cfg(feature = "e2e")]
-#![allow(deprecated)]
+#![cfg(all(feature = "fs", not(target_arch = "wasm32")))]
+#![allow(deprecated, clippy::print_stderr)]
 
 use std::pin::pin;
 use std::process::Command;
@@ -9,7 +9,7 @@ use futures_util::StreamExt;
 use immich_models::activities::{ActivityCreateDTO, ReactionLevel, ReactionType};
 use immich_models::albums::{AddUsersDTO, AlbumUserAddDTO, AlbumUserRole, BulkIdsDTO, CreateAlbumDTO};
 use immich_models::api_keys::{ApiKeyCreateDTO, Permission};
-use immich_models::assets::download::DownloadInfoDTO;
+use immich_models::assets::downloads::DownloadInfoDTO;
 use immich_models::assets::stacks::StackCreateDTO;
 use immich_models::assets::{AssetBulkDeleteDTO, AssetBulkUploadCheckDTO, AssetBulkUploadCheckItem, UpdateAssetDTO};
 use immich_models::authentication::{LoginCredentialDTO, SignUpDTO};
@@ -159,6 +159,7 @@ fn test_asset_path(filename: &str) -> std::path::PathBuf {
 /// 7. Search, Timeline & People (Paginated Streams)
 /// 8. Server, System Config, Queues & Trash
 #[tokio::test(flavor = "multi_thread")]
+#[ignore = "requires Docker (run with --ignored)"]
 #[allow(clippy::too_many_lines)]
 async fn full_user_workflow() -> Result<()> {
     if std::env::var("IMMICH_RUN_E2E").is_err() && std::env::var("CI_E2E").is_err() {
@@ -196,21 +197,14 @@ async fn full_user_workflow() -> Result<()> {
     // ── 1 & 2. Seed Admin + Second User + Auth + Sessions + API Keys ──────────
     let signup = unauth
         .authentication()
-        .sign_up_admin(&SignUpDTO::new(
-            "admin@e2e.local".try_into()?,
-            "E2E Admin",
-            "e2e-password-123",
-        ))
+        .sign_up_admin(SignUpDTO::new("admin@e2e.local", "E2E Admin", "e2e-password-123"))
         .await
         .context("admin signup")?;
     assert!(!signup.id.is_nil());
 
     let login = unauth
         .authentication()
-        .login(&LoginCredentialDTO::new(
-            "admin@e2e.local".try_into()?,
-            "e2e-password-123",
-        ))
+        .login(LoginCredentialDTO::new("admin@e2e.local", "e2e-password-123"))
         .await
         .context("admin login")?;
 
@@ -239,13 +233,13 @@ async fn full_user_workflow() -> Result<()> {
 
     let api_key = bearer
         .api_keys()
-        .create_api_key(&ApiKeyCreateDTO::new(vec![Permission::All]).name("e2e-key"))
+        .create_api_key(ApiKeyCreateDTO::new(vec![Permission::All]).name("e2e-key"))
         .await
         .context("create API key")?;
 
     let temp_key = bearer
         .api_keys()
-        .create_api_key(&ApiKeyCreateDTO::new(vec![Permission::AssetRead]).name("temp-key"))
+        .create_api_key(ApiKeyCreateDTO::new(vec![Permission::AssetRead]).name("temp-key"))
         .await
         .context("create temp API key")?;
     let all_keys = bearer.api_keys().get_api_keys().await.context("get_api_keys")?;
@@ -267,9 +261,10 @@ async fn full_user_workflow() -> Result<()> {
 
     // Create second user (for sharing & partner tests)
     let second_user = client
-        .users_admin()
-        .create_user_admin(&UserAdminCreateDTO::new(
-            "user@e2e.local".try_into()?,
+        .users()
+        .admin()
+        .create_user_admin(UserAdminCreateDTO::new(
+            "user@e2e.local",
             "Second User",
             "user-password-123",
         ))
@@ -278,7 +273,8 @@ async fn full_user_workflow() -> Result<()> {
     assert!(!second_user.id.is_nil());
 
     let admin_users = client
-        .users_admin()
+        .users()
+        .admin()
         .search_users_admin()
         .await
         .context("search_users_admin")?;
@@ -321,7 +317,7 @@ async fn full_user_workflow() -> Result<()> {
     // Check bulk upload deduplication via SHA-1
     let bulk_check = client
         .assets()
-        .check_bulk_upload(&AssetBulkUploadCheckDTO::new(vec![AssetBulkUploadCheckItem::new(
+        .check_bulk_upload(AssetBulkUploadCheckDTO::new(vec![AssetBulkUploadCheckItem::new(
             dummy_1_sha1,
             "dummy_1.jpg",
         )]))
@@ -334,7 +330,7 @@ async fn full_user_workflow() -> Result<()> {
         .assets()
         .update_asset(
             asset_1_id,
-            &UpdateAssetDTO::new().is_favorite(true).description("Seeded demo photo"),
+            UpdateAssetDTO::new().is_favorite(true).description("Seeded demo photo"),
         )
         .await
         .context("update_asset")?;
@@ -359,24 +355,37 @@ async fn full_user_workflow() -> Result<()> {
     assert_eq!(downloaded_sha1, calculate_file_checksum(&dummy_1).await?);
 
     let download_info = client
-        .assets_download()
-        .get_download_info(&DownloadInfoDTO::new().asset_ids(vec![asset_1_id]))
+        .assets()
+        .downloads()
+        .get_download_info(DownloadInfoDTO::new().asset_ids(vec![asset_1_id]))
         .await
         .context("get_download_info")?;
     assert!(download_info.total_size > 0);
 
     // ── 4. Stacks ─────────────────────────────────────────────────────────────
     let stack = client
-        .assets_stacks()
-        .create_stack(&StackCreateDTO::new(vec![all_asset_ids[1], all_asset_ids[2]]))
+        .assets()
+        .stacks()
+        .create_stack(StackCreateDTO::new(vec![all_asset_ids[1], all_asset_ids[2]]))
         .await
         .context("create_stack")?;
-    let stacks = client.assets_stacks().search_stacks().await.context("search_stacks")?;
+    let stacks = client
+        .assets()
+        .stacks()
+        .search_stacks()
+        .await
+        .context("search_stacks")?;
     assert!(!stacks.is_empty(), "expected created stack in search");
-    let fetched_stack = client.assets_stacks().get_stack(stack.id).await.context("get_stack")?;
+    let fetched_stack = client
+        .assets()
+        .stacks()
+        .get_stack(stack.id)
+        .await
+        .context("get_stack")?;
     assert_eq!(fetched_stack.id, stack.id);
     client
-        .assets_stacks()
+        .assets()
+        .stacks()
         .delete_stack(stack.id)
         .await
         .context("delete_stack")?;
@@ -385,14 +394,14 @@ async fn full_user_workflow() -> Result<()> {
     let album_name = format!("e2e-demo-{}", uuid::Uuid::new_v4());
     let album = client
         .albums()
-        .create_album(&CreateAlbumDTO::new(&album_name).description("Seeded demo album"))
+        .create_album(CreateAlbumDTO::new(&album_name).description("Seeded demo album"))
         .await
         .context("create_album")?;
     let album_id = album.id;
 
     client
         .albums()
-        .add_assets_to_album(album_id, &BulkIdsDTO::new(vec![asset_1_id]))
+        .add_assets_to_album(album_id, BulkIdsDTO::new(vec![asset_1_id]))
         .await
         .context("add_assets_to_album")?;
 
@@ -401,7 +410,7 @@ async fn full_user_workflow() -> Result<()> {
         .albums()
         .add_users_to_album(
             album_id,
-            &AddUsersDTO::new(vec![AlbumUserAddDTO::new(second_user.id).role(AlbumUserRole::Editor)]),
+            AddUsersDTO::new(vec![AlbumUserAddDTO::new(second_user.id).role(AlbumUserRole::Editor)]),
         )
         .await
         .context("add_users_to_album")?;
@@ -423,7 +432,7 @@ async fn full_user_workflow() -> Result<()> {
 
     let activity = client
         .activities()
-        .create_activity(&ActivityCreateDTO::new(album_id, ReactionType::Comment).comment("Great demo photo!"))
+        .create_activity(ActivityCreateDTO::new(album_id, ReactionType::Comment).comment("Great demo photo!"))
         .await
         .context("create_activity")?;
     let activities = client
@@ -442,12 +451,12 @@ async fn full_user_workflow() -> Result<()> {
     // ── 6. Tags, Memories, Partners & Shared Links ────────────────────────────
     let tag = client
         .tags()
-        .create_tag(&TagCreateDTO::new("e2e-vacation".try_into()?))
+        .create_tag(TagCreateDTO::new("e2e-vacation"))
         .await
         .context("create_tag")?;
     client
         .tags()
-        .tag_assets(tag.id, &BulkIdsDTO::new(vec![asset_1_id]))
+        .tag_assets(tag.id, BulkIdsDTO::new(vec![asset_1_id]))
         .await
         .context("tag_assets")?;
     let all_tags = client.tags().get_all_tags().await.context("get_all_tags")?;
@@ -457,7 +466,7 @@ async fn full_user_workflow() -> Result<()> {
     let memory = client
         .memories()
         .create_memory(
-            &MemoryCreateDTO::new(MemoryDataDTO::new(2024), now, MemoryType::OnThisDay).asset_ids(vec![asset_1_id]),
+            MemoryCreateDTO::new(MemoryDataDTO::new(2024), now, MemoryType::OnThisDay).asset_ids(vec![asset_1_id]),
         )
         .await
         .context("create_memory")?;
@@ -471,7 +480,7 @@ async fn full_user_workflow() -> Result<()> {
 
     let partner = client
         .partners()
-        .create_partner(&PartnerCreateDTO::new(second_user.id))
+        .create_partner(PartnerCreateDTO::new(second_user.id))
         .await
         .context("create_partner")?;
     assert_eq!(partner.id, second_user.id);
@@ -484,7 +493,7 @@ async fn full_user_workflow() -> Result<()> {
     let shared_link = client
         .shared_links()
         .create_shared_link(
-            &SharedLinkCreateDTO::new(SharedLinkType::Album)
+            SharedLinkCreateDTO::new(SharedLinkType::Album)
                 .album_id(album_id)
                 .description("Public demo share"),
         )
@@ -505,21 +514,21 @@ async fn full_user_workflow() -> Result<()> {
     // ── 7. Search, Timeline & People (Paginated Stream) ───────────────────────
     let search_res = client
         .search()
-        .search_assets(&MetadataSearchDTO::new().is_favorite(true))
+        .search_assets(MetadataSearchDTO::new().is_favorite(true))
         .await
         .context("search_assets")?;
     assert!(!search_res.assets.items.is_empty(), "expected favorite asset in search");
 
     let album_assets = client
         .search()
-        .search_assets(&MetadataSearchDTO::new().album_ids(vec![album_id]))
+        .search_assets(MetadataSearchDTO::new().album_ids(vec![album_id]))
         .await
         .context("search_assets in album")?;
     assert!(!album_assets.assets.items.is_empty(), "expected assets in album");
 
     let random_assets = client
         .search()
-        .search_random(&RandomSearchDTO::new().size(std::num::NonZeroU64::new(2).unwrap()))
+        .search_random(RandomSearchDTO::new().size(std::num::NonZeroU64::new(2).unwrap()))
         .await
         .context("search_random")?;
     assert!(!random_assets.is_empty(), "expected random assets");
@@ -528,7 +537,7 @@ async fn full_user_workflow() -> Result<()> {
 
     let created_person = client
         .people()
-        .create_person(&PersonCreateDTO::new().name("Demo Person"))
+        .create_person(PersonCreateDTO::new().name("Demo Person"))
         .await
         .context("create_person")?;
     let person_info = client
@@ -565,14 +574,14 @@ async fn full_user_workflow() -> Result<()> {
         .get_server_statistics()
         .await
         .context("get_server_statistics")?;
-    let _sys_config = client.system_config().get_config().await.context("get_config")?;
+    let _sys_config = client.system().config().get_config().await.context("get_config")?;
     let queues = client.queues().get_queues().await.context("get_queues")?;
     assert!(!queues.is_empty(), "expected background job queues");
 
     // Delete all seeded assets + empty trash + delete album
     client
         .assets()
-        .delete_assets(&AssetBulkDeleteDTO::new(all_asset_ids).force(true))
+        .delete_assets(AssetBulkDeleteDTO::new(all_asset_ids).force(true))
         .await
         .context("delete_assets")?;
     client.trash().empty_trash().await.context("empty_trash")?;

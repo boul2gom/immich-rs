@@ -1,14 +1,17 @@
 // @generated Made by @boul2gom with `immich-rs` - do not edit by hand.
 // Re-run `cargo xtask generate` to update.
+#![allow(clippy::struct_excessive_bools, clippy::too_many_lines)]
 
 //! Strongly typed entity identifiers for Immich.
 //!
-//! Provides type-safe wrappers around [`uuid::Uuid`] for domain entities such as
-//! [`AssetId`], [`AlbumId`], [`UserId`], [`TagId`], and others.
+//! Provides zero-cost `#[repr(transparent)]` wrappers around [`uuid::Uuid`] for domain entities
+//! such as [`AssetId`], [`AlbumId`], [`UserId`], [`TagId`], and others.
 //!
-//! Each identifier is `#[serde(transparent)]` and implements [`std::ops::Deref<Target = uuid::Uuid>`],
-//! allowing direct access to UUID methods while preventing accidental ID mixing at compile time.
+//! Each identifier is `#[serde(transparent)]` and implements [`std::ops::Deref<Target = uuid::Uuid>`]
+//! and [`std::borrow::Borrow<uuid::Uuid>`], allowing direct access to UUID methods while preventing
+//! accidental ID mixing at compile time.
 
+use std::borrow::Borrow;
 use std::fmt;
 use std::ops::Deref;
 use std::str::FromStr;
@@ -19,6 +22,7 @@ use uuid::Uuid;
 macro_rules! define_id {
     ($name:ident, $doc:expr) => {
         #[doc = $doc]
+        #[repr(transparent)]
         #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
         #[serde(transparent)]
         pub struct $name(pub Uuid);
@@ -71,6 +75,13 @@ macro_rules! define_id {
             }
         }
 
+        impl Borrow<Uuid> for $name {
+            #[inline]
+            fn borrow(&self) -> &Uuid {
+                &self.0
+            }
+        }
+
         impl From<Uuid> for $name {
             #[inline]
             fn from(uuid: Uuid) -> Self {
@@ -85,10 +96,31 @@ macro_rules! define_id {
             }
         }
 
+        impl From<&$name> for $name {
+            #[inline]
+            fn from(id: &$name) -> Self {
+                *id
+            }
+        }
+
         impl From<$name> for Uuid {
             #[inline]
             fn from(id: $name) -> Self {
                 id.0
+            }
+        }
+
+        impl From<&$name> for Uuid {
+            #[inline]
+            fn from(id: &$name) -> Self {
+                id.0
+            }
+        }
+
+        impl From<$name> for String {
+            #[inline]
+            fn from(id: $name) -> Self {
+                id.0.to_string()
             }
         }
 
@@ -128,23 +160,46 @@ macro_rules! define_id {
     };
 }
 
-define_id!(AssetId, "A strongly typed identifier for an Immich asset.");
+define_id!(ActivityId, "A strongly typed identifier for an Immich activity.");
 define_id!(AlbumId, "A strongly typed identifier for an Immich album.");
-define_id!(UserId, "A strongly typed identifier for an Immich user.");
-define_id!(TagId, "A strongly typed identifier for an Immich tag.");
-define_id!(LibraryId, "A strongly typed identifier for an Immich library.");
 define_id!(ApiKeyId, "A strongly typed identifier for an Immich API key.");
 define_id!(
-    PersonId,
-    "A strongly typed identifier for an Immich person or recognized face."
+    AssetFileId,
+    "A strongly typed identifier for an Immich auxiliary asset file."
 );
+define_id!(AssetId, "A strongly typed identifier for an Immich media asset.");
+define_id!(
+    ClusterGroupId,
+    "A strongly typed identifier for an Immich facial-recognition cluster group."
+);
+define_id!(
+    DuplicateId,
+    "A strongly typed identifier for an Immich duplicate asset group."
+);
+define_id!(
+    FaceId,
+    "A strongly typed identifier for a detected face bounding box on an asset."
+);
+define_id!(LibraryId, "A strongly typed identifier for an Immich library.");
 define_id!(MemoryId, "A strongly typed identifier for an Immich memory.");
-define_id!(StackId, "A strongly typed identifier for an Immich asset stack.");
-define_id!(ActivityId, "A strongly typed identifier for an Immich activity.");
+define_id!(
+    NotificationId,
+    "A strongly typed identifier for an Immich user notification."
+);
 define_id!(
     PartnerId,
     "A strongly typed identifier for an Immich partner sharing relationship."
 );
+define_id!(PersonId, "A strongly typed identifier for an Immich person.");
+define_id!(PluginId, "A strongly typed identifier for an Immich plugin.");
+define_id!(
+    SessionId,
+    "A strongly typed identifier for an Immich authentication or streaming session."
+);
+define_id!(SharedLinkId, "A strongly typed identifier for an Immich shared link.");
+define_id!(StackId, "A strongly typed identifier for an Immich asset stack.");
+define_id!(TagId, "A strongly typed identifier for an Immich tag.");
+define_id!(UserId, "A strongly typed identifier for an Immich user.");
 define_id!(
     WorkflowId,
     "A strongly typed identifier for an Immich automation workflow."

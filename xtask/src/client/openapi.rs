@@ -18,10 +18,17 @@ pub enum ParamLocation {
     Header,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BodyKind {
+    Json,
+    FormUrlEncoded,
+    Multipart,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct BodyDef {
     pub rust_type: String,
-    pub is_multipart: bool,
+    pub kind: BodyKind,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -77,6 +84,7 @@ fn parse_param(p: &Value) -> Result<Option<ParamDef>> {
 }
 
 #[doc(hidden)]
+#[allow(clippy::too_many_lines)]
 pub fn extract_endpoints(spec: &Value) -> Result<Vec<EndpointDef>> {
     let mut endpoints = Vec::new();
     let paths = spec["paths"]
@@ -142,14 +150,21 @@ pub fn extract_endpoints(spec: &Value) -> Result<Vec<EndpointDef>> {
                     let (rust_type, _) = resolve_rust_type(schema);
                     body = Some(BodyDef {
                         rust_type,
-                        is_multipart: false,
+                        kind: BodyKind::Json,
+                    });
+                } else if let Some(form_url) = content.get("application/x-www-form-urlencoded") {
+                    let schema = &form_url["schema"];
+                    let (rust_type, _) = resolve_rust_type(schema);
+                    body = Some(BodyDef {
+                        rust_type,
+                        kind: BodyKind::FormUrlEncoded,
                     });
                 } else if let Some(multipart) = content.get("multipart/form-data") {
                     let schema = &multipart["schema"];
                     let (rust_type, _) = resolve_rust_type(schema);
                     body = Some(BodyDef {
                         rust_type,
-                        is_multipart: true,
+                        kind: BodyKind::Multipart,
                     });
                 }
             }
@@ -187,7 +202,6 @@ pub fn extract_endpoints(spec: &Value) -> Result<Vec<EndpointDef>> {
                                 response_type = Some(rt);
                             }
 
-                            // Detect paginator dynamically
                             paginator = crate::client::detect_pagination::detect_paginator(op, schema, spec);
                         } else if !content.is_empty() {
                             response_type = Some("reqwest::Response".to_string());

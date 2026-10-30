@@ -1,13 +1,13 @@
-//! High-level download helper that streams a file from Immich without loading it
-//! entirely into memory.
+//! High-level download helpers that stream assets from Immich without buffering in RAM.
 //!
-//! This is a thin wrapper around the generated [`Assets::download_asset`](crate::api::assets::Assets::download_asset) endpoint.
+//! Wraps the generated [`Assets::download_asset`](crate::api::assets::Assets::download_asset) endpoint.
 
-#[cfg(feature = "fs")]
+#[cfg(all(feature = "fs", not(target_arch = "wasm32")))]
 use std::path::Path;
 
 use futures_util::StreamExt;
-#[cfg(feature = "fs")]
+use immich_models::id::AssetId;
+#[cfg(all(feature = "fs", not(target_arch = "wasm32")))]
 use tokio::fs::File;
 use tokio::io::AsyncWriteExt;
 
@@ -16,40 +16,38 @@ use crate::error::{Error, Result};
 use crate::progress::ProgressSender;
 
 impl ImmichClient {
-    /// Download an asset directly to a file on disk without loading it into RAM.
+    /// Downloads an asset directly to a file on disk without loading it into RAM.
     ///
-    /// Writes to a temporary `.<asset_id>.tmp` file first and atomically renames it
+    /// Writes to a temporary `<dest>.<asset_id>.tmp` file first and atomically renames it
     /// to `dest` upon completion. If the transfer fails or the future is cancelled,
-    /// the partial temporary file is automatically removed.
+    /// the partial temporary file is automatically removed while leaving any existing `dest` untouched.
     ///
     /// # Errors
+    ///
     /// Returns an error if the request fails or if writing to disk fails.
-    #[cfg(feature = "fs")]
-    pub async fn download<P: AsRef<Path>>(&self, asset_id: uuid::Uuid, dest: P) -> Result<()> {
-        self.download_internal(asset_id, dest.as_ref(), None).await
+    #[cfg(all(feature = "fs", not(target_arch = "wasm32")))]
+    pub async fn download<P: AsRef<Path>>(&self, asset_id: impl Into<AssetId>, dest: P) -> Result<()> {
+        self.download_internal(asset_id.into(), dest.as_ref(), None).await
     }
 
-    /// Download an asset directly to a file on disk while reporting progress.
+    /// Downloads an asset directly to a file on disk while reporting transfer progress.
     ///
     /// # Errors
+    ///
     /// Returns an error if the request fails or if writing to disk fails.
-    #[cfg(feature = "fs")]
+    #[cfg(all(feature = "fs", not(target_arch = "wasm32")))]
     pub async fn download_with_progress<P: AsRef<Path>>(
         &self,
-        asset_id: uuid::Uuid,
+        asset_id: impl Into<AssetId>,
         dest: P,
         progress: ProgressSender,
     ) -> Result<()> {
-        self.download_internal(asset_id, dest.as_ref(), Some(progress)).await
+        self.download_internal(asset_id.into(), dest.as_ref(), Some(progress))
+            .await
     }
 
-    #[cfg(feature = "fs")]
-    async fn download_internal(
-        &self,
-        asset_id: uuid::Uuid,
-        dest: &Path,
-        progress: Option<ProgressSender>,
-    ) -> Result<()> {
+    #[cfg(all(feature = "fs", not(target_arch = "wasm32")))]
+    async fn download_internal(&self, asset_id: AssetId, dest: &Path, progress: Option<ProgressSender>) -> Result<()> {
         let resp = self.assets().download_asset(asset_id).await?;
         let total = resp.content_length();
 
@@ -91,18 +89,16 @@ impl ImmichClient {
 
     /// Streams an asset directly into any asynchronous writer without loading it entirely into RAM.
     ///
-    /// This is useful for streaming directly to an HTTP response, an arbitrary pipe, a network socket,
-    /// or a custom stream sink.
-    ///
     /// Returns the total number of bytes written.
     ///
     /// # Errors
+    ///
     /// Returns an error if the request fails or if writing to the destination fails.
-    pub async fn download_to_writer<W>(&self, asset_id: uuid::Uuid, writer: W) -> Result<u64>
+    pub async fn download_to_writer<W>(&self, asset_id: impl Into<AssetId>, writer: W) -> Result<u64>
     where
         W: tokio::io::AsyncWrite + Unpin,
     {
-        self.download_to_writer_internal(asset_id, writer, None).await
+        self.download_to_writer_internal(asset_id.into(), writer, None).await
     }
 
     /// Streams an asset directly into any asynchronous writer while reporting transfer progress.
@@ -110,22 +106,24 @@ impl ImmichClient {
     /// Returns the total number of bytes written.
     ///
     /// # Errors
+    ///
     /// Returns an error if the request fails or if writing to the destination fails.
     pub async fn download_to_writer_with_progress<W>(
         &self,
-        asset_id: uuid::Uuid,
+        asset_id: impl Into<AssetId>,
         writer: W,
         progress: ProgressSender,
     ) -> Result<u64>
     where
         W: tokio::io::AsyncWrite + Unpin,
     {
-        self.download_to_writer_internal(asset_id, writer, Some(progress)).await
+        self.download_to_writer_internal(asset_id.into(), writer, Some(progress))
+            .await
     }
 
     async fn download_to_writer_internal<W>(
         &self,
-        asset_id: uuid::Uuid,
+        asset_id: AssetId,
         mut writer: W,
         progress: Option<ProgressSender>,
     ) -> Result<u64>

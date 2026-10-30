@@ -1,56 +1,61 @@
 // @generated Made by @boul2gom with `immich-rs` - do not edit by hand.
 // Re-run `cargo xtask generate` to update.
+#![allow(clippy::struct_excessive_bools, clippy::too_many_lines)]
 
 //! `OpenAPI` data models for `assets`.
 
-pub mod download;
+pub mod downloads;
 pub mod faces;
+pub mod files;
 pub mod stacks;
 
 pub use crate::activities::{UserAvatarColor, UserResponseDTO};
-pub use crate::people::PeopleUserResponseEmail;
+pub use crate::id::{AssetId, DuplicateId, LibraryId, PersonId, StackId, TagId, UserId};
 
 /// `AssetBulkDeleteDTO`
 ///
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
 /// | `force` | `bool` |  | Force delete even if in use |
-/// | `ids` | [`Vec<Uuid>`](::uuid::Uuid) | ✓ | IDs to process |
+/// | `ids` | [`Vec<AssetId>`](crate::id::AssetId) | ✓ | IDs to process |
 ///
 /// See: <https://api.immich.app/models/AssetBulkDeleteDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct AssetBulkDeleteDTO {
+    /// Force delete even if in use
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub force: Option<bool>,
-    pub ids: Vec<::uuid::Uuid>,
+    /// IDs to process (required)
+    pub ids: Vec<AssetId>,
 }
 
 impl AssetBulkDeleteDTO {
-    ///Creates a new [`AssetBulkDeleteDTO`].
+    /// Creates a new [`AssetBulkDeleteDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(ids: Vec<::uuid::Uuid>) -> Self {
-        Self { force: None, ids }
+    pub fn new(ids: impl IntoIterator<Item = impl Into<AssetId>>) -> Self {
+        Self {
+            force: None,
+            ids: ids.into_iter().map(Into::into).collect(),
+        }
     }
-
-    ///Sets `force`.
+    /// Sets `force`.
     #[must_use]
     pub fn force(mut self, value: bool) -> Self {
         self.force = Some(value);
         self
     }
-
-    ///Sets or clears `force`.
+    /// Sets or clears `force`.
     #[must_use]
     pub fn set_force(mut self, value: Option<bool>) -> Self {
         self.force = value;
         self
     }
-
-    ///Sets `ids`.
+    /// Sets `ids`.
     #[must_use]
-    pub fn ids(mut self, value: Vec<::uuid::Uuid>) -> Self {
-        self.ids = value;
+    pub fn ids(mut self, value: impl IntoIterator<Item = impl Into<AssetId>>) -> Self {
+        self.ids = value.into_iter().map(Into::into).collect();
         self
     }
 }
@@ -62,17 +67,18 @@ impl AssetBulkDeleteDTO {
 /// | `date_time_original` | [`String`] |  | Original date and time |
 /// | `date_time_relative` | `i64` |  | Relative time offset in minutes |
 /// | `description` | [`String`] |  | Asset description |
-/// | `duplicate_id` | [`String`] |  | Duplicate ID |
-/// | `ids` | [`Vec<Uuid>`](::uuid::Uuid) | ✓ | Asset IDs to update |
+/// | `duplicate_id` | [`DuplicateId`](crate::id::DuplicateId) |  | Duplicate ID |
+/// | `ids` | [`Vec<AssetId>`](crate::id::AssetId) | ✓ | Asset IDs to update |
 /// | `is_favorite` | `bool` |  | Mark as favorite |
 /// | `latitude` | `f64` |  | Latitude coordinate |
 /// | `longitude` | `f64` |  | Longitude coordinate |
-/// | `rating` | `i64` |  | Rating in range [1-5] (starred), -1 (rejected), or null (unrated) |
+/// | `rating` | `i64` |  | Rating in range \[1-5\] (starred), -1 (rejected), or null (unrated) |
 /// | `time_zone` | [`String`] |  | Time zone (IANA timezone) |
 /// | `visibility` | [`AssetVisibility`] |  |  |
 ///
 /// See: <https://api.immich.app/models/AssetBulkUpdateDto>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct AssetBulkUpdateDTO {
     /// Original date and time
     #[serde(
@@ -88,6 +94,7 @@ pub struct AssetBulkUpdateDTO {
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub date_time_relative: Option<i64>,
+    /// Asset description
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub description: Option<String>,
     /// Duplicate ID
@@ -97,7 +104,8 @@ pub struct AssetBulkUpdateDTO {
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub duplicate_id: Option<String>,
-    pub ids: Vec<::uuid::Uuid>,
+    /// Asset IDs to update (required)
+    pub ids: Vec<AssetId>,
     /// Mark as favorite
     #[serde(
         rename = "isFavorite",
@@ -105,10 +113,13 @@ pub struct AssetBulkUpdateDTO {
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub is_favorite: Option<bool>,
+    /// Latitude coordinate
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub latitude: Option<f64>,
+    /// Longitude coordinate
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub longitude: Option<f64>,
+    /// Rating in range \[1-5\] (starred), -1 (rejected), or null (unrated)
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub rating: Option<i64>,
     /// Time zone (IANA timezone)
@@ -119,16 +130,16 @@ pub struct AssetBulkUpdateDTO {
 }
 
 impl AssetBulkUpdateDTO {
-    ///Creates a new [`AssetBulkUpdateDTO`].
+    /// Creates a new [`AssetBulkUpdateDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(ids: Vec<::uuid::Uuid>) -> Self {
+    pub fn new(ids: impl IntoIterator<Item = impl Into<AssetId>>) -> Self {
         Self {
             date_time_original: None,
             date_time_relative: None,
             description: None,
             duplicate_id: None,
-            ids,
+            ids: ids.into_iter().map(Into::into).collect(),
             is_favorite: None,
             latitude: None,
             longitude: None,
@@ -137,148 +148,127 @@ impl AssetBulkUpdateDTO {
             visibility: None,
         }
     }
-
-    ///Sets `date_time_original`.
+    /// Sets `date_time_original`.
     #[must_use]
     pub fn date_time_original(mut self, value: impl Into<String>) -> Self {
         self.date_time_original = Some(value.into());
         self
     }
-
-    ///Sets or clears `date_time_original`.
+    /// Sets or clears `date_time_original`.
     #[must_use]
     pub fn set_date_time_original(mut self, value: Option<String>) -> Self {
         self.date_time_original = value;
         self
     }
-
-    ///Sets `date_time_relative`.
+    /// Sets `date_time_relative`.
     #[must_use]
     pub fn date_time_relative(mut self, value: i64) -> Self {
         self.date_time_relative = Some(value);
         self
     }
-
-    ///Sets or clears `date_time_relative`.
+    /// Sets or clears `date_time_relative`.
     #[must_use]
     pub fn set_date_time_relative(mut self, value: Option<i64>) -> Self {
         self.date_time_relative = value;
         self
     }
-
-    ///Sets `description`.
+    /// Sets `description`.
     #[must_use]
     pub fn description(mut self, value: impl Into<String>) -> Self {
         self.description = Some(value.into());
         self
     }
-
-    ///Sets or clears `description`.
+    /// Sets or clears `description`.
     #[must_use]
     pub fn set_description(mut self, value: Option<String>) -> Self {
         self.description = value;
         self
     }
-
-    ///Sets `duplicate_id`.
+    /// Sets `duplicate_id`.
     #[must_use]
     pub fn duplicate_id(mut self, value: impl Into<String>) -> Self {
         self.duplicate_id = Some(value.into());
         self
     }
-
-    ///Sets or clears `duplicate_id`.
+    /// Sets or clears `duplicate_id`.
     #[must_use]
     pub fn set_duplicate_id(mut self, value: Option<String>) -> Self {
         self.duplicate_id = value;
         self
     }
-
-    ///Sets `ids`.
+    /// Sets `ids`.
     #[must_use]
-    pub fn ids(mut self, value: Vec<::uuid::Uuid>) -> Self {
-        self.ids = value;
+    pub fn ids(mut self, value: impl IntoIterator<Item = impl Into<AssetId>>) -> Self {
+        self.ids = value.into_iter().map(Into::into).collect();
         self
     }
-
-    ///Sets `is_favorite`.
+    /// Sets `is_favorite`.
     #[must_use]
     pub fn is_favorite(mut self, value: bool) -> Self {
         self.is_favorite = Some(value);
         self
     }
-
-    ///Sets or clears `is_favorite`.
+    /// Sets or clears `is_favorite`.
     #[must_use]
     pub fn set_is_favorite(mut self, value: Option<bool>) -> Self {
         self.is_favorite = value;
         self
     }
-
-    ///Sets `latitude`.
+    /// Sets `latitude`.
     #[must_use]
     pub fn latitude(mut self, value: f64) -> Self {
         self.latitude = Some(value);
         self
     }
-
-    ///Sets or clears `latitude`.
+    /// Sets or clears `latitude`.
     #[must_use]
     pub fn set_latitude(mut self, value: Option<f64>) -> Self {
         self.latitude = value;
         self
     }
-
-    ///Sets `longitude`.
+    /// Sets `longitude`.
     #[must_use]
     pub fn longitude(mut self, value: f64) -> Self {
         self.longitude = Some(value);
         self
     }
-
-    ///Sets or clears `longitude`.
+    /// Sets or clears `longitude`.
     #[must_use]
     pub fn set_longitude(mut self, value: Option<f64>) -> Self {
         self.longitude = value;
         self
     }
-
-    ///Sets `rating`.
+    /// Sets `rating`.
     #[must_use]
     pub fn rating(mut self, value: i64) -> Self {
         self.rating = Some(value);
         self
     }
-
-    ///Sets or clears `rating`.
+    /// Sets or clears `rating`.
     #[must_use]
     pub fn set_rating(mut self, value: Option<i64>) -> Self {
         self.rating = value;
         self
     }
-
-    ///Sets `time_zone`.
+    /// Sets `time_zone`.
     #[must_use]
     pub fn time_zone(mut self, value: impl Into<String>) -> Self {
         self.time_zone = Some(value.into());
         self
     }
-
-    ///Sets or clears `time_zone`.
+    /// Sets or clears `time_zone`.
     #[must_use]
     pub fn set_time_zone(mut self, value: Option<String>) -> Self {
         self.time_zone = value;
         self
     }
-
-    ///Sets `visibility`.
+    /// Sets `visibility`.
     #[must_use]
     pub fn visibility(mut self, value: AssetVisibility) -> Self {
         self.visibility = Some(value);
         self
     }
-
-    ///Sets or clears `visibility`.
+    /// Sets or clears `visibility`.
     #[must_use]
     pub fn set_visibility(mut self, value: Option<AssetVisibility>) -> Self {
         self.visibility = value;
@@ -293,23 +283,26 @@ impl AssetBulkUpdateDTO {
 /// | `assets` | [`Vec<AssetBulkUploadCheckItem>`](crate::assets::AssetBulkUploadCheckItem) | ✓ | Assets to check |
 ///
 /// See: <https://api.immich.app/models/AssetBulkUploadCheckDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct AssetBulkUploadCheckDTO {
+    /// Assets to check (required)
     pub assets: Vec<AssetBulkUploadCheckItem>,
 }
 
 impl AssetBulkUploadCheckDTO {
-    ///Creates a new [`AssetBulkUploadCheckDTO`].
+    /// Creates a new [`AssetBulkUploadCheckDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(assets: Vec<AssetBulkUploadCheckItem>) -> Self {
-        Self { assets }
+    pub fn new(assets: impl IntoIterator<Item = AssetBulkUploadCheckItem>) -> Self {
+        Self {
+            assets: assets.into_iter().collect(),
+        }
     }
-
-    ///Sets `assets`.
+    /// Sets `assets`.
     #[must_use]
-    pub fn assets(mut self, value: Vec<AssetBulkUploadCheckItem>) -> Self {
-        self.assets = value;
+    pub fn assets(mut self, value: impl IntoIterator<Item = AssetBulkUploadCheckItem>) -> Self {
+        self.assets = value.into_iter().collect();
         self
     }
 }
@@ -322,14 +315,17 @@ impl AssetBulkUploadCheckDTO {
 /// | `id` | [`String`] | ✓ | Client-side identifier echoed in the response to match results to inputs (e.g. filename) |
 ///
 /// See: <https://api.immich.app/models/AssetBulkUploadCheckItem>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct AssetBulkUploadCheckItem {
+    /// Base64 or hex encoded SHA1 hash (required)
     pub checksum: String,
+    /// Client-side identifier echoed in the response to match results to inputs (e.g. filename) (required)
     pub id: String,
 }
 
 impl AssetBulkUploadCheckItem {
-    ///Creates a new [`AssetBulkUploadCheckItem`].
+    /// Creates a new [`AssetBulkUploadCheckItem`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(checksum: impl Into<String>, id: impl Into<String>) -> Self {
@@ -338,15 +334,13 @@ impl AssetBulkUploadCheckItem {
             id: id.into(),
         }
     }
-
-    ///Sets `checksum`.
+    /// Sets `checksum`.
     #[must_use]
     pub fn checksum(mut self, value: impl Into<String>) -> Self {
         self.checksum = value.into();
         self
     }
-
-    ///Sets `id`.
+    /// Sets `id`.
     #[must_use]
     pub fn id(mut self, value: impl Into<String>) -> Self {
         self.id = value.into();
@@ -361,23 +355,26 @@ impl AssetBulkUploadCheckItem {
 /// | `results` | [`Vec<AssetBulkUploadCheckResult>`](crate::assets::AssetBulkUploadCheckResult) | ✓ | Upload check results |
 ///
 /// See: <https://api.immich.app/models/AssetBulkUploadCheckResponseDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct AssetBulkUploadCheckResponseDTO {
+    /// Upload check results (required)
     pub results: Vec<AssetBulkUploadCheckResult>,
 }
 
 impl AssetBulkUploadCheckResponseDTO {
-    ///Creates a new [`AssetBulkUploadCheckResponseDTO`].
+    /// Creates a new [`AssetBulkUploadCheckResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(results: Vec<AssetBulkUploadCheckResult>) -> Self {
-        Self { results }
+    pub fn new(results: impl IntoIterator<Item = AssetBulkUploadCheckResult>) -> Self {
+        Self {
+            results: results.into_iter().collect(),
+        }
     }
-
-    ///Sets `results`.
+    /// Sets `results`.
     #[must_use]
-    pub fn results(mut self, value: Vec<AssetBulkUploadCheckResult>) -> Self {
-        self.results = value;
+    pub fn results(mut self, value: impl IntoIterator<Item = AssetBulkUploadCheckResult>) -> Self {
+        self.results = value.into_iter().collect();
         self
     }
 }
@@ -387,18 +384,21 @@ impl AssetBulkUploadCheckResponseDTO {
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
 /// | `action` | [`AssetUploadAction`] | ✓ |  |
-/// | `asset_id` | [`Uuid`](::uuid::Uuid) |  | Existing asset ID if duplicate |
+/// | `asset_id` | [`AssetId`](crate::id::AssetId) |  | Existing asset ID if duplicate (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 /// | `id` | [`String`] | ✓ | Client-side identifier echoed from the request to match results to inputs |
 /// | `is_trashed` | `bool` |  | Whether existing asset is trashed |
 /// | `reason` | [`AssetRejectReason`] |  |  |
 ///
 /// See: <https://api.immich.app/models/AssetBulkUploadCheckResult>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct AssetBulkUploadCheckResult {
+    /// (required)
     pub action: AssetUploadAction,
-    /// Existing asset ID if duplicate
+    /// Existing asset ID if duplicate (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
     #[serde(rename = "assetId", default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub asset_id: Option<::uuid::Uuid>,
+    pub asset_id: Option<AssetId>,
+    /// Client-side identifier echoed from the request to match results to inputs (required)
     pub id: String,
     /// Whether existing asset is trashed
     #[serde(
@@ -412,7 +412,7 @@ pub struct AssetBulkUploadCheckResult {
 }
 
 impl AssetBulkUploadCheckResult {
-    ///Creates a new [`AssetBulkUploadCheckResult`].
+    /// Creates a new [`AssetBulkUploadCheckResult`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(action: AssetUploadAction, id: impl Into<String>) -> Self {
@@ -424,57 +424,49 @@ impl AssetBulkUploadCheckResult {
             reason: None,
         }
     }
-
-    ///Sets `action`.
+    /// Sets `action`.
     #[must_use]
     pub fn action(mut self, value: AssetUploadAction) -> Self {
         self.action = value;
         self
     }
-
-    ///Sets `asset_id`.
+    /// Sets `asset_id`.
     #[must_use]
-    pub fn asset_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.asset_id = Some(value);
+    pub fn asset_id(mut self, value: impl Into<AssetId>) -> Self {
+        self.asset_id = Some(value.into());
         self
     }
-
-    ///Sets or clears `asset_id`.
+    /// Sets or clears `asset_id`.
     #[must_use]
-    pub fn set_asset_id(mut self, value: Option<::uuid::Uuid>) -> Self {
+    pub fn set_asset_id(mut self, value: Option<AssetId>) -> Self {
         self.asset_id = value;
         self
     }
-
-    ///Sets `id`.
+    /// Sets `id`.
     #[must_use]
     pub fn id(mut self, value: impl Into<String>) -> Self {
         self.id = value.into();
         self
     }
-
-    ///Sets `is_trashed`.
+    /// Sets `is_trashed`.
     #[must_use]
     pub fn is_trashed(mut self, value: bool) -> Self {
         self.is_trashed = Some(value);
         self
     }
-
-    ///Sets or clears `is_trashed`.
+    /// Sets or clears `is_trashed`.
     #[must_use]
     pub fn set_is_trashed(mut self, value: Option<bool>) -> Self {
         self.is_trashed = value;
         self
     }
-
-    ///Sets `reason`.
+    /// Sets `reason`.
     #[must_use]
     pub fn reason(mut self, value: AssetRejectReason) -> Self {
         self.reason = Some(value);
         self
     }
-
-    ///Sets or clears `reason`.
+    /// Sets or clears `reason`.
     #[must_use]
     pub fn set_reason(mut self, value: Option<AssetRejectReason>) -> Self {
         self.reason = value;
@@ -490,94 +482,92 @@ impl AssetBulkUploadCheckResult {
 /// | `favorite` | `bool` |  | Copy favorite status |
 /// | `shared_links` | `bool` |  | Copy shared links |
 /// | `sidecar` | `bool` |  | Copy sidecar file |
-/// | `source_id` | [`Uuid`](::uuid::Uuid) | ✓ | Source asset ID |
+/// | `source_id` | [`AssetId`](crate::id::AssetId) | ✓ | Source asset ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 /// | `stack` | `bool` |  | Copy stack association |
-/// | `target_id` | [`Uuid`](::uuid::Uuid) | ✓ | Target asset ID |
+/// | `target_id` | [`AssetId`](crate::id::AssetId) | ✓ | Target asset ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 ///
 /// See: <https://api.immich.app/models/AssetCopyDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct AssetCopyDTO {
+    /// Copy album associations
     #[serde(default = "crate::common::defaults::default_bool::<true>")]
     pub albums: bool,
+    /// Copy favorite status
     #[serde(default = "crate::common::defaults::default_bool::<true>")]
     pub favorite: bool,
     /// Copy shared links
     #[serde(rename = "sharedLinks", default = "crate::common::defaults::default_bool::<true>")]
     pub shared_links: bool,
+    /// Copy sidecar file
     #[serde(default = "crate::common::defaults::default_bool::<true>")]
     pub sidecar: bool,
-    /// Source asset ID (required)
+    /// Source asset ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
     #[serde(rename = "sourceId")]
-    pub source_id: ::uuid::Uuid,
+    pub source_id: AssetId,
+    /// Copy stack association
     #[serde(default = "crate::common::defaults::default_bool::<true>")]
     pub stack: bool,
-    /// Target asset ID (required)
+    /// Target asset ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
     #[serde(rename = "targetId")]
-    pub target_id: ::uuid::Uuid,
+    pub target_id: AssetId,
 }
 
 impl AssetCopyDTO {
-    ///Creates a new [`AssetCopyDTO`].
+    /// Creates a new [`AssetCopyDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(source_id: ::uuid::Uuid, target_id: ::uuid::Uuid) -> Self {
+    pub fn new(source_id: impl Into<AssetId>, target_id: impl Into<AssetId>) -> Self {
         Self {
             albums: crate::common::defaults::default_bool::<true>(),
             favorite: crate::common::defaults::default_bool::<true>(),
             shared_links: crate::common::defaults::default_bool::<true>(),
             sidecar: crate::common::defaults::default_bool::<true>(),
-            source_id,
+            source_id: source_id.into(),
             stack: crate::common::defaults::default_bool::<true>(),
-            target_id,
+            target_id: target_id.into(),
         }
     }
-
-    ///Sets `albums`.
+    /// Sets `albums`.
     #[must_use]
     pub fn albums(mut self, value: bool) -> Self {
         self.albums = value;
         self
     }
-
-    ///Sets `favorite`.
+    /// Sets `favorite`.
     #[must_use]
     pub fn favorite(mut self, value: bool) -> Self {
         self.favorite = value;
         self
     }
-
-    ///Sets `shared_links`.
+    /// Sets `shared_links`.
     #[must_use]
     pub fn shared_links(mut self, value: bool) -> Self {
         self.shared_links = value;
         self
     }
-
-    ///Sets `sidecar`.
+    /// Sets `sidecar`.
     #[must_use]
     pub fn sidecar(mut self, value: bool) -> Self {
         self.sidecar = value;
         self
     }
-
-    ///Sets `source_id`.
+    /// Sets `source_id`.
     #[must_use]
-    pub fn source_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.source_id = value;
+    pub fn source_id(mut self, value: impl Into<AssetId>) -> Self {
+        self.source_id = value.into();
         self
     }
-
-    ///Sets `stack`.
+    /// Sets `stack`.
     #[must_use]
     pub fn stack(mut self, value: bool) -> Self {
         self.stack = value;
         self
     }
-
-    ///Sets `target_id`.
+    /// Sets `target_id`.
     #[must_use]
-    pub fn target_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.target_id = value;
+    pub fn target_id(mut self, value: impl Into<AssetId>) -> Self {
+        self.target_id = value.into();
         self
     }
 }
@@ -585,62 +575,104 @@ impl AssetCopyDTO {
 /// Type of edit action to perform
 ///
 /// See: <https://api.immich.app/models/AssetEditAction>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[non_exhaustive]
 pub enum AssetEditAction {
-    #[serde(rename = "crop")]
     Crop,
-    #[serde(rename = "rotate")]
     Rotate,
-    #[serde(rename = "mirror")]
     Mirror,
-    ///Unknown value returned by a newer version of the Immich server.
-    #[serde(other)]
-    UnknownValue,
+    /// Unknown value returned by a newer version of the Immich server.
+    Unknown(String),
 }
 
-#[allow(clippy::match_same_arms)]
+impl AssetEditAction {
+    /// Returns the wire string representation of this enum value.
+    #[must_use]
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::Crop => "crop",
+            Self::Rotate => "rotate",
+            Self::Mirror => "mirror",
+            Self::Unknown(s) => s.as_str(),
+        }
+    }
+}
+
 impl ::std::fmt::Display for AssetEditAction {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        match *self {
-            Self::Crop => f.write_str("crop"),
-            Self::Rotate => f.write_str("rotate"),
-            Self::Mirror => f.write_str("mirror"),
-            Self::UnknownValue => f.write_str("unknown"),
+        f.write_str(self.as_str())
+    }
+}
+
+impl From<&str> for AssetEditAction {
+    fn from(value: &str) -> Self {
+        match value {
+            "crop" => Self::Crop,
+            "rotate" => Self::Rotate,
+            "mirror" => Self::Mirror,
+            other => Self::Unknown(other.to_owned()),
         }
+    }
+}
+
+impl From<String> for AssetEditAction {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "crop" => Self::Crop,
+            "rotate" => Self::Rotate,
+            "mirror" => Self::Mirror,
+            _ => Self::Unknown(value),
+        }
+    }
+}
+
+impl From<&String> for AssetEditAction {
+    fn from(value: &String) -> Self {
+        Self::from(value.as_str())
     }
 }
 
 impl ::std::str::FromStr for AssetEditAction {
-    type Err = crate::common::error::ConversionError;
-    fn from_str(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        match value {
-            "crop" => Ok(Self::Crop),
-            "rotate" => Ok(Self::Rotate),
-            "mirror" => Ok(Self::Mirror),
-            _ => Err(format!("invalid value for {}: {}", "AssetEditAction", value).into()),
+    type Err = ::std::convert::Infallible;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        Ok(Self::from(value))
+    }
+}
+
+impl ::serde::Serialize for AssetEditAction {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: ::serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+
+impl<'de> ::serde::Deserialize<'de> for AssetEditAction {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        struct EnumVisitor;
+        impl ::serde::de::Visitor<'_> for EnumVisitor {
+            type Value = AssetEditAction;
+            fn expecting(&self, formatter: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                formatter.write_str("a string")
+            }
+            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(AssetEditAction::from(value))
+            }
+            fn visit_string<E>(self, value: String) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(AssetEditAction::from(value))
+            }
         }
-    }
-}
-
-impl TryFrom<&str> for AssetEditAction {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<&String> for AssetEditAction {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<String> for AssetEditAction {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
+        deserializer.deserialize_str(EnumVisitor)
     }
 }
 
@@ -653,27 +685,28 @@ impl TryFrom<String> for AssetEditAction {
 ///
 /// See: <https://api.immich.app/models/AssetEditActionItemDto>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct AssetEditActionItemDTO {
+    /// (required)
     pub action: AssetEditAction,
+    /// List of edit actions to apply (crop, rotate, or mirror) (required)
     pub parameters: AssetEditActionItemParameters,
 }
 
 impl AssetEditActionItemDTO {
-    ///Creates a new [`AssetEditActionItemDTO`].
+    /// Creates a new [`AssetEditActionItemDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(action: AssetEditAction, parameters: AssetEditActionItemParameters) -> Self {
         Self { action, parameters }
     }
-
-    ///Sets `action`.
+    /// Sets `action`.
     #[must_use]
     pub fn action(mut self, value: AssetEditAction) -> Self {
         self.action = value;
         self
     }
-
-    ///Sets `parameters`.
+    /// Sets `parameters`.
     #[must_use]
     pub fn parameters(mut self, value: AssetEditActionItemParameters) -> Self {
         self.parameters = value;
@@ -681,13 +714,16 @@ impl AssetEditActionItemDTO {
     }
 }
 
-///List of edit actions to apply (crop, rotate, or mirror)
+/// List of edit actions to apply (crop, rotate, or mirror)
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 #[serde(untagged)]
+#[non_exhaustive]
 pub enum AssetEditActionItemParameters {
     CropParameters(CropParameters),
     RotateParameters(RotateParameters),
     MirrorParameters(MirrorParameters),
+    /// Unknown variant returned by a newer version of the Immich server.
+    Unknown(::serde_json::Value),
 }
 
 impl From<CropParameters> for AssetEditActionItemParameters {
@@ -713,40 +749,41 @@ impl From<MirrorParameters> for AssetEditActionItemParameters {
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
 /// | `action` | [`AssetEditAction`] | ✓ |  |
-/// | `id` | [`Uuid`](::uuid::Uuid) | ✓ | Asset edit ID |
+/// | `id` | [`Uuid`](::uuid::Uuid) | ✓ | Asset edit ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 /// | `parameters` | [`CropParameters`] | ✓ | List of edit actions to apply (crop, rotate, or mirror) |
 ///
 /// See: <https://api.immich.app/models/AssetEditActionItemResponseDto>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct AssetEditActionItemResponseDTO {
+    /// (required)
     pub action: AssetEditAction,
+    /// Asset edit ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
     pub id: ::uuid::Uuid,
+    /// List of edit actions to apply (crop, rotate, or mirror) (required)
     pub parameters: AssetEditActionItemResponseParameters,
 }
 
 impl AssetEditActionItemResponseDTO {
-    ///Creates a new [`AssetEditActionItemResponseDTO`].
+    /// Creates a new [`AssetEditActionItemResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(action: AssetEditAction, id: ::uuid::Uuid, parameters: AssetEditActionItemResponseParameters) -> Self {
         Self { action, id, parameters }
     }
-
-    ///Sets `action`.
+    /// Sets `action`.
     #[must_use]
     pub fn action(mut self, value: AssetEditAction) -> Self {
         self.action = value;
         self
     }
-
-    ///Sets `id`.
+    /// Sets `id`.
     #[must_use]
     pub fn id(mut self, value: ::uuid::Uuid) -> Self {
         self.id = value;
         self
     }
-
-    ///Sets `parameters`.
+    /// Sets `parameters`.
     #[must_use]
     pub fn parameters(mut self, value: AssetEditActionItemResponseParameters) -> Self {
         self.parameters = value;
@@ -754,13 +791,16 @@ impl AssetEditActionItemResponseDTO {
     }
 }
 
-///List of edit actions to apply (crop, rotate, or mirror)
+/// List of edit actions to apply (crop, rotate, or mirror)
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 #[serde(untagged)]
+#[non_exhaustive]
 pub enum AssetEditActionItemResponseParameters {
     CropParameters(CropParameters),
     RotateParameters(RotateParameters),
     MirrorParameters(MirrorParameters),
+    /// Unknown variant returned by a newer version of the Immich server.
+    Unknown(::serde_json::Value),
 }
 
 impl From<CropParameters> for AssetEditActionItemResponseParameters {
@@ -789,22 +829,25 @@ impl From<MirrorParameters> for AssetEditActionItemResponseParameters {
 ///
 /// See: <https://api.immich.app/models/AssetEditsCreateDto>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct AssetEditsCreateDTO {
+    /// List of edit actions to apply (crop, rotate, or mirror) (required)
     pub edits: Vec<AssetEditActionItemDTO>,
 }
 
 impl AssetEditsCreateDTO {
-    ///Creates a new [`AssetEditsCreateDTO`].
+    /// Creates a new [`AssetEditsCreateDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(edits: Vec<AssetEditActionItemDTO>) -> Self {
-        Self { edits }
+    pub fn new(edits: impl IntoIterator<Item = AssetEditActionItemDTO>) -> Self {
+        Self {
+            edits: edits.into_iter().collect(),
+        }
     }
-
-    ///Sets `edits`.
+    /// Sets `edits`.
     #[must_use]
-    pub fn edits(mut self, value: Vec<AssetEditActionItemDTO>) -> Self {
-        self.edits = value;
+    pub fn edits(mut self, value: impl IntoIterator<Item = AssetEditActionItemDTO>) -> Self {
+        self.edits = value.into_iter().collect();
         self
     }
 }
@@ -813,295 +856,149 @@ impl AssetEditsCreateDTO {
 ///
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
-/// | `asset_id` | [`Uuid`](::uuid::Uuid) | ✓ | Asset ID these edits belong to |
+/// | `asset_id` | [`AssetId`](crate::id::AssetId) | ✓ | Asset ID these edits belong to (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 /// | `edits` | [`Vec<AssetEditActionItemResponseDTO>`](crate::assets::AssetEditActionItemResponseDTO) | ✓ | List of edit actions applied to the asset |
 ///
 /// See: <https://api.immich.app/models/AssetEditsResponseDto>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct AssetEditsResponseDTO {
-    /// Asset ID these edits belong to (required)
+    /// Asset ID these edits belong to (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
     #[serde(rename = "assetId")]
-    pub asset_id: ::uuid::Uuid,
+    pub asset_id: AssetId,
+    /// List of edit actions applied to the asset (required)
     pub edits: Vec<AssetEditActionItemResponseDTO>,
 }
 
 impl AssetEditsResponseDTO {
-    ///Creates a new [`AssetEditsResponseDTO`].
+    /// Creates a new [`AssetEditsResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(asset_id: ::uuid::Uuid, edits: Vec<AssetEditActionItemResponseDTO>) -> Self {
-        Self { asset_id, edits }
-    }
-
-    ///Sets `asset_id`.
-    #[must_use]
-    pub fn asset_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.asset_id = value;
-        self
-    }
-
-    ///Sets `edits`.
-    #[must_use]
-    pub fn edits(mut self, value: Vec<AssetEditActionItemResponseDTO>) -> Self {
-        self.edits = value;
-        self
-    }
-}
-
-/// `AssetFileResponseDTO`
-///
-/// | Field | Type | Required | Description |
-/// |-------|------|:--------:|-------------|
-/// | `created_at` | [`DateTime`](::chrono::DateTime) | ✓ | Creation date |
-/// | `id` | [`Uuid`](::uuid::Uuid) | ✓ | Asset file ID |
-/// | `is_edited` | `bool` | ✓ | The file was generated from an edit |
-/// | `is_progressive` | `bool` | ✓ | The file is a progressively encoded JPEG |
-/// | `is_transparent` | `bool` | ✓ | The file is transparent |
-/// | `path` | [`String`] | ✓ | File path |
-/// | `type` | [`AssetFileType`] | ✓ |  |
-/// | `updated_at` | [`DateTime`](::chrono::DateTime) | ✓ | Update date |
-///
-/// See: <https://api.immich.app/models/AssetFileResponseDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
-pub struct AssetFileResponseDTO {
-    /// Creation date (required)
-    #[serde(rename = "createdAt")]
-    pub created_at: ::chrono::DateTime<::chrono::offset::Utc>,
-    pub id: ::uuid::Uuid,
-    /// The file was generated from an edit (required)
-    #[serde(rename = "isEdited")]
-    pub is_edited: bool,
-    /// The file is a progressively encoded JPEG (required)
-    #[serde(rename = "isProgressive")]
-    pub is_progressive: bool,
-    /// The file is transparent (required)
-    #[serde(rename = "isTransparent")]
-    pub is_transparent: bool,
-    pub path: String,
-    /// (required)
-    #[serde(rename = "type")]
-    pub type_: AssetFileType,
-    /// Update date (required)
-    #[serde(rename = "updatedAt")]
-    pub updated_at: ::chrono::DateTime<::chrono::offset::Utc>,
-}
-
-impl AssetFileResponseDTO {
-    ///Creates a new [`AssetFileResponseDTO`].
-    #[must_use]
-    #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(
-        created_at: ::chrono::DateTime<::chrono::offset::Utc>,
-        id: ::uuid::Uuid,
-        is_edited: bool,
-        is_progressive: bool,
-        is_transparent: bool,
-        path: impl Into<String>,
-        type_: AssetFileType,
-        updated_at: ::chrono::DateTime<::chrono::offset::Utc>,
-    ) -> Self {
+    pub fn new(asset_id: impl Into<AssetId>, edits: impl IntoIterator<Item = AssetEditActionItemResponseDTO>) -> Self {
         Self {
-            created_at,
-            id,
-            is_edited,
-            is_progressive,
-            is_transparent,
-            path: path.into(),
-            type_,
-            updated_at,
+            asset_id: asset_id.into(),
+            edits: edits.into_iter().collect(),
         }
     }
-
-    ///Sets `created_at`.
+    /// Sets `asset_id`.
     #[must_use]
-    pub fn created_at(mut self, value: ::chrono::DateTime<::chrono::offset::Utc>) -> Self {
-        self.created_at = value;
+    pub fn asset_id(mut self, value: impl Into<AssetId>) -> Self {
+        self.asset_id = value.into();
         self
     }
-
-    ///Sets `id`.
+    /// Sets `edits`.
     #[must_use]
-    pub fn id(mut self, value: ::uuid::Uuid) -> Self {
-        self.id = value;
+    pub fn edits(mut self, value: impl IntoIterator<Item = AssetEditActionItemResponseDTO>) -> Self {
+        self.edits = value.into_iter().collect();
         self
-    }
-
-    ///Sets `is_edited`.
-    #[must_use]
-    pub fn is_edited(mut self, value: bool) -> Self {
-        self.is_edited = value;
-        self
-    }
-
-    ///Sets `is_progressive`.
-    #[must_use]
-    pub fn is_progressive(mut self, value: bool) -> Self {
-        self.is_progressive = value;
-        self
-    }
-
-    ///Sets `is_transparent`.
-    #[must_use]
-    pub fn is_transparent(mut self, value: bool) -> Self {
-        self.is_transparent = value;
-        self
-    }
-
-    ///Sets `path`.
-    #[must_use]
-    pub fn path(mut self, value: impl Into<String>) -> Self {
-        self.path = value.into();
-        self
-    }
-
-    ///Sets `type_`.
-    #[must_use]
-    pub fn type_(mut self, value: AssetFileType) -> Self {
-        self.type_ = value;
-        self
-    }
-
-    ///Sets `updated_at`.
-    #[must_use]
-    pub fn updated_at(mut self, value: ::chrono::DateTime<::chrono::offset::Utc>) -> Self {
-        self.updated_at = value;
-        self
-    }
-}
-
-/// Type of file
-///
-/// See: <https://api.immich.app/models/AssetFileType>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-#[non_exhaustive]
-pub enum AssetFileType {
-    #[serde(rename = "fullsize")]
-    Fullsize,
-    #[serde(rename = "preview")]
-    Preview,
-    #[serde(rename = "thumbnail")]
-    Thumbnail,
-    #[serde(rename = "sidecar")]
-    Sidecar,
-    #[serde(rename = "encoded_video")]
-    EncodedVideo,
-    ///Unknown value returned by a newer version of the Immich server.
-    #[serde(other)]
-    UnknownValue,
-}
-
-#[allow(clippy::match_same_arms)]
-impl ::std::fmt::Display for AssetFileType {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        match *self {
-            Self::Fullsize => f.write_str("fullsize"),
-            Self::Preview => f.write_str("preview"),
-            Self::Thumbnail => f.write_str("thumbnail"),
-            Self::Sidecar => f.write_str("sidecar"),
-            Self::EncodedVideo => f.write_str("encoded_video"),
-            Self::UnknownValue => f.write_str("unknown"),
-        }
-    }
-}
-
-impl ::std::str::FromStr for AssetFileType {
-    type Err = crate::common::error::ConversionError;
-    fn from_str(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        match value {
-            "fullsize" => Ok(Self::Fullsize),
-            "preview" => Ok(Self::Preview),
-            "thumbnail" => Ok(Self::Thumbnail),
-            "sidecar" => Ok(Self::Sidecar),
-            "encoded_video" => Ok(Self::EncodedVideo),
-            _ => Err(format!("invalid value for {}: {}", "AssetFileType", value).into()),
-        }
-    }
-}
-
-impl TryFrom<&str> for AssetFileType {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<&String> for AssetFileType {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<String> for AssetFileType {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
     }
 }
 
 /// Job name
 ///
 /// See: <https://api.immich.app/models/AssetJobName>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[non_exhaustive]
 pub enum AssetJobName {
-    #[serde(rename = "refresh-faces")]
     RefreshFaces,
-    #[serde(rename = "refresh-metadata")]
     RefreshMetadata,
-    #[serde(rename = "regenerate-thumbnail")]
     RegenerateThumbnail,
-    #[serde(rename = "transcode-video")]
     TranscodeVideo,
-    ///Unknown value returned by a newer version of the Immich server.
-    #[serde(other)]
-    UnknownValue,
+    /// Unknown value returned by a newer version of the Immich server.
+    Unknown(String),
 }
 
-#[allow(clippy::match_same_arms)]
+impl AssetJobName {
+    /// Returns the wire string representation of this enum value.
+    #[must_use]
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::RefreshFaces => "refresh-faces",
+            Self::RefreshMetadata => "refresh-metadata",
+            Self::RegenerateThumbnail => "regenerate-thumbnail",
+            Self::TranscodeVideo => "transcode-video",
+            Self::Unknown(s) => s.as_str(),
+        }
+    }
+}
+
 impl ::std::fmt::Display for AssetJobName {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        match *self {
-            Self::RefreshFaces => f.write_str("refresh-faces"),
-            Self::RefreshMetadata => f.write_str("refresh-metadata"),
-            Self::RegenerateThumbnail => f.write_str("regenerate-thumbnail"),
-            Self::TranscodeVideo => f.write_str("transcode-video"),
-            Self::UnknownValue => f.write_str("unknown"),
+        f.write_str(self.as_str())
+    }
+}
+
+impl From<&str> for AssetJobName {
+    fn from(value: &str) -> Self {
+        match value {
+            "refresh-faces" => Self::RefreshFaces,
+            "refresh-metadata" => Self::RefreshMetadata,
+            "regenerate-thumbnail" => Self::RegenerateThumbnail,
+            "transcode-video" => Self::TranscodeVideo,
+            other => Self::Unknown(other.to_owned()),
         }
+    }
+}
+
+impl From<String> for AssetJobName {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "refresh-faces" => Self::RefreshFaces,
+            "refresh-metadata" => Self::RefreshMetadata,
+            "regenerate-thumbnail" => Self::RegenerateThumbnail,
+            "transcode-video" => Self::TranscodeVideo,
+            _ => Self::Unknown(value),
+        }
+    }
+}
+
+impl From<&String> for AssetJobName {
+    fn from(value: &String) -> Self {
+        Self::from(value.as_str())
     }
 }
 
 impl ::std::str::FromStr for AssetJobName {
-    type Err = crate::common::error::ConversionError;
-    fn from_str(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        match value {
-            "refresh-faces" => Ok(Self::RefreshFaces),
-            "refresh-metadata" => Ok(Self::RefreshMetadata),
-            "regenerate-thumbnail" => Ok(Self::RegenerateThumbnail),
-            "transcode-video" => Ok(Self::TranscodeVideo),
-            _ => Err(format!("invalid value for {}: {}", "AssetJobName", value).into()),
+    type Err = ::std::convert::Infallible;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        Ok(Self::from(value))
+    }
+}
+
+impl ::serde::Serialize for AssetJobName {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: ::serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+
+impl<'de> ::serde::Deserialize<'de> for AssetJobName {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        struct EnumVisitor;
+        impl ::serde::de::Visitor<'_> for EnumVisitor {
+            type Value = AssetJobName;
+            fn expecting(&self, formatter: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                formatter.write_str("a string")
+            }
+            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(AssetJobName::from(value))
+            }
+            fn visit_string<E>(self, value: String) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(AssetJobName::from(value))
+            }
         }
-    }
-}
-
-impl TryFrom<&str> for AssetJobName {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<&String> for AssetJobName {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<String> for AssetJobName {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
+        deserializer.deserialize_str(EnumVisitor)
     }
 }
 
@@ -1109,34 +1006,37 @@ impl TryFrom<String> for AssetJobName {
 ///
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
-/// | `asset_ids` | [`Vec<Uuid>`](::uuid::Uuid) | ✓ | Asset IDs |
+/// | `asset_ids` | [`Vec<AssetId>`](crate::id::AssetId) | ✓ | Asset IDs |
 /// | `name` | [`AssetJobName`] | ✓ |  |
 ///
 /// See: <https://api.immich.app/models/AssetJobsDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct AssetJobsDTO {
     /// Asset IDs (required)
     #[serde(rename = "assetIds")]
-    pub asset_ids: Vec<::uuid::Uuid>,
+    pub asset_ids: Vec<AssetId>,
+    /// (required)
     pub name: AssetJobName,
 }
 
 impl AssetJobsDTO {
-    ///Creates a new [`AssetJobsDTO`].
+    /// Creates a new [`AssetJobsDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(asset_ids: Vec<::uuid::Uuid>, name: AssetJobName) -> Self {
-        Self { asset_ids, name }
+    pub fn new(asset_ids: impl IntoIterator<Item = impl Into<AssetId>>, name: AssetJobName) -> Self {
+        Self {
+            asset_ids: asset_ids.into_iter().map(Into::into).collect(),
+            name,
+        }
     }
-
-    ///Sets `asset_ids`.
+    /// Sets `asset_ids`.
     #[must_use]
-    pub fn asset_ids(mut self, value: Vec<::uuid::Uuid>) -> Self {
-        self.asset_ids = value;
+    pub fn asset_ids(mut self, value: impl IntoIterator<Item = impl Into<AssetId>>) -> Self {
+        self.asset_ids = value.into_iter().map(Into::into).collect();
         self
     }
-
-    ///Sets `name`.
+    /// Sets `name`.
     #[must_use]
     pub fn name(mut self, value: AssetJobName) -> Self {
         self.name = value;
@@ -1148,31 +1048,34 @@ impl AssetJobsDTO {
 ///
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
-/// | `asset_data` | `String` | ✓ | Asset file data |
+/// | `asset_data` | `Vec<u8>` | ✓ | Asset file data |
 /// | `duration` | `i64` |  | Duration in milliseconds (for videos) |
-/// | `file_created_at` | [`DateTime`](::chrono::DateTime) | ✓ | File creation date |
-/// | `file_modified_at` | [`DateTime`](::chrono::DateTime) | ✓ | File modification date |
+/// | `file_created_at` | [`DateTime`](::chrono::DateTime) | ✓ | File creation date (pattern: `^(?:(?:\d\d[2468][048]\|\d\d[13579][26]\|\d\d0[48]\|[02468][048]00\|[13579][26]00)-02-29\|\d{4}-(?:(?:0[13578]\|1[02])-(?:0[1-9]\|[12]\d\|3[01])\|(?:0[469]\|11)-(?:0[1-9]\|[12]\d\|30)\|(?:02)-(?:0[1-9]\|1\d\|2[0-8])))T(?:(?:[01]\d\|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z\|([+-](?:[01]\d\|2[0-3]):[0-5]\d)))$`) |
+/// | `file_modified_at` | [`DateTime`](::chrono::DateTime) | ✓ | File modification date (pattern: `^(?:(?:\d\d[2468][048]\|\d\d[13579][26]\|\d\d0[48]\|[02468][048]00\|[13579][26]00)-02-29\|\d{4}-(?:(?:0[13578]\|1[02])-(?:0[1-9]\|[12]\d\|3[01])\|(?:0[469]\|11)-(?:0[1-9]\|[12]\d\|30)\|(?:02)-(?:0[1-9]\|1\d\|2[0-8])))T(?:(?:[01]\d\|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z\|([+-](?:[01]\d\|2[0-3]):[0-5]\d)))$`) |
 /// | `filename` | [`String`] |  | Filename |
 /// | `is_favorite` | `bool` |  | Mark as favorite |
-/// | `live_photo_video_id` | [`Uuid`](::uuid::Uuid) |  | Live photo video ID |
+/// | `live_photo_video_id` | [`AssetId`](crate::id::AssetId) |  | Live photo video ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 /// | `metadata` | [`Vec<AssetMetadataUpsertItemDTO>`](crate::assets::AssetMetadataUpsertItemDTO) |  | Asset metadata items |
-/// | `sidecar_data` | `String` |  | Sidecar file data |
+/// | `sidecar_data` | `Vec<u8>` |  | Sidecar file data |
 /// | `visibility` | [`AssetVisibility`] |  |  |
 ///
 /// See: <https://api.immich.app/models/AssetMediaCreateDto>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct AssetMediaCreateDTO {
     /// Asset file data (required)
     #[serde(rename = "assetData")]
     pub asset_data: Vec<u8>,
+    /// Duration in milliseconds (for videos)
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub duration: Option<i64>,
-    /// File creation date (required)
+    /// File creation date (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`) (required)
     #[serde(rename = "fileCreatedAt")]
     pub file_created_at: ::chrono::DateTime<::chrono::offset::Utc>,
-    /// File modification date (required)
+    /// File modification date (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`) (required)
     #[serde(rename = "fileModifiedAt")]
     pub file_modified_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    /// Filename
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub filename: Option<String>,
     /// Mark as favorite
@@ -1182,13 +1085,14 @@ pub struct AssetMediaCreateDTO {
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub is_favorite: Option<bool>,
-    /// Live photo video ID
+    /// Live photo video ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
     #[serde(
         rename = "livePhotoVideoId",
         default,
         skip_serializing_if = "::std::option::Option::is_none"
     )]
-    pub live_photo_video_id: Option<::uuid::Uuid>,
+    pub live_photo_video_id: Option<AssetId>,
+    /// Asset metadata items
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub metadata: Vec<AssetMetadataUpsertItemDTO>,
     /// Sidecar file data
@@ -1203,16 +1107,16 @@ pub struct AssetMediaCreateDTO {
 }
 
 impl AssetMediaCreateDTO {
-    ///Creates a new [`AssetMediaCreateDTO`].
+    /// Creates a new [`AssetMediaCreateDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(
-        asset_data: Vec<u8>,
+        asset_data: impl Into<Vec<u8>>,
         file_created_at: ::chrono::DateTime<::chrono::offset::Utc>,
         file_modified_at: ::chrono::DateTime<::chrono::offset::Utc>,
     ) -> Self {
         Self {
-            asset_data,
+            asset_data: asset_data.into(),
             duration: None,
             file_created_at,
             file_modified_at,
@@ -1224,113 +1128,97 @@ impl AssetMediaCreateDTO {
             visibility: None,
         }
     }
-
-    ///Sets `asset_data`.
+    /// Sets `asset_data`.
     #[must_use]
-    pub fn asset_data(mut self, value: Vec<u8>) -> Self {
-        self.asset_data = value;
+    pub fn asset_data(mut self, value: impl Into<Vec<u8>>) -> Self {
+        self.asset_data = value.into();
         self
     }
-
-    ///Sets `duration`.
+    /// Sets `duration`.
     #[must_use]
     pub fn duration(mut self, value: i64) -> Self {
         self.duration = Some(value);
         self
     }
-
-    ///Sets or clears `duration`.
+    /// Sets or clears `duration`.
     #[must_use]
     pub fn set_duration(mut self, value: Option<i64>) -> Self {
         self.duration = value;
         self
     }
-
-    ///Sets `file_created_at`.
+    /// Sets `file_created_at`.
     #[must_use]
     pub fn file_created_at(mut self, value: ::chrono::DateTime<::chrono::offset::Utc>) -> Self {
         self.file_created_at = value;
         self
     }
-
-    ///Sets `file_modified_at`.
+    /// Sets `file_modified_at`.
     #[must_use]
     pub fn file_modified_at(mut self, value: ::chrono::DateTime<::chrono::offset::Utc>) -> Self {
         self.file_modified_at = value;
         self
     }
-
-    ///Sets `filename`.
+    /// Sets `filename`.
     #[must_use]
     pub fn filename(mut self, value: impl Into<String>) -> Self {
         self.filename = Some(value.into());
         self
     }
-
-    ///Sets or clears `filename`.
+    /// Sets or clears `filename`.
     #[must_use]
     pub fn set_filename(mut self, value: Option<String>) -> Self {
         self.filename = value;
         self
     }
-
-    ///Sets `is_favorite`.
+    /// Sets `is_favorite`.
     #[must_use]
     pub fn is_favorite(mut self, value: bool) -> Self {
         self.is_favorite = Some(value);
         self
     }
-
-    ///Sets or clears `is_favorite`.
+    /// Sets or clears `is_favorite`.
     #[must_use]
     pub fn set_is_favorite(mut self, value: Option<bool>) -> Self {
         self.is_favorite = value;
         self
     }
-
-    ///Sets `live_photo_video_id`.
+    /// Sets `live_photo_video_id`.
     #[must_use]
-    pub fn live_photo_video_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.live_photo_video_id = Some(value);
+    pub fn live_photo_video_id(mut self, value: impl Into<AssetId>) -> Self {
+        self.live_photo_video_id = Some(value.into());
         self
     }
-
-    ///Sets or clears `live_photo_video_id`.
+    /// Sets or clears `live_photo_video_id`.
     #[must_use]
-    pub fn set_live_photo_video_id(mut self, value: Option<::uuid::Uuid>) -> Self {
+    pub fn set_live_photo_video_id(mut self, value: Option<AssetId>) -> Self {
         self.live_photo_video_id = value;
         self
     }
-
-    ///Sets `metadata`.
+    /// Sets `metadata`.
     #[must_use]
-    pub fn metadata(mut self, value: Vec<AssetMetadataUpsertItemDTO>) -> Self {
-        self.metadata = value;
+    pub fn metadata(mut self, value: impl IntoIterator<Item = AssetMetadataUpsertItemDTO>) -> Self {
+        self.metadata = value.into_iter().collect();
         self
     }
-
-    ///Sets `sidecar_data`.
+    /// Sets `sidecar_data`.
     #[must_use]
-    pub fn sidecar_data(mut self, value: Vec<u8>) -> Self {
-        self.sidecar_data = Some(value);
+    pub fn sidecar_data(mut self, value: impl Into<Vec<u8>>) -> Self {
+        self.sidecar_data = Some(value.into());
         self
     }
-
-    ///Sets or clears `sidecar_data`.
+    /// Sets or clears `sidecar_data`.
     #[must_use]
     pub fn set_sidecar_data(mut self, value: Option<Vec<u8>>) -> Self {
         self.sidecar_data = value;
         self
     }
-
-    ///Sets `visibility`.
+    /// Sets `visibility`.
     #[must_use]
     pub fn visibility(mut self, value: AssetVisibility) -> Self {
         self.visibility = Some(value);
         self
     }
-
-    ///Sets or clears `visibility`.
+    /// Sets or clears `visibility`.
     #[must_use]
     pub fn set_visibility(mut self, value: Option<AssetVisibility>) -> Self {
         self.visibility = value;
@@ -1342,32 +1230,33 @@ impl AssetMediaCreateDTO {
 ///
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
-/// | `id` | [`Uuid`](::uuid::Uuid) | ✓ | Asset media ID |
+/// | `id` | [`AssetId`](crate::id::AssetId) | ✓ | Asset media ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 /// | `status` | [`AssetMediaStatus`] | ✓ |  |
 ///
 /// See: <https://api.immich.app/models/AssetMediaResponseDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct AssetMediaResponseDTO {
-    pub id: ::uuid::Uuid,
+    /// Asset media ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
+    pub id: AssetId,
+    /// (required)
     pub status: AssetMediaStatus,
 }
 
 impl AssetMediaResponseDTO {
-    ///Creates a new [`AssetMediaResponseDTO`].
+    /// Creates a new [`AssetMediaResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(id: ::uuid::Uuid, status: AssetMediaStatus) -> Self {
-        Self { id, status }
+    pub fn new(id: impl Into<AssetId>, status: AssetMediaStatus) -> Self {
+        Self { id: id.into(), status }
     }
-
-    ///Sets `id`.
+    /// Sets `id`.
     #[must_use]
-    pub fn id(mut self, value: ::uuid::Uuid) -> Self {
-        self.id = value;
+    pub fn id(mut self, value: impl Into<AssetId>) -> Self {
+        self.id = value.into();
         self
     }
-
-    ///Sets `status`.
+    /// Sets `status`.
     #[must_use]
     pub fn status(mut self, value: AssetMediaStatus) -> Self {
         self.status = value;
@@ -1378,124 +1267,208 @@ impl AssetMediaResponseDTO {
 /// Asset media size
 ///
 /// See: <https://api.immich.app/models/AssetMediaSize>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[non_exhaustive]
 pub enum AssetMediaSize {
-    #[serde(rename = "original")]
     Original,
-    #[serde(rename = "fullsize")]
     Fullsize,
-    #[serde(rename = "preview")]
     Preview,
-    #[serde(rename = "thumbnail")]
     Thumbnail,
-    ///Unknown value returned by a newer version of the Immich server.
-    #[serde(other)]
-    UnknownValue,
+    /// Unknown value returned by a newer version of the Immich server.
+    Unknown(String),
 }
 
-#[allow(clippy::match_same_arms)]
+impl AssetMediaSize {
+    /// Returns the wire string representation of this enum value.
+    #[must_use]
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::Original => "original",
+            Self::Fullsize => "fullsize",
+            Self::Preview => "preview",
+            Self::Thumbnail => "thumbnail",
+            Self::Unknown(s) => s.as_str(),
+        }
+    }
+}
+
 impl ::std::fmt::Display for AssetMediaSize {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        match *self {
-            Self::Original => f.write_str("original"),
-            Self::Fullsize => f.write_str("fullsize"),
-            Self::Preview => f.write_str("preview"),
-            Self::Thumbnail => f.write_str("thumbnail"),
-            Self::UnknownValue => f.write_str("unknown"),
+        f.write_str(self.as_str())
+    }
+}
+
+impl From<&str> for AssetMediaSize {
+    fn from(value: &str) -> Self {
+        match value {
+            "original" => Self::Original,
+            "fullsize" => Self::Fullsize,
+            "preview" => Self::Preview,
+            "thumbnail" => Self::Thumbnail,
+            other => Self::Unknown(other.to_owned()),
         }
+    }
+}
+
+impl From<String> for AssetMediaSize {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "original" => Self::Original,
+            "fullsize" => Self::Fullsize,
+            "preview" => Self::Preview,
+            "thumbnail" => Self::Thumbnail,
+            _ => Self::Unknown(value),
+        }
+    }
+}
+
+impl From<&String> for AssetMediaSize {
+    fn from(value: &String) -> Self {
+        Self::from(value.as_str())
     }
 }
 
 impl ::std::str::FromStr for AssetMediaSize {
-    type Err = crate::common::error::ConversionError;
-    fn from_str(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        match value {
-            "original" => Ok(Self::Original),
-            "fullsize" => Ok(Self::Fullsize),
-            "preview" => Ok(Self::Preview),
-            "thumbnail" => Ok(Self::Thumbnail),
-            _ => Err(format!("invalid value for {}: {}", "AssetMediaSize", value).into()),
+    type Err = ::std::convert::Infallible;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        Ok(Self::from(value))
+    }
+}
+
+impl ::serde::Serialize for AssetMediaSize {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: ::serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+
+impl<'de> ::serde::Deserialize<'de> for AssetMediaSize {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        struct EnumVisitor;
+        impl ::serde::de::Visitor<'_> for EnumVisitor {
+            type Value = AssetMediaSize;
+            fn expecting(&self, formatter: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                formatter.write_str("a string")
+            }
+            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(AssetMediaSize::from(value))
+            }
+            fn visit_string<E>(self, value: String) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(AssetMediaSize::from(value))
+            }
         }
-    }
-}
-
-impl TryFrom<&str> for AssetMediaSize {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<&String> for AssetMediaSize {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<String> for AssetMediaSize {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
+        deserializer.deserialize_str(EnumVisitor)
     }
 }
 
 /// Upload status
 ///
 /// See: <https://api.immich.app/models/AssetMediaStatus>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[non_exhaustive]
 pub enum AssetMediaStatus {
-    #[serde(rename = "created")]
     Created,
-    #[serde(rename = "duplicate")]
     Duplicate,
-    ///Unknown value returned by a newer version of the Immich server.
-    #[serde(other)]
-    UnknownValue,
+    /// Unknown value returned by a newer version of the Immich server.
+    Unknown(String),
 }
 
-#[allow(clippy::match_same_arms)]
+impl AssetMediaStatus {
+    /// Returns the wire string representation of this enum value.
+    #[must_use]
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::Created => "created",
+            Self::Duplicate => "duplicate",
+            Self::Unknown(s) => s.as_str(),
+        }
+    }
+}
+
 impl ::std::fmt::Display for AssetMediaStatus {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        match *self {
-            Self::Created => f.write_str("created"),
-            Self::Duplicate => f.write_str("duplicate"),
-            Self::UnknownValue => f.write_str("unknown"),
+        f.write_str(self.as_str())
+    }
+}
+
+impl From<&str> for AssetMediaStatus {
+    fn from(value: &str) -> Self {
+        match value {
+            "created" => Self::Created,
+            "duplicate" => Self::Duplicate,
+            other => Self::Unknown(other.to_owned()),
         }
+    }
+}
+
+impl From<String> for AssetMediaStatus {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "created" => Self::Created,
+            "duplicate" => Self::Duplicate,
+            _ => Self::Unknown(value),
+        }
+    }
+}
+
+impl From<&String> for AssetMediaStatus {
+    fn from(value: &String) -> Self {
+        Self::from(value.as_str())
     }
 }
 
 impl ::std::str::FromStr for AssetMediaStatus {
-    type Err = crate::common::error::ConversionError;
-    fn from_str(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        match value {
-            "created" => Ok(Self::Created),
-            "duplicate" => Ok(Self::Duplicate),
-            _ => Err(format!("invalid value for {}: {}", "AssetMediaStatus", value).into()),
+    type Err = ::std::convert::Infallible;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        Ok(Self::from(value))
+    }
+}
+
+impl ::serde::Serialize for AssetMediaStatus {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: ::serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+
+impl<'de> ::serde::Deserialize<'de> for AssetMediaStatus {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        struct EnumVisitor;
+        impl ::serde::de::Visitor<'_> for EnumVisitor {
+            type Value = AssetMediaStatus;
+            fn expecting(&self, formatter: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                formatter.write_str("a string")
+            }
+            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(AssetMediaStatus::from(value))
+            }
+            fn visit_string<E>(self, value: String) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(AssetMediaStatus::from(value))
+            }
         }
-    }
-}
-
-impl TryFrom<&str> for AssetMediaStatus {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<&String> for AssetMediaStatus {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<String> for AssetMediaStatus {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
+        deserializer.deserialize_str(EnumVisitor)
     }
 }
 
@@ -1506,23 +1479,26 @@ impl TryFrom<String> for AssetMediaStatus {
 /// | `items` | [`Vec<AssetMetadataBulkDeleteItemDTO>`](crate::assets::AssetMetadataBulkDeleteItemDTO) | ✓ | Metadata items to delete |
 ///
 /// See: <https://api.immich.app/models/AssetMetadataBulkDeleteDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct AssetMetadataBulkDeleteDTO {
+    /// Metadata items to delete (required)
     pub items: Vec<AssetMetadataBulkDeleteItemDTO>,
 }
 
 impl AssetMetadataBulkDeleteDTO {
-    ///Creates a new [`AssetMetadataBulkDeleteDTO`].
+    /// Creates a new [`AssetMetadataBulkDeleteDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(items: Vec<AssetMetadataBulkDeleteItemDTO>) -> Self {
-        Self { items }
+    pub fn new(items: impl IntoIterator<Item = AssetMetadataBulkDeleteItemDTO>) -> Self {
+        Self {
+            items: items.into_iter().collect(),
+        }
     }
-
-    ///Sets `items`.
+    /// Sets `items`.
     #[must_use]
-    pub fn items(mut self, value: Vec<AssetMetadataBulkDeleteItemDTO>) -> Self {
-        self.items = value;
+    pub fn items(mut self, value: impl IntoIterator<Item = AssetMetadataBulkDeleteItemDTO>) -> Self {
+        self.items = value.into_iter().collect();
         self
     }
 }
@@ -1531,37 +1507,37 @@ impl AssetMetadataBulkDeleteDTO {
 ///
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
-/// | `asset_id` | [`Uuid`](::uuid::Uuid) | ✓ | Asset ID |
+/// | `asset_id` | [`AssetId`](crate::id::AssetId) | ✓ | Asset ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 /// | `key` | [`String`] | ✓ | Metadata key |
 ///
 /// See: <https://api.immich.app/models/AssetMetadataBulkDeleteItemDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct AssetMetadataBulkDeleteItemDTO {
-    /// Asset ID (required)
+    /// Asset ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
     #[serde(rename = "assetId")]
-    pub asset_id: ::uuid::Uuid,
+    pub asset_id: AssetId,
+    /// Metadata key (required)
     pub key: String,
 }
 
 impl AssetMetadataBulkDeleteItemDTO {
-    ///Creates a new [`AssetMetadataBulkDeleteItemDTO`].
+    /// Creates a new [`AssetMetadataBulkDeleteItemDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(asset_id: ::uuid::Uuid, key: impl Into<String>) -> Self {
+    pub fn new(asset_id: impl Into<AssetId>, key: impl Into<String>) -> Self {
         Self {
-            asset_id,
+            asset_id: asset_id.into(),
             key: key.into(),
         }
     }
-
-    ///Sets `asset_id`.
+    /// Sets `asset_id`.
     #[must_use]
-    pub fn asset_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.asset_id = value;
+    pub fn asset_id(mut self, value: impl Into<AssetId>) -> Self {
+        self.asset_id = value.into();
         self
     }
-
-    ///Sets `key`.
+    /// Sets `key`.
     #[must_use]
     pub fn key(mut self, value: impl Into<String>) -> Self {
         self.key = value.into();
@@ -1573,64 +1549,63 @@ impl AssetMetadataBulkDeleteItemDTO {
 ///
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
-/// | `asset_id` | [`Uuid`](::uuid::Uuid) | ✓ | Asset ID |
+/// | `asset_id` | [`AssetId`](crate::id::AssetId) | ✓ | Asset ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 /// | `key` | [`String`] | ✓ | Metadata key |
-/// | `updated_at` | [`DateTime`](::chrono::DateTime) | ✓ | Last update date |
+/// | `updated_at` | [`DateTime`](::chrono::DateTime) | ✓ | Last update date (pattern: `^(?:(?:\d\d[2468][048]\|\d\d[13579][26]\|\d\d0[48]\|[02468][048]00\|[13579][26]00)-02-29\|\d{4}-(?:(?:0[13578]\|1[02])-(?:0[1-9]\|[12]\d\|3[01])\|(?:0[469]\|11)-(?:0[1-9]\|[12]\d\|30)\|(?:02)-(?:0[1-9]\|1\d\|2[0-8])))T(?:(?:[01]\d\|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z\|([+-](?:[01]\d\|2[0-3]):[0-5]\d)))$`) |
 /// | `value` | `object` | ✓ | Metadata value (object) |
 ///
 /// See: <https://api.immich.app/models/AssetMetadataBulkResponseDto>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct AssetMetadataBulkResponseDTO {
-    /// Asset ID (required)
+    /// Asset ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
     #[serde(rename = "assetId")]
-    pub asset_id: ::uuid::Uuid,
+    pub asset_id: AssetId,
+    /// Metadata key (required)
     pub key: String,
-    /// Last update date (required)
+    /// Last update date (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`) (required)
     #[serde(rename = "updatedAt")]
     pub updated_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    /// Metadata value (object) (required)
     pub value: ::serde_json::Map<String, ::serde_json::Value>,
 }
 
 impl AssetMetadataBulkResponseDTO {
-    ///Creates a new [`AssetMetadataBulkResponseDTO`].
+    /// Creates a new [`AssetMetadataBulkResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(
-        asset_id: ::uuid::Uuid,
+        asset_id: impl Into<AssetId>,
         key: impl Into<String>,
         updated_at: ::chrono::DateTime<::chrono::offset::Utc>,
         value: ::serde_json::Map<String, ::serde_json::Value>,
     ) -> Self {
         Self {
-            asset_id,
+            asset_id: asset_id.into(),
             key: key.into(),
             updated_at,
             value,
         }
     }
-
-    ///Sets `asset_id`.
+    /// Sets `asset_id`.
     #[must_use]
-    pub fn asset_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.asset_id = value;
+    pub fn asset_id(mut self, value: impl Into<AssetId>) -> Self {
+        self.asset_id = value.into();
         self
     }
-
-    ///Sets `key`.
+    /// Sets `key`.
     #[must_use]
     pub fn key(mut self, value: impl Into<String>) -> Self {
         self.key = value.into();
         self
     }
-
-    ///Sets `updated_at`.
+    /// Sets `updated_at`.
     #[must_use]
     pub fn updated_at(mut self, value: ::chrono::DateTime<::chrono::offset::Utc>) -> Self {
         self.updated_at = value;
         self
     }
-
-    ///Sets `value`.
+    /// Sets `value`.
     #[must_use]
     pub fn value(mut self, value: ::serde_json::Map<String, ::serde_json::Value>) -> Self {
         self.value = value;
@@ -1646,22 +1621,25 @@ impl AssetMetadataBulkResponseDTO {
 ///
 /// See: <https://api.immich.app/models/AssetMetadataBulkUpsertDto>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct AssetMetadataBulkUpsertDTO {
+    /// Metadata items to upsert (required)
     pub items: Vec<AssetMetadataBulkUpsertItemDTO>,
 }
 
 impl AssetMetadataBulkUpsertDTO {
-    ///Creates a new [`AssetMetadataBulkUpsertDTO`].
+    /// Creates a new [`AssetMetadataBulkUpsertDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(items: Vec<AssetMetadataBulkUpsertItemDTO>) -> Self {
-        Self { items }
+    pub fn new(items: impl IntoIterator<Item = AssetMetadataBulkUpsertItemDTO>) -> Self {
+        Self {
+            items: items.into_iter().collect(),
+        }
     }
-
-    ///Sets `items`.
+    /// Sets `items`.
     #[must_use]
-    pub fn items(mut self, value: Vec<AssetMetadataBulkUpsertItemDTO>) -> Self {
-        self.items = value;
+    pub fn items(mut self, value: impl IntoIterator<Item = AssetMetadataBulkUpsertItemDTO>) -> Self {
+        self.items = value.into_iter().collect();
         self
     }
 }
@@ -1670,51 +1648,51 @@ impl AssetMetadataBulkUpsertDTO {
 ///
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
-/// | `asset_id` | [`Uuid`](::uuid::Uuid) | ✓ | Asset ID |
+/// | `asset_id` | [`AssetId`](crate::id::AssetId) | ✓ | Asset ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 /// | `key` | [`String`] | ✓ | Metadata key |
 /// | `value` | `object` | ✓ | Metadata value (object) |
 ///
 /// See: <https://api.immich.app/models/AssetMetadataBulkUpsertItemDto>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct AssetMetadataBulkUpsertItemDTO {
-    /// Asset ID (required)
+    /// Asset ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
     #[serde(rename = "assetId")]
-    pub asset_id: ::uuid::Uuid,
+    pub asset_id: AssetId,
+    /// Metadata key (required)
     pub key: String,
+    /// Metadata value (object) (required)
     pub value: ::serde_json::Map<String, ::serde_json::Value>,
 }
 
 impl AssetMetadataBulkUpsertItemDTO {
-    ///Creates a new [`AssetMetadataBulkUpsertItemDTO`].
+    /// Creates a new [`AssetMetadataBulkUpsertItemDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(
-        asset_id: ::uuid::Uuid,
+        asset_id: impl Into<AssetId>,
         key: impl Into<String>,
         value: ::serde_json::Map<String, ::serde_json::Value>,
     ) -> Self {
         Self {
-            asset_id,
+            asset_id: asset_id.into(),
             key: key.into(),
             value,
         }
     }
-
-    ///Sets `asset_id`.
+    /// Sets `asset_id`.
     #[must_use]
-    pub fn asset_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.asset_id = value;
+    pub fn asset_id(mut self, value: impl Into<AssetId>) -> Self {
+        self.asset_id = value.into();
         self
     }
-
-    ///Sets `key`.
+    /// Sets `key`.
     #[must_use]
     pub fn key(mut self, value: impl Into<String>) -> Self {
         self.key = value.into();
         self
     }
-
-    ///Sets `value`.
+    /// Sets `value`.
     #[must_use]
     pub fn value(mut self, value: ::serde_json::Map<String, ::serde_json::Value>) -> Self {
         self.value = value;
@@ -1727,21 +1705,24 @@ impl AssetMetadataBulkUpsertItemDTO {
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
 /// | `key` | [`String`] | ✓ | Metadata key |
-/// | `updated_at` | [`DateTime`](::chrono::DateTime) | ✓ | Last update date |
+/// | `updated_at` | [`DateTime`](::chrono::DateTime) | ✓ | Last update date (pattern: `^(?:(?:\d\d[2468][048]\|\d\d[13579][26]\|\d\d0[48]\|[02468][048]00\|[13579][26]00)-02-29\|\d{4}-(?:(?:0[13578]\|1[02])-(?:0[1-9]\|[12]\d\|3[01])\|(?:0[469]\|11)-(?:0[1-9]\|[12]\d\|30)\|(?:02)-(?:0[1-9]\|1\d\|2[0-8])))T(?:(?:[01]\d\|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z\|([+-](?:[01]\d\|2[0-3]):[0-5]\d)))$`) |
 /// | `value` | `object` | ✓ | Metadata value (object) |
 ///
 /// See: <https://api.immich.app/models/AssetMetadataResponseDto>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct AssetMetadataResponseDTO {
+    /// Metadata key (required)
     pub key: String,
-    /// Last update date (required)
+    /// Last update date (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`) (required)
     #[serde(rename = "updatedAt")]
     pub updated_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    /// Metadata value (object) (required)
     pub value: ::serde_json::Map<String, ::serde_json::Value>,
 }
 
 impl AssetMetadataResponseDTO {
-    ///Creates a new [`AssetMetadataResponseDTO`].
+    /// Creates a new [`AssetMetadataResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(
@@ -1755,22 +1736,19 @@ impl AssetMetadataResponseDTO {
             value,
         }
     }
-
-    ///Sets `key`.
+    /// Sets `key`.
     #[must_use]
     pub fn key(mut self, value: impl Into<String>) -> Self {
         self.key = value.into();
         self
     }
-
-    ///Sets `updated_at`.
+    /// Sets `updated_at`.
     #[must_use]
     pub fn updated_at(mut self, value: ::chrono::DateTime<::chrono::offset::Utc>) -> Self {
         self.updated_at = value;
         self
     }
-
-    ///Sets `value`.
+    /// Sets `value`.
     #[must_use]
     pub fn value(mut self, value: ::serde_json::Map<String, ::serde_json::Value>) -> Self {
         self.value = value;
@@ -1786,22 +1764,25 @@ impl AssetMetadataResponseDTO {
 ///
 /// See: <https://api.immich.app/models/AssetMetadataUpsertDto>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct AssetMetadataUpsertDTO {
+    /// Metadata items to upsert (required)
     pub items: Vec<AssetMetadataUpsertItemDTO>,
 }
 
 impl AssetMetadataUpsertDTO {
-    ///Creates a new [`AssetMetadataUpsertDTO`].
+    /// Creates a new [`AssetMetadataUpsertDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(items: Vec<AssetMetadataUpsertItemDTO>) -> Self {
-        Self { items }
+    pub fn new(items: impl IntoIterator<Item = AssetMetadataUpsertItemDTO>) -> Self {
+        Self {
+            items: items.into_iter().collect(),
+        }
     }
-
-    ///Sets `items`.
+    /// Sets `items`.
     #[must_use]
-    pub fn items(mut self, value: Vec<AssetMetadataUpsertItemDTO>) -> Self {
-        self.items = value;
+    pub fn items(mut self, value: impl IntoIterator<Item = AssetMetadataUpsertItemDTO>) -> Self {
+        self.items = value.into_iter().collect();
         self
     }
 }
@@ -1815,27 +1796,28 @@ impl AssetMetadataUpsertDTO {
 ///
 /// See: <https://api.immich.app/models/AssetMetadataUpsertItemDto>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct AssetMetadataUpsertItemDTO {
+    /// Metadata key (required)
     pub key: String,
+    /// Metadata value (object) (required)
     pub value: ::serde_json::Map<String, ::serde_json::Value>,
 }
 
 impl AssetMetadataUpsertItemDTO {
-    ///Creates a new [`AssetMetadataUpsertItemDTO`].
+    /// Creates a new [`AssetMetadataUpsertItemDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(key: impl Into<String>, value: ::serde_json::Map<String, ::serde_json::Value>) -> Self {
         Self { key: key.into(), value }
     }
-
-    ///Sets `key`.
+    /// Sets `key`.
     #[must_use]
     pub fn key(mut self, value: impl Into<String>) -> Self {
         self.key = value.into();
         self
     }
-
-    ///Sets `value`.
+    /// Sets `value`.
     #[must_use]
     pub fn value(mut self, value: ::serde_json::Map<String, ::serde_json::Value>) -> Self {
         self.value = value;
@@ -1847,9 +1829,9 @@ impl AssetMetadataUpsertItemDTO {
 ///
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
-/// | `asset_id` | [`Uuid`](::uuid::Uuid) | ✓ |  |
+/// | `asset_id` | [`AssetId`](crate::id::AssetId) | ✓ | Pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$` |
 /// | `box_score` | `f64` | ✓ | Confidence score for text detection box |
-/// | `id` | [`Uuid`](::uuid::Uuid) | ✓ |  |
+/// | `id` | [`Uuid`](::uuid::Uuid) | ✓ | Pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$` |
 /// | `text` | [`String`] | ✓ | Recognized text |
 /// | `text_score` | `f64` | ✓ | Confidence score for text recognition |
 /// | `x1` | `f64` | ✓ | Normalized x coordinate of box corner 1 (0-1) |
@@ -1863,34 +1845,45 @@ impl AssetMetadataUpsertItemDTO {
 ///
 /// See: <https://api.immich.app/models/AssetOcrResponseDto>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct AssetOcrResponseDTO {
-    /// (required)
+    /// Pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$` (required)
     #[serde(rename = "assetId")]
-    pub asset_id: ::uuid::Uuid,
+    pub asset_id: AssetId,
     /// Confidence score for text detection box (required)
     #[serde(rename = "boxScore")]
     pub box_score: f64,
+    /// Pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$` (required)
     pub id: ::uuid::Uuid,
+    /// Recognized text (required)
     pub text: String,
     /// Confidence score for text recognition (required)
     #[serde(rename = "textScore")]
     pub text_score: f64,
+    /// Normalized x coordinate of box corner 1 (0-1) (required)
     pub x1: f64,
+    /// Normalized x coordinate of box corner 2 (0-1) (required)
     pub x2: f64,
+    /// Normalized x coordinate of box corner 3 (0-1) (required)
     pub x3: f64,
+    /// Normalized x coordinate of box corner 4 (0-1) (required)
     pub x4: f64,
+    /// Normalized y coordinate of box corner 1 (0-1) (required)
     pub y1: f64,
+    /// Normalized y coordinate of box corner 2 (0-1) (required)
     pub y2: f64,
+    /// Normalized y coordinate of box corner 3 (0-1) (required)
     pub y3: f64,
+    /// Normalized y coordinate of box corner 4 (0-1) (required)
     pub y4: f64,
 }
 
 impl AssetOcrResponseDTO {
-    ///Creates a new [`AssetOcrResponseDTO`].
+    /// Creates a new [`AssetOcrResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(
-        asset_id: ::uuid::Uuid,
+        asset_id: impl Into<AssetId>,
         box_score: f64,
         id: ::uuid::Uuid,
         text: impl Into<String>,
@@ -1905,7 +1898,7 @@ impl AssetOcrResponseDTO {
         y4: f64,
     ) -> Self {
         Self {
-            asset_id,
+            asset_id: asset_id.into(),
             box_score,
             id,
             text: text.into(),
@@ -1920,92 +1913,79 @@ impl AssetOcrResponseDTO {
             y4,
         }
     }
-
-    ///Sets `asset_id`.
+    /// Sets `asset_id`.
     #[must_use]
-    pub fn asset_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.asset_id = value;
+    pub fn asset_id(mut self, value: impl Into<AssetId>) -> Self {
+        self.asset_id = value.into();
         self
     }
-
-    ///Sets `box_score`.
+    /// Sets `box_score`.
     #[must_use]
     pub fn box_score(mut self, value: f64) -> Self {
         self.box_score = value;
         self
     }
-
-    ///Sets `id`.
+    /// Sets `id`.
     #[must_use]
     pub fn id(mut self, value: ::uuid::Uuid) -> Self {
         self.id = value;
         self
     }
-
-    ///Sets `text`.
+    /// Sets `text`.
     #[must_use]
     pub fn text(mut self, value: impl Into<String>) -> Self {
         self.text = value.into();
         self
     }
-
-    ///Sets `text_score`.
+    /// Sets `text_score`.
     #[must_use]
     pub fn text_score(mut self, value: f64) -> Self {
         self.text_score = value;
         self
     }
-
-    ///Sets `x1`.
+    /// Sets `x1`.
     #[must_use]
     pub fn x1(mut self, value: f64) -> Self {
         self.x1 = value;
         self
     }
-
-    ///Sets `x2`.
+    /// Sets `x2`.
     #[must_use]
     pub fn x2(mut self, value: f64) -> Self {
         self.x2 = value;
         self
     }
-
-    ///Sets `x3`.
+    /// Sets `x3`.
     #[must_use]
     pub fn x3(mut self, value: f64) -> Self {
         self.x3 = value;
         self
     }
-
-    ///Sets `x4`.
+    /// Sets `x4`.
     #[must_use]
     pub fn x4(mut self, value: f64) -> Self {
         self.x4 = value;
         self
     }
-
-    ///Sets `y1`.
+    /// Sets `y1`.
     #[must_use]
     pub fn y1(mut self, value: f64) -> Self {
         self.y1 = value;
         self
     }
-
-    ///Sets `y2`.
+    /// Sets `y2`.
     #[must_use]
     pub fn y2(mut self, value: f64) -> Self {
         self.y2 = value;
         self
     }
-
-    ///Sets `y3`.
+    /// Sets `y3`.
     #[must_use]
     pub fn y3(mut self, value: f64) -> Self {
         self.y3 = value;
         self
     }
-
-    ///Sets `y4`.
+    /// Sets `y4`.
     #[must_use]
     pub fn y4(mut self, value: f64) -> Self {
         self.y4 = value;
@@ -2016,58 +1996,100 @@ impl AssetOcrResponseDTO {
 /// Rejection reason if rejected
 ///
 /// See: <https://api.immich.app/models/AssetRejectReason>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[non_exhaustive]
 pub enum AssetRejectReason {
-    #[serde(rename = "duplicate")]
     Duplicate,
-    #[serde(rename = "unsupported-format")]
     UnsupportedFormat,
-    ///Unknown value returned by a newer version of the Immich server.
-    #[serde(other)]
-    UnknownValue,
+    /// Unknown value returned by a newer version of the Immich server.
+    Unknown(String),
 }
 
-#[allow(clippy::match_same_arms)]
+impl AssetRejectReason {
+    /// Returns the wire string representation of this enum value.
+    #[must_use]
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::Duplicate => "duplicate",
+            Self::UnsupportedFormat => "unsupported-format",
+            Self::Unknown(s) => s.as_str(),
+        }
+    }
+}
+
 impl ::std::fmt::Display for AssetRejectReason {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        match *self {
-            Self::Duplicate => f.write_str("duplicate"),
-            Self::UnsupportedFormat => f.write_str("unsupported-format"),
-            Self::UnknownValue => f.write_str("unknown"),
+        f.write_str(self.as_str())
+    }
+}
+
+impl From<&str> for AssetRejectReason {
+    fn from(value: &str) -> Self {
+        match value {
+            "duplicate" => Self::Duplicate,
+            "unsupported-format" => Self::UnsupportedFormat,
+            other => Self::Unknown(other.to_owned()),
         }
+    }
+}
+
+impl From<String> for AssetRejectReason {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "duplicate" => Self::Duplicate,
+            "unsupported-format" => Self::UnsupportedFormat,
+            _ => Self::Unknown(value),
+        }
+    }
+}
+
+impl From<&String> for AssetRejectReason {
+    fn from(value: &String) -> Self {
+        Self::from(value.as_str())
     }
 }
 
 impl ::std::str::FromStr for AssetRejectReason {
-    type Err = crate::common::error::ConversionError;
-    fn from_str(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        match value {
-            "duplicate" => Ok(Self::Duplicate),
-            "unsupported-format" => Ok(Self::UnsupportedFormat),
-            _ => Err(format!("invalid value for {}: {}", "AssetRejectReason", value).into()),
+    type Err = ::std::convert::Infallible;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        Ok(Self::from(value))
+    }
+}
+
+impl ::serde::Serialize for AssetRejectReason {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: ::serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+
+impl<'de> ::serde::Deserialize<'de> for AssetRejectReason {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        struct EnumVisitor;
+        impl ::serde::de::Visitor<'_> for EnumVisitor {
+            type Value = AssetRejectReason;
+            fn expecting(&self, formatter: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                formatter.write_str("a string")
+            }
+            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(AssetRejectReason::from(value))
+            }
+            fn visit_string<E>(self, value: String) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(AssetRejectReason::from(value))
+            }
         }
-    }
-}
-
-impl TryFrom<&str> for AssetRejectReason {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<&String> for AssetRejectReason {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<String> for AssetRejectReason {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
+        deserializer.deserialize_str(EnumVisitor)
     }
 }
 
@@ -2077,52 +2099,54 @@ impl TryFrom<String> for AssetRejectReason {
 /// |-------|------|:--------:|-------------|
 /// | `checksum` | [`String`] | ✓ | Base64 encoded SHA1 hash |
 /// | `created_at` | [`DateTime`](::chrono::DateTime) | ✓ | The UTC timestamp when the asset was originally uploaded to Immich. |
-/// | `duplicate_id` | [`Uuid`](::uuid::Uuid) |  | Duplicate group ID |
+/// | `duplicate_id` | [`DuplicateId`](crate::id::DuplicateId) |  | Duplicate group ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 /// | `duration` | `i64` | ✓ | Video/gif duration in milliseconds (null for static images) |
 /// | `exif_info` | [`ExifResponseDTO`] |  |  |
 /// | `file_created_at` | [`DateTime`](::chrono::DateTime) | ✓ | The actual UTC timestamp when the file was created/captured, preserving timezone information. This is the authoritative timestamp for chronological sorting within timeline groups. Combined with timezone data, this can be used to determine the exact moment the photo was taken. |
 /// | `file_modified_at` | [`DateTime`](::chrono::DateTime) | ✓ | The UTC timestamp when the file was last modified on the filesystem. This reflects the last time the physical file was changed, which may be different from when the photo was originally taken. |
 /// | `has_metadata` | `bool` | ✓ | Whether asset has metadata |
 /// | `height` | `i64` | ✓ | Asset height |
-/// | `id` | [`Uuid`](::uuid::Uuid) | ✓ | Asset ID |
+/// | `id` | [`AssetId`](crate::id::AssetId) | ✓ | Asset ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 /// | `is_archived` | `bool` | ✓ | Is archived |
 /// | `is_edited` | `bool` | ✓ | Is edited |
 /// | `is_favorite` | `bool` | ✓ | Is favorite |
 /// | `is_offline` | `bool` | ✓ | Is offline |
 /// | `is_trashed` | `bool` | ✓ | Is trashed |
-/// | `library_id` | [`Uuid`](::uuid::Uuid) |  | Library ID |
-/// | `live_photo_video_id` | [`String`] |  | Live photo video ID |
+/// | `library_id` | [`LibraryId`](crate::id::LibraryId) |  | Library ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
+/// | `live_photo_video_id` | [`AssetId`](crate::id::AssetId) |  | Live photo video ID |
 /// | `local_date_time` | [`DateTime`](::chrono::DateTime) | ✓ | The local date and time when the photo/video was taken, derived from EXIF metadata. This represents the photographer's local time regardless of timezone, stored as a timezone-agnostic timestamp. Used for timeline grouping by "local" days and months. |
 /// | `original_file_name` | [`String`] | ✓ | Original file name |
 /// | `original_mime_type` | [`String`] |  | Original MIME type |
 /// | `original_path` | [`String`] | ✓ | Original file path |
 /// | `owner` | [`UserResponseDTO`] |  |  |
-/// | `owner_id` | [`Uuid`](::uuid::Uuid) | ✓ | Owner user ID |
+/// | `owner_id` | [`UserId`](crate::id::UserId) | ✓ | Owner user ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 /// | `people` | [`Vec<PersonResponseDTO>`](crate::assets::PersonResponseDTO) |  |  |
 /// | `resized` | `bool` |  | Is resized |
 /// | `stack` | [`AssetStackResponseDTO`] |  |  |
 /// | `tags` | [`Vec<TagResponseDTO>`](crate::assets::TagResponseDTO) |  |  |
 /// | `thumbhash` | [`String`] | ✓ | Thumbhash for thumbnail generation (base64) also used as the c query param for thumbnail cache busting. |
-/// | `type` | [`AssetTypeEnum`] | ✓ |  |
+/// | `type_` | [`AssetTypeEnum`] | ✓ |  |
 /// | `updated_at` | [`DateTime`](::chrono::DateTime) | ✓ | The UTC timestamp when the asset record was last updated in the database. This is automatically maintained by the database and reflects when any field in the asset was last modified. |
 /// | `visibility` | [`AssetVisibility`] | ✓ |  |
 /// | `width` | `i64` | ✓ | Asset width |
 ///
 /// See: <https://api.immich.app/models/AssetResponseDto>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct AssetResponseDTO {
+    /// Base64 encoded SHA1 hash (required)
     pub checksum: String,
     /// The UTC timestamp when the asset was originally uploaded to Immich. (required)
     #[serde(rename = "createdAt")]
     pub created_at: ::chrono::DateTime<::chrono::offset::Utc>,
-    /// Duplicate group ID
+    /// Duplicate group ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
     #[serde(
         rename = "duplicateId",
         default,
         skip_serializing_if = "::std::option::Option::is_none"
     )]
-    pub duplicate_id: Option<::uuid::Uuid>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    pub duplicate_id: Option<DuplicateId>,
+    /// Video/gif duration in milliseconds (null for static images) (required)
     pub duration: Option<i64>,
     #[serde(rename = "exifInfo", default, skip_serializing_if = "::std::option::Option::is_none")]
     pub exif_info: Option<ExifResponseDTO>,
@@ -2135,9 +2159,10 @@ pub struct AssetResponseDTO {
     /// Whether asset has metadata (required)
     #[serde(rename = "hasMetadata")]
     pub has_metadata: bool,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Asset height (required)
     pub height: Option<i64>,
-    pub id: ::uuid::Uuid,
+    /// Asset ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
+    pub id: AssetId,
     /// Is archived (required)
     #[serde(rename = "isArchived")]
     pub is_archived: bool,
@@ -2153,13 +2178,13 @@ pub struct AssetResponseDTO {
     /// Is trashed (required)
     #[serde(rename = "isTrashed")]
     pub is_trashed: bool,
-    /// Library ID
+    /// Library ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
     #[serde(
         rename = "libraryId",
         default,
         skip_serializing_if = "::std::option::Option::is_none"
     )]
-    pub library_id: Option<::uuid::Uuid>,
+    pub library_id: Option<LibraryId>,
     /// Live photo video ID
     #[serde(
         rename = "livePhotoVideoId",
@@ -2185,18 +2210,19 @@ pub struct AssetResponseDTO {
     pub original_path: String,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub owner: Option<UserResponseDTO>,
-    /// Owner user ID (required)
+    /// Owner user ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
     #[serde(rename = "ownerId")]
-    pub owner_id: ::uuid::Uuid,
+    pub owner_id: UserId,
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub people: Vec<PersonResponseDTO>,
+    /// Is resized
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub resized: Option<bool>,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub stack: Option<AssetStackResponseDTO>,
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub tags: Vec<TagResponseDTO>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Thumbhash for thumbnail generation (base64) also used as the c query param for thumbnail cache busting. (required)
     pub thumbhash: Option<String>,
     /// (required)
     #[serde(rename = "type")]
@@ -2204,13 +2230,14 @@ pub struct AssetResponseDTO {
     /// The UTC timestamp when the asset record was last updated in the database. This is automatically maintained by the database and reflects when any field in the asset was last modified. (required)
     #[serde(rename = "updatedAt")]
     pub updated_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    /// (required)
     pub visibility: AssetVisibility,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Asset width (required)
     pub width: Option<i64>,
 }
 
 impl AssetResponseDTO {
-    ///Creates a new [`AssetResponseDTO`].
+    /// Creates a new [`AssetResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(
@@ -2219,7 +2246,7 @@ impl AssetResponseDTO {
         file_created_at: ::chrono::DateTime<::chrono::offset::Utc>,
         file_modified_at: ::chrono::DateTime<::chrono::offset::Utc>,
         has_metadata: bool,
-        id: ::uuid::Uuid,
+        id: impl Into<AssetId>,
         is_archived: bool,
         is_edited: bool,
         is_favorite: bool,
@@ -2228,7 +2255,7 @@ impl AssetResponseDTO {
         local_date_time: ::chrono::DateTime<::chrono::offset::Utc>,
         original_file_name: impl Into<String>,
         original_path: impl Into<String>,
-        owner_id: ::uuid::Uuid,
+        owner_id: impl Into<UserId>,
         type_: AssetTypeEnum,
         updated_at: ::chrono::DateTime<::chrono::offset::Utc>,
         visibility: AssetVisibility,
@@ -2243,7 +2270,7 @@ impl AssetResponseDTO {
             file_modified_at,
             has_metadata,
             height: None,
-            id,
+            id: id.into(),
             is_archived,
             is_edited,
             is_favorite,
@@ -2256,7 +2283,7 @@ impl AssetResponseDTO {
             original_mime_type: None,
             original_path: original_path.into(),
             owner: None,
-            owner_id,
+            owner_id: owner_id.into(),
             people: Vec::new(),
             resized: None,
             stack: None,
@@ -2268,309 +2295,265 @@ impl AssetResponseDTO {
             width: None,
         }
     }
-
-    ///Sets `checksum`.
+    /// Sets `checksum`.
     #[must_use]
     pub fn checksum(mut self, value: impl Into<String>) -> Self {
         self.checksum = value.into();
         self
     }
-
-    ///Sets `created_at`.
+    /// Sets `created_at`.
     #[must_use]
     pub fn created_at(mut self, value: ::chrono::DateTime<::chrono::offset::Utc>) -> Self {
         self.created_at = value;
         self
     }
-
-    ///Sets `duplicate_id`.
+    /// Sets `duplicate_id`.
     #[must_use]
-    pub fn duplicate_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.duplicate_id = Some(value);
+    pub fn duplicate_id(mut self, value: impl Into<DuplicateId>) -> Self {
+        self.duplicate_id = Some(value.into());
         self
     }
-
-    ///Sets or clears `duplicate_id`.
+    /// Sets or clears `duplicate_id`.
     #[must_use]
-    pub fn set_duplicate_id(mut self, value: Option<::uuid::Uuid>) -> Self {
+    pub fn set_duplicate_id(mut self, value: Option<DuplicateId>) -> Self {
         self.duplicate_id = value;
         self
     }
-
-    ///Sets `duration`.
+    /// Sets `duration`.
     #[must_use]
     pub fn duration(mut self, value: i64) -> Self {
         self.duration = Some(value);
         self
     }
-
-    ///Sets or clears `duration`.
+    /// Sets or clears `duration`.
     #[must_use]
     pub fn set_duration(mut self, value: Option<i64>) -> Self {
         self.duration = value;
         self
     }
-
-    ///Sets `exif_info`.
+    /// Sets `exif_info`.
     #[must_use]
     pub fn exif_info(mut self, value: ExifResponseDTO) -> Self {
         self.exif_info = Some(value);
         self
     }
-
-    ///Sets or clears `exif_info`.
+    /// Sets or clears `exif_info`.
     #[must_use]
     pub fn set_exif_info(mut self, value: Option<ExifResponseDTO>) -> Self {
         self.exif_info = value;
         self
     }
-
-    ///Sets `file_created_at`.
+    /// Sets `file_created_at`.
     #[must_use]
     pub fn file_created_at(mut self, value: ::chrono::DateTime<::chrono::offset::Utc>) -> Self {
         self.file_created_at = value;
         self
     }
-
-    ///Sets `file_modified_at`.
+    /// Sets `file_modified_at`.
     #[must_use]
     pub fn file_modified_at(mut self, value: ::chrono::DateTime<::chrono::offset::Utc>) -> Self {
         self.file_modified_at = value;
         self
     }
-
-    ///Sets `has_metadata`.
+    /// Sets `has_metadata`.
     #[must_use]
     pub fn has_metadata(mut self, value: bool) -> Self {
         self.has_metadata = value;
         self
     }
-
-    ///Sets `height`.
+    /// Sets `height`.
     #[must_use]
     pub fn height(mut self, value: i64) -> Self {
         self.height = Some(value);
         self
     }
-
-    ///Sets or clears `height`.
+    /// Sets or clears `height`.
     #[must_use]
     pub fn set_height(mut self, value: Option<i64>) -> Self {
         self.height = value;
         self
     }
-
-    ///Sets `id`.
+    /// Sets `id`.
     #[must_use]
-    pub fn id(mut self, value: ::uuid::Uuid) -> Self {
-        self.id = value;
+    pub fn id(mut self, value: impl Into<AssetId>) -> Self {
+        self.id = value.into();
         self
     }
-
-    ///Sets `is_archived`.
+    /// Sets `is_archived`.
     #[must_use]
     pub fn is_archived(mut self, value: bool) -> Self {
         self.is_archived = value;
         self
     }
-
-    ///Sets `is_edited`.
+    /// Sets `is_edited`.
     #[must_use]
     pub fn is_edited(mut self, value: bool) -> Self {
         self.is_edited = value;
         self
     }
-
-    ///Sets `is_favorite`.
+    /// Sets `is_favorite`.
     #[must_use]
     pub fn is_favorite(mut self, value: bool) -> Self {
         self.is_favorite = value;
         self
     }
-
-    ///Sets `is_offline`.
+    /// Sets `is_offline`.
     #[must_use]
     pub fn is_offline(mut self, value: bool) -> Self {
         self.is_offline = value;
         self
     }
-
-    ///Sets `is_trashed`.
+    /// Sets `is_trashed`.
     #[must_use]
     pub fn is_trashed(mut self, value: bool) -> Self {
         self.is_trashed = value;
         self
     }
-
-    ///Sets `library_id`.
+    /// Sets `library_id`.
     #[must_use]
-    pub fn library_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.library_id = Some(value);
+    pub fn library_id(mut self, value: impl Into<LibraryId>) -> Self {
+        self.library_id = Some(value.into());
         self
     }
-
-    ///Sets or clears `library_id`.
+    /// Sets or clears `library_id`.
     #[must_use]
-    pub fn set_library_id(mut self, value: Option<::uuid::Uuid>) -> Self {
+    pub fn set_library_id(mut self, value: Option<LibraryId>) -> Self {
         self.library_id = value;
         self
     }
-
-    ///Sets `live_photo_video_id`.
+    /// Sets `live_photo_video_id`.
     #[must_use]
     pub fn live_photo_video_id(mut self, value: impl Into<String>) -> Self {
         self.live_photo_video_id = Some(value.into());
         self
     }
-
-    ///Sets or clears `live_photo_video_id`.
+    /// Sets or clears `live_photo_video_id`.
     #[must_use]
     pub fn set_live_photo_video_id(mut self, value: Option<String>) -> Self {
         self.live_photo_video_id = value;
         self
     }
-
-    ///Sets `local_date_time`.
+    /// Sets `local_date_time`.
     #[must_use]
     pub fn local_date_time(mut self, value: ::chrono::DateTime<::chrono::offset::Utc>) -> Self {
         self.local_date_time = value;
         self
     }
-
-    ///Sets `original_file_name`.
+    /// Sets `original_file_name`.
     #[must_use]
     pub fn original_file_name(mut self, value: impl Into<String>) -> Self {
         self.original_file_name = value.into();
         self
     }
-
-    ///Sets `original_mime_type`.
+    /// Sets `original_mime_type`.
     #[must_use]
     pub fn original_mime_type(mut self, value: impl Into<String>) -> Self {
         self.original_mime_type = Some(value.into());
         self
     }
-
-    ///Sets or clears `original_mime_type`.
+    /// Sets or clears `original_mime_type`.
     #[must_use]
     pub fn set_original_mime_type(mut self, value: Option<String>) -> Self {
         self.original_mime_type = value;
         self
     }
-
-    ///Sets `original_path`.
+    /// Sets `original_path`.
     #[must_use]
     pub fn original_path(mut self, value: impl Into<String>) -> Self {
         self.original_path = value.into();
         self
     }
-
-    ///Sets `owner`.
+    /// Sets `owner`.
     #[must_use]
     pub fn owner(mut self, value: UserResponseDTO) -> Self {
         self.owner = Some(value);
         self
     }
-
-    ///Sets or clears `owner`.
+    /// Sets or clears `owner`.
     #[must_use]
     pub fn set_owner(mut self, value: Option<UserResponseDTO>) -> Self {
         self.owner = value;
         self
     }
-
-    ///Sets `owner_id`.
+    /// Sets `owner_id`.
     #[must_use]
-    pub fn owner_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.owner_id = value;
+    pub fn owner_id(mut self, value: impl Into<UserId>) -> Self {
+        self.owner_id = value.into();
         self
     }
-
-    ///Sets `people`.
+    /// Sets `people`.
     #[must_use]
-    pub fn people(mut self, value: Vec<PersonResponseDTO>) -> Self {
-        self.people = value;
+    pub fn people(mut self, value: impl IntoIterator<Item = PersonResponseDTO>) -> Self {
+        self.people = value.into_iter().collect();
         self
     }
-
-    ///Sets `resized`.
+    /// Sets `resized`.
     #[must_use]
     pub fn resized(mut self, value: bool) -> Self {
         self.resized = Some(value);
         self
     }
-
-    ///Sets or clears `resized`.
+    /// Sets or clears `resized`.
     #[must_use]
     pub fn set_resized(mut self, value: Option<bool>) -> Self {
         self.resized = value;
         self
     }
-
-    ///Sets `stack`.
+    /// Sets `stack`.
     #[must_use]
     pub fn stack(mut self, value: AssetStackResponseDTO) -> Self {
         self.stack = Some(value);
         self
     }
-
-    ///Sets or clears `stack`.
+    /// Sets or clears `stack`.
     #[must_use]
     pub fn set_stack(mut self, value: Option<AssetStackResponseDTO>) -> Self {
         self.stack = value;
         self
     }
-
-    ///Sets `tags`.
+    /// Sets `tags`.
     #[must_use]
-    pub fn tags(mut self, value: Vec<TagResponseDTO>) -> Self {
-        self.tags = value;
+    pub fn tags(mut self, value: impl IntoIterator<Item = TagResponseDTO>) -> Self {
+        self.tags = value.into_iter().collect();
         self
     }
-
-    ///Sets `thumbhash`.
+    /// Sets `thumbhash`.
     #[must_use]
     pub fn thumbhash(mut self, value: impl Into<String>) -> Self {
         self.thumbhash = Some(value.into());
         self
     }
-
-    ///Sets or clears `thumbhash`.
+    /// Sets or clears `thumbhash`.
     #[must_use]
     pub fn set_thumbhash(mut self, value: Option<String>) -> Self {
         self.thumbhash = value;
         self
     }
-
-    ///Sets `type_`.
+    /// Sets `type_`.
     #[must_use]
     pub fn type_(mut self, value: AssetTypeEnum) -> Self {
         self.type_ = value;
         self
     }
-
-    ///Sets `updated_at`.
+    /// Sets `updated_at`.
     #[must_use]
     pub fn updated_at(mut self, value: ::chrono::DateTime<::chrono::offset::Utc>) -> Self {
         self.updated_at = value;
         self
     }
-
-    ///Sets `visibility`.
+    /// Sets `visibility`.
     #[must_use]
     pub fn visibility(mut self, value: AssetVisibility) -> Self {
         self.visibility = value;
         self
     }
-
-    ///Sets `width`.
+    /// Sets `width`.
     #[must_use]
     pub fn width(mut self, value: i64) -> Self {
         self.width = Some(value);
         self
     }
-
-    ///Sets or clears `width`.
+    /// Sets or clears `width`.
     #[must_use]
     pub fn set_width(mut self, value: Option<i64>) -> Self {
         self.width = value;
@@ -2583,51 +2566,50 @@ impl AssetResponseDTO {
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
 /// | `asset_count` | `i64` | ✓ | Number of assets in stack |
-/// | `id` | [`Uuid`](::uuid::Uuid) | ✓ | Stack ID |
-/// | `primary_asset_id` | [`Uuid`](::uuid::Uuid) | ✓ | Primary asset ID |
+/// | `id` | [`StackId`](crate::id::StackId) | ✓ | Stack ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
+/// | `primary_asset_id` | [`AssetId`](crate::id::AssetId) | ✓ | Primary asset ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 ///
 /// See: <https://api.immich.app/models/AssetStackResponseDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct AssetStackResponseDTO {
     /// Number of assets in stack (required)
     #[serde(rename = "assetCount")]
     pub asset_count: i64,
-    pub id: ::uuid::Uuid,
-    /// Primary asset ID (required)
+    /// Stack ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
+    pub id: StackId,
+    /// Primary asset ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
     #[serde(rename = "primaryAssetId")]
-    pub primary_asset_id: ::uuid::Uuid,
+    pub primary_asset_id: AssetId,
 }
 
 impl AssetStackResponseDTO {
-    ///Creates a new [`AssetStackResponseDTO`].
+    /// Creates a new [`AssetStackResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(asset_count: i64, id: ::uuid::Uuid, primary_asset_id: ::uuid::Uuid) -> Self {
+    pub fn new(asset_count: i64, id: impl Into<StackId>, primary_asset_id: impl Into<AssetId>) -> Self {
         Self {
             asset_count,
-            id,
-            primary_asset_id,
+            id: id.into(),
+            primary_asset_id: primary_asset_id.into(),
         }
     }
-
-    ///Sets `asset_count`.
+    /// Sets `asset_count`.
     #[must_use]
     pub fn asset_count(mut self, value: i64) -> Self {
         self.asset_count = value;
         self
     }
-
-    ///Sets `id`.
+    /// Sets `id`.
     #[must_use]
-    pub fn id(mut self, value: ::uuid::Uuid) -> Self {
-        self.id = value;
+    pub fn id(mut self, value: impl Into<StackId>) -> Self {
+        self.id = value.into();
         self
     }
-
-    ///Sets `primary_asset_id`.
+    /// Sets `primary_asset_id`.
     #[must_use]
-    pub fn primary_asset_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.primary_asset_id = value;
+    pub fn primary_asset_id(mut self, value: impl Into<AssetId>) -> Self {
+        self.primary_asset_id = value.into();
         self
     }
 }
@@ -2641,36 +2623,37 @@ impl AssetStackResponseDTO {
 /// | `videos` | `i64` | ✓ | Number of videos |
 ///
 /// See: <https://api.immich.app/models/AssetStatsResponseDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct AssetStatsResponseDTO {
+    /// Number of images (required)
     pub images: i64,
+    /// Total number of assets (required)
     pub total: i64,
+    /// Number of videos (required)
     pub videos: i64,
 }
 
 impl AssetStatsResponseDTO {
-    ///Creates a new [`AssetStatsResponseDTO`].
+    /// Creates a new [`AssetStatsResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(images: i64, total: i64, videos: i64) -> Self {
         Self { images, total, videos }
     }
-
-    ///Sets `images`.
+    /// Sets `images`.
     #[must_use]
     pub fn images(mut self, value: i64) -> Self {
         self.images = value;
         self
     }
-
-    ///Sets `total`.
+    /// Sets `total`.
     #[must_use]
     pub fn total(mut self, value: i64) -> Self {
         self.total = value;
         self
     }
-
-    ///Sets `videos`.
+    /// Sets `videos`.
     #[must_use]
     pub fn videos(mut self, value: i64) -> Self {
         self.videos = value;
@@ -2681,190 +2664,316 @@ impl AssetStatsResponseDTO {
 /// Asset type
 ///
 /// See: <https://api.immich.app/models/AssetTypeEnum>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[non_exhaustive]
 pub enum AssetTypeEnum {
-    #[serde(rename = "IMAGE")]
     Image,
-    #[serde(rename = "VIDEO")]
     Video,
-    #[serde(rename = "AUDIO")]
     Audio,
-    #[serde(rename = "OTHER")]
     Other,
-    ///Unknown value returned by a newer version of the Immich server.
-    #[serde(other)]
-    UnknownValue,
+    /// Unknown value returned by a newer version of the Immich server.
+    Unknown(String),
 }
 
-#[allow(clippy::match_same_arms)]
+impl AssetTypeEnum {
+    /// Returns the wire string representation of this enum value.
+    #[must_use]
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::Image => "IMAGE",
+            Self::Video => "VIDEO",
+            Self::Audio => "AUDIO",
+            Self::Other => "OTHER",
+            Self::Unknown(s) => s.as_str(),
+        }
+    }
+}
+
 impl ::std::fmt::Display for AssetTypeEnum {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        match *self {
-            Self::Image => f.write_str("IMAGE"),
-            Self::Video => f.write_str("VIDEO"),
-            Self::Audio => f.write_str("AUDIO"),
-            Self::Other => f.write_str("OTHER"),
-            Self::UnknownValue => f.write_str("unknown"),
+        f.write_str(self.as_str())
+    }
+}
+
+impl From<&str> for AssetTypeEnum {
+    fn from(value: &str) -> Self {
+        match value {
+            "IMAGE" => Self::Image,
+            "VIDEO" => Self::Video,
+            "AUDIO" => Self::Audio,
+            "OTHER" => Self::Other,
+            other => Self::Unknown(other.to_owned()),
         }
+    }
+}
+
+impl From<String> for AssetTypeEnum {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "IMAGE" => Self::Image,
+            "VIDEO" => Self::Video,
+            "AUDIO" => Self::Audio,
+            "OTHER" => Self::Other,
+            _ => Self::Unknown(value),
+        }
+    }
+}
+
+impl From<&String> for AssetTypeEnum {
+    fn from(value: &String) -> Self {
+        Self::from(value.as_str())
     }
 }
 
 impl ::std::str::FromStr for AssetTypeEnum {
-    type Err = crate::common::error::ConversionError;
-    fn from_str(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        match value {
-            "IMAGE" => Ok(Self::Image),
-            "VIDEO" => Ok(Self::Video),
-            "AUDIO" => Ok(Self::Audio),
-            "OTHER" => Ok(Self::Other),
-            _ => Err(format!("invalid value for {}: {}", "AssetTypeEnum", value).into()),
+    type Err = ::std::convert::Infallible;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        Ok(Self::from(value))
+    }
+}
+
+impl ::serde::Serialize for AssetTypeEnum {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: ::serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+
+impl<'de> ::serde::Deserialize<'de> for AssetTypeEnum {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        struct EnumVisitor;
+        impl ::serde::de::Visitor<'_> for EnumVisitor {
+            type Value = AssetTypeEnum;
+            fn expecting(&self, formatter: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                formatter.write_str("a string")
+            }
+            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(AssetTypeEnum::from(value))
+            }
+            fn visit_string<E>(self, value: String) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(AssetTypeEnum::from(value))
+            }
         }
-    }
-}
-
-impl TryFrom<&str> for AssetTypeEnum {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<&String> for AssetTypeEnum {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<String> for AssetTypeEnum {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
+        deserializer.deserialize_str(EnumVisitor)
     }
 }
 
 /// Upload action
 ///
 /// See: <https://api.immich.app/models/AssetUploadAction>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[non_exhaustive]
 pub enum AssetUploadAction {
-    #[serde(rename = "accept")]
     Accept,
-    #[serde(rename = "reject")]
     Reject,
-    ///Unknown value returned by a newer version of the Immich server.
-    #[serde(other)]
-    UnknownValue,
+    /// Unknown value returned by a newer version of the Immich server.
+    Unknown(String),
 }
 
-#[allow(clippy::match_same_arms)]
+impl AssetUploadAction {
+    /// Returns the wire string representation of this enum value.
+    #[must_use]
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::Accept => "accept",
+            Self::Reject => "reject",
+            Self::Unknown(s) => s.as_str(),
+        }
+    }
+}
+
 impl ::std::fmt::Display for AssetUploadAction {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        match *self {
-            Self::Accept => f.write_str("accept"),
-            Self::Reject => f.write_str("reject"),
-            Self::UnknownValue => f.write_str("unknown"),
+        f.write_str(self.as_str())
+    }
+}
+
+impl From<&str> for AssetUploadAction {
+    fn from(value: &str) -> Self {
+        match value {
+            "accept" => Self::Accept,
+            "reject" => Self::Reject,
+            other => Self::Unknown(other.to_owned()),
         }
+    }
+}
+
+impl From<String> for AssetUploadAction {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "accept" => Self::Accept,
+            "reject" => Self::Reject,
+            _ => Self::Unknown(value),
+        }
+    }
+}
+
+impl From<&String> for AssetUploadAction {
+    fn from(value: &String) -> Self {
+        Self::from(value.as_str())
     }
 }
 
 impl ::std::str::FromStr for AssetUploadAction {
-    type Err = crate::common::error::ConversionError;
-    fn from_str(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        match value {
-            "accept" => Ok(Self::Accept),
-            "reject" => Ok(Self::Reject),
-            _ => Err(format!("invalid value for {}: {}", "AssetUploadAction", value).into()),
+    type Err = ::std::convert::Infallible;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        Ok(Self::from(value))
+    }
+}
+
+impl ::serde::Serialize for AssetUploadAction {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: ::serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+
+impl<'de> ::serde::Deserialize<'de> for AssetUploadAction {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        struct EnumVisitor;
+        impl ::serde::de::Visitor<'_> for EnumVisitor {
+            type Value = AssetUploadAction;
+            fn expecting(&self, formatter: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                formatter.write_str("a string")
+            }
+            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(AssetUploadAction::from(value))
+            }
+            fn visit_string<E>(self, value: String) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(AssetUploadAction::from(value))
+            }
         }
-    }
-}
-
-impl TryFrom<&str> for AssetUploadAction {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<&String> for AssetUploadAction {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<String> for AssetUploadAction {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
+        deserializer.deserialize_str(EnumVisitor)
     }
 }
 
 /// Asset visibility
 ///
 /// See: <https://api.immich.app/models/AssetVisibility>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[non_exhaustive]
 pub enum AssetVisibility {
-    #[serde(rename = "archive")]
     Archive,
-    #[serde(rename = "timeline")]
     Timeline,
-    #[serde(rename = "hidden")]
     Hidden,
-    #[serde(rename = "locked")]
     Locked,
-    ///Unknown value returned by a newer version of the Immich server.
-    #[serde(other)]
-    UnknownValue,
+    /// Unknown value returned by a newer version of the Immich server.
+    Unknown(String),
 }
 
-#[allow(clippy::match_same_arms)]
+impl AssetVisibility {
+    /// Returns the wire string representation of this enum value.
+    #[must_use]
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::Archive => "archive",
+            Self::Timeline => "timeline",
+            Self::Hidden => "hidden",
+            Self::Locked => "locked",
+            Self::Unknown(s) => s.as_str(),
+        }
+    }
+}
+
 impl ::std::fmt::Display for AssetVisibility {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        match *self {
-            Self::Archive => f.write_str("archive"),
-            Self::Timeline => f.write_str("timeline"),
-            Self::Hidden => f.write_str("hidden"),
-            Self::Locked => f.write_str("locked"),
-            Self::UnknownValue => f.write_str("unknown"),
+        f.write_str(self.as_str())
+    }
+}
+
+impl From<&str> for AssetVisibility {
+    fn from(value: &str) -> Self {
+        match value {
+            "archive" => Self::Archive,
+            "timeline" => Self::Timeline,
+            "hidden" => Self::Hidden,
+            "locked" => Self::Locked,
+            other => Self::Unknown(other.to_owned()),
         }
+    }
+}
+
+impl From<String> for AssetVisibility {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "archive" => Self::Archive,
+            "timeline" => Self::Timeline,
+            "hidden" => Self::Hidden,
+            "locked" => Self::Locked,
+            _ => Self::Unknown(value),
+        }
+    }
+}
+
+impl From<&String> for AssetVisibility {
+    fn from(value: &String) -> Self {
+        Self::from(value.as_str())
     }
 }
 
 impl ::std::str::FromStr for AssetVisibility {
-    type Err = crate::common::error::ConversionError;
-    fn from_str(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        match value {
-            "archive" => Ok(Self::Archive),
-            "timeline" => Ok(Self::Timeline),
-            "hidden" => Ok(Self::Hidden),
-            "locked" => Ok(Self::Locked),
-            _ => Err(format!("invalid value for {}: {}", "AssetVisibility", value).into()),
+    type Err = ::std::convert::Infallible;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        Ok(Self::from(value))
+    }
+}
+
+impl ::serde::Serialize for AssetVisibility {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: ::serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+
+impl<'de> ::serde::Deserialize<'de> for AssetVisibility {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        struct EnumVisitor;
+        impl ::serde::de::Visitor<'_> for EnumVisitor {
+            type Value = AssetVisibility;
+            fn expecting(&self, formatter: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                formatter.write_str("a string")
+            }
+            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(AssetVisibility::from(value))
+            }
+            fn visit_string<E>(self, value: String) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(AssetVisibility::from(value))
+            }
         }
-    }
-}
-
-impl TryFrom<&str> for AssetVisibility {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<&String> for AssetVisibility {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<String> for AssetVisibility {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
+        deserializer.deserialize_str(EnumVisitor)
     }
 }
 
@@ -2878,44 +2987,45 @@ impl TryFrom<String> for AssetVisibility {
 /// | `y` | `i64` | ✓ | Top-Left Y coordinate of crop |
 ///
 /// See: <https://api.immich.app/models/CropParameters>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct CropParameters {
+    /// Height of the crop (required)
     pub height: ::std::num::NonZeroU64,
+    /// Width of the crop (required)
     pub width: ::std::num::NonZeroU64,
+    /// Top-Left X coordinate of crop (required)
     pub x: i64,
+    /// Top-Left Y coordinate of crop (required)
     pub y: i64,
 }
 
 impl CropParameters {
-    ///Creates a new [`CropParameters`].
+    /// Creates a new [`CropParameters`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(height: ::std::num::NonZeroU64, width: ::std::num::NonZeroU64, x: i64, y: i64) -> Self {
         Self { height, width, x, y }
     }
-
-    ///Sets `height`.
+    /// Sets `height`.
     #[must_use]
     pub fn height(mut self, value: ::std::num::NonZeroU64) -> Self {
         self.height = value;
         self
     }
-
-    ///Sets `width`.
+    /// Sets `width`.
     #[must_use]
     pub fn width(mut self, value: ::std::num::NonZeroU64) -> Self {
         self.width = value;
         self
     }
-
-    ///Sets `x`.
+    /// Sets `x`.
     #[must_use]
     pub fn x(mut self, value: i64) -> Self {
         self.x = value;
         self
     }
-
-    ///Sets `y`.
+    /// Sets `y`.
     #[must_use]
     pub fn y(mut self, value: i64) -> Self {
         self.y = value;
@@ -2952,9 +3062,12 @@ impl CropParameters {
 ///
 /// See: <https://api.immich.app/models/ExifResponseDto>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Default)]
+#[non_exhaustive]
 pub struct ExifResponseDTO {
+    /// City name
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub city: Option<String>,
+    /// Country name
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub country: Option<String>,
     /// Original date/time
@@ -2964,6 +3077,7 @@ pub struct ExifResponseDTO {
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub date_time_original: Option<::chrono::DateTime<::chrono::offset::Utc>>,
+    /// Image description
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub description: Option<String>,
     /// Image height in pixels
@@ -3004,8 +3118,10 @@ pub struct ExifResponseDTO {
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub focal_length: Option<f64>,
+    /// ISO sensitivity
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub iso: Option<i64>,
+    /// GPS latitude
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub latitude: Option<f64>,
     /// Lens model
@@ -3015,10 +3131,13 @@ pub struct ExifResponseDTO {
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub lens_model: Option<String>,
+    /// GPS longitude
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub longitude: Option<f64>,
+    /// Camera make
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub make: Option<String>,
+    /// Camera model
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub model: Option<String>,
     /// Modification date/time
@@ -3028,6 +3147,7 @@ pub struct ExifResponseDTO {
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub modify_date: Option<::chrono::DateTime<::chrono::offset::Utc>>,
+    /// Image orientation
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub orientation: Option<String>,
     /// Projection type
@@ -3037,8 +3157,10 @@ pub struct ExifResponseDTO {
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub projection_type: Option<String>,
+    /// Rating
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub rating: Option<::std::num::NonZeroU64>,
+    /// State/province name
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub state: Option<String>,
     /// Time zone
@@ -3047,7 +3169,7 @@ pub struct ExifResponseDTO {
 }
 
 impl ExifResponseDTO {
-    ///Creates a new [`ExifResponseDTO`].
+    /// Creates a new [`ExifResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new() -> Self {
@@ -3076,309 +3198,265 @@ impl ExifResponseDTO {
             time_zone: None,
         }
     }
-
-    ///Sets `city`.
+    /// Sets `city`.
     #[must_use]
     pub fn city(mut self, value: impl Into<String>) -> Self {
         self.city = Some(value.into());
         self
     }
-
-    ///Sets or clears `city`.
+    /// Sets or clears `city`.
     #[must_use]
     pub fn set_city(mut self, value: Option<String>) -> Self {
         self.city = value;
         self
     }
-
-    ///Sets `country`.
+    /// Sets `country`.
     #[must_use]
     pub fn country(mut self, value: impl Into<String>) -> Self {
         self.country = Some(value.into());
         self
     }
-
-    ///Sets or clears `country`.
+    /// Sets or clears `country`.
     #[must_use]
     pub fn set_country(mut self, value: Option<String>) -> Self {
         self.country = value;
         self
     }
-
-    ///Sets `date_time_original`.
+    /// Sets `date_time_original`.
     #[must_use]
     pub fn date_time_original(mut self, value: ::chrono::DateTime<::chrono::offset::Utc>) -> Self {
         self.date_time_original = Some(value);
         self
     }
-
-    ///Sets or clears `date_time_original`.
+    /// Sets or clears `date_time_original`.
     #[must_use]
     pub fn set_date_time_original(mut self, value: Option<::chrono::DateTime<::chrono::offset::Utc>>) -> Self {
         self.date_time_original = value;
         self
     }
-
-    ///Sets `description`.
+    /// Sets `description`.
     #[must_use]
     pub fn description(mut self, value: impl Into<String>) -> Self {
         self.description = Some(value.into());
         self
     }
-
-    ///Sets or clears `description`.
+    /// Sets or clears `description`.
     #[must_use]
     pub fn set_description(mut self, value: Option<String>) -> Self {
         self.description = value;
         self
     }
-
-    ///Sets `exif_image_height`.
+    /// Sets `exif_image_height`.
     #[must_use]
     pub fn exif_image_height(mut self, value: i64) -> Self {
         self.exif_image_height = Some(value);
         self
     }
-
-    ///Sets or clears `exif_image_height`.
+    /// Sets or clears `exif_image_height`.
     #[must_use]
     pub fn set_exif_image_height(mut self, value: Option<i64>) -> Self {
         self.exif_image_height = value;
         self
     }
-
-    ///Sets `exif_image_width`.
+    /// Sets `exif_image_width`.
     #[must_use]
     pub fn exif_image_width(mut self, value: i64) -> Self {
         self.exif_image_width = Some(value);
         self
     }
-
-    ///Sets or clears `exif_image_width`.
+    /// Sets or clears `exif_image_width`.
     #[must_use]
     pub fn set_exif_image_width(mut self, value: Option<i64>) -> Self {
         self.exif_image_width = value;
         self
     }
-
-    ///Sets `exposure_time`.
+    /// Sets `exposure_time`.
     #[must_use]
     pub fn exposure_time(mut self, value: impl Into<String>) -> Self {
         self.exposure_time = Some(value.into());
         self
     }
-
-    ///Sets or clears `exposure_time`.
+    /// Sets or clears `exposure_time`.
     #[must_use]
     pub fn set_exposure_time(mut self, value: Option<String>) -> Self {
         self.exposure_time = value;
         self
     }
-
-    ///Sets `f_number`.
+    /// Sets `f_number`.
     #[must_use]
     pub fn f_number(mut self, value: f64) -> Self {
         self.f_number = Some(value);
         self
     }
-
-    ///Sets or clears `f_number`.
+    /// Sets or clears `f_number`.
     #[must_use]
     pub fn set_f_number(mut self, value: Option<f64>) -> Self {
         self.f_number = value;
         self
     }
-
-    ///Sets `file_size_in_byte`.
+    /// Sets `file_size_in_byte`.
     #[must_use]
     pub fn file_size_in_byte(mut self, value: i64) -> Self {
         self.file_size_in_byte = Some(value);
         self
     }
-
-    ///Sets or clears `file_size_in_byte`.
+    /// Sets or clears `file_size_in_byte`.
     #[must_use]
     pub fn set_file_size_in_byte(mut self, value: Option<i64>) -> Self {
         self.file_size_in_byte = value;
         self
     }
-
-    ///Sets `focal_length`.
+    /// Sets `focal_length`.
     #[must_use]
     pub fn focal_length(mut self, value: f64) -> Self {
         self.focal_length = Some(value);
         self
     }
-
-    ///Sets or clears `focal_length`.
+    /// Sets or clears `focal_length`.
     #[must_use]
     pub fn set_focal_length(mut self, value: Option<f64>) -> Self {
         self.focal_length = value;
         self
     }
-
-    ///Sets `iso`.
+    /// Sets `iso`.
     #[must_use]
     pub fn iso(mut self, value: i64) -> Self {
         self.iso = Some(value);
         self
     }
-
-    ///Sets or clears `iso`.
+    /// Sets or clears `iso`.
     #[must_use]
     pub fn set_iso(mut self, value: Option<i64>) -> Self {
         self.iso = value;
         self
     }
-
-    ///Sets `latitude`.
+    /// Sets `latitude`.
     #[must_use]
     pub fn latitude(mut self, value: f64) -> Self {
         self.latitude = Some(value);
         self
     }
-
-    ///Sets or clears `latitude`.
+    /// Sets or clears `latitude`.
     #[must_use]
     pub fn set_latitude(mut self, value: Option<f64>) -> Self {
         self.latitude = value;
         self
     }
-
-    ///Sets `lens_model`.
+    /// Sets `lens_model`.
     #[must_use]
     pub fn lens_model(mut self, value: impl Into<String>) -> Self {
         self.lens_model = Some(value.into());
         self
     }
-
-    ///Sets or clears `lens_model`.
+    /// Sets or clears `lens_model`.
     #[must_use]
     pub fn set_lens_model(mut self, value: Option<String>) -> Self {
         self.lens_model = value;
         self
     }
-
-    ///Sets `longitude`.
+    /// Sets `longitude`.
     #[must_use]
     pub fn longitude(mut self, value: f64) -> Self {
         self.longitude = Some(value);
         self
     }
-
-    ///Sets or clears `longitude`.
+    /// Sets or clears `longitude`.
     #[must_use]
     pub fn set_longitude(mut self, value: Option<f64>) -> Self {
         self.longitude = value;
         self
     }
-
-    ///Sets `make`.
+    /// Sets `make`.
     #[must_use]
     pub fn make(mut self, value: impl Into<String>) -> Self {
         self.make = Some(value.into());
         self
     }
-
-    ///Sets or clears `make`.
+    /// Sets or clears `make`.
     #[must_use]
     pub fn set_make(mut self, value: Option<String>) -> Self {
         self.make = value;
         self
     }
-
-    ///Sets `model`.
+    /// Sets `model`.
     #[must_use]
     pub fn model(mut self, value: impl Into<String>) -> Self {
         self.model = Some(value.into());
         self
     }
-
-    ///Sets or clears `model`.
+    /// Sets or clears `model`.
     #[must_use]
     pub fn set_model(mut self, value: Option<String>) -> Self {
         self.model = value;
         self
     }
-
-    ///Sets `modify_date`.
+    /// Sets `modify_date`.
     #[must_use]
     pub fn modify_date(mut self, value: ::chrono::DateTime<::chrono::offset::Utc>) -> Self {
         self.modify_date = Some(value);
         self
     }
-
-    ///Sets or clears `modify_date`.
+    /// Sets or clears `modify_date`.
     #[must_use]
     pub fn set_modify_date(mut self, value: Option<::chrono::DateTime<::chrono::offset::Utc>>) -> Self {
         self.modify_date = value;
         self
     }
-
-    ///Sets `orientation`.
+    /// Sets `orientation`.
     #[must_use]
     pub fn orientation(mut self, value: impl Into<String>) -> Self {
         self.orientation = Some(value.into());
         self
     }
-
-    ///Sets or clears `orientation`.
+    /// Sets or clears `orientation`.
     #[must_use]
     pub fn set_orientation(mut self, value: Option<String>) -> Self {
         self.orientation = value;
         self
     }
-
-    ///Sets `projection_type`.
+    /// Sets `projection_type`.
     #[must_use]
     pub fn projection_type(mut self, value: impl Into<String>) -> Self {
         self.projection_type = Some(value.into());
         self
     }
-
-    ///Sets or clears `projection_type`.
+    /// Sets or clears `projection_type`.
     #[must_use]
     pub fn set_projection_type(mut self, value: Option<String>) -> Self {
         self.projection_type = value;
         self
     }
-
-    ///Sets `rating`.
+    /// Sets `rating`.
     #[must_use]
     pub fn rating(mut self, value: ::std::num::NonZeroU64) -> Self {
         self.rating = Some(value);
         self
     }
-
-    ///Sets or clears `rating`.
+    /// Sets or clears `rating`.
     #[must_use]
     pub fn set_rating(mut self, value: Option<::std::num::NonZeroU64>) -> Self {
         self.rating = value;
         self
     }
-
-    ///Sets `state`.
+    /// Sets `state`.
     #[must_use]
     pub fn state(mut self, value: impl Into<String>) -> Self {
         self.state = Some(value.into());
         self
     }
-
-    ///Sets or clears `state`.
+    /// Sets or clears `state`.
     #[must_use]
     pub fn set_state(mut self, value: Option<String>) -> Self {
         self.state = value;
         self
     }
-
-    ///Sets `time_zone`.
+    /// Sets `time_zone`.
     #[must_use]
     pub fn time_zone(mut self, value: impl Into<String>) -> Self {
         self.time_zone = Some(value.into());
         self
     }
-
-    ///Sets or clears `time_zone`.
+    /// Sets or clears `time_zone`.
     #[must_use]
     pub fn set_time_zone(mut self, value: Option<String>) -> Self {
         self.time_zone = value;
@@ -3389,58 +3467,100 @@ impl ExifResponseDTO {
 /// Axis to mirror along
 ///
 /// See: <https://api.immich.app/models/MirrorAxis>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[non_exhaustive]
 pub enum MirrorAxis {
-    #[serde(rename = "horizontal")]
     Horizontal,
-    #[serde(rename = "vertical")]
     Vertical,
-    ///Unknown value returned by a newer version of the Immich server.
-    #[serde(other)]
-    UnknownValue,
+    /// Unknown value returned by a newer version of the Immich server.
+    Unknown(String),
 }
 
-#[allow(clippy::match_same_arms)]
+impl MirrorAxis {
+    /// Returns the wire string representation of this enum value.
+    #[must_use]
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::Horizontal => "horizontal",
+            Self::Vertical => "vertical",
+            Self::Unknown(s) => s.as_str(),
+        }
+    }
+}
+
 impl ::std::fmt::Display for MirrorAxis {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        match *self {
-            Self::Horizontal => f.write_str("horizontal"),
-            Self::Vertical => f.write_str("vertical"),
-            Self::UnknownValue => f.write_str("unknown"),
+        f.write_str(self.as_str())
+    }
+}
+
+impl From<&str> for MirrorAxis {
+    fn from(value: &str) -> Self {
+        match value {
+            "horizontal" => Self::Horizontal,
+            "vertical" => Self::Vertical,
+            other => Self::Unknown(other.to_owned()),
         }
+    }
+}
+
+impl From<String> for MirrorAxis {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "horizontal" => Self::Horizontal,
+            "vertical" => Self::Vertical,
+            _ => Self::Unknown(value),
+        }
+    }
+}
+
+impl From<&String> for MirrorAxis {
+    fn from(value: &String) -> Self {
+        Self::from(value.as_str())
     }
 }
 
 impl ::std::str::FromStr for MirrorAxis {
-    type Err = crate::common::error::ConversionError;
-    fn from_str(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        match value {
-            "horizontal" => Ok(Self::Horizontal),
-            "vertical" => Ok(Self::Vertical),
-            _ => Err(format!("invalid value for {}: {}", "MirrorAxis", value).into()),
+    type Err = ::std::convert::Infallible;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        Ok(Self::from(value))
+    }
+}
+
+impl ::serde::Serialize for MirrorAxis {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: ::serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+
+impl<'de> ::serde::Deserialize<'de> for MirrorAxis {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        struct EnumVisitor;
+        impl ::serde::de::Visitor<'_> for EnumVisitor {
+            type Value = MirrorAxis;
+            fn expecting(&self, formatter: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                formatter.write_str("a string")
+            }
+            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(MirrorAxis::from(value))
+            }
+            fn visit_string<E>(self, value: String) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(MirrorAxis::from(value))
+            }
         }
-    }
-}
-
-impl TryFrom<&str> for MirrorAxis {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<&String> for MirrorAxis {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<String> for MirrorAxis {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
+        deserializer.deserialize_str(EnumVisitor)
     }
 }
 
@@ -3451,20 +3571,21 @@ impl TryFrom<String> for MirrorAxis {
 /// | `axis` | [`MirrorAxis`] | ✓ |  |
 ///
 /// See: <https://api.immich.app/models/MirrorParameters>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct MirrorParameters {
+    /// (required)
     pub axis: MirrorAxis,
 }
 
 impl MirrorParameters {
-    ///Creates a new [`MirrorParameters`].
+    /// Creates a new [`MirrorParameters`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(axis: MirrorAxis) -> Self {
         Self { axis }
     }
-
-    ///Sets `axis`.
+    /// Sets `axis`.
     #[must_use]
     pub fn axis(mut self, value: MirrorAxis) -> Self {
         self.axis = value;
@@ -3477,21 +3598,25 @@ impl MirrorParameters {
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
 /// | `avatar_color` | [`UserAvatarColor`] | ✓ |  |
-/// | `email` | [`String`] | ✓ | User email |
-/// | `id` | [`Uuid`](::uuid::Uuid) | ✓ | User ID |
+/// | `email` | [`String`] | ✓ | User email (pattern: `` ^[\p{L}\p{M}\p{N}.!#$%&'*+/=?^_`{\|}~-]+@[\p{L}\p{N}](?:[\p{L}\p{M}\p{N}-]{0,61}[\p{L}\p{M}\p{N}])?(?:\.[\p{L}\p{N}](?:[\p{L}\p{M}\p{N}-]{0,61}[\p{L}\p{M}\p{N}])?)*$ ``) |
+/// | `id` | [`UserId`](crate::id::UserId) | ✓ | User ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 /// | `name` | [`String`] | ✓ | User name |
 /// | `profile_changed_at` | [`DateTime`](::chrono::DateTime) | ✓ | Profile change date |
 /// | `profile_image_path` | [`String`] | ✓ | Profile image path |
 /// | `role` | [`PersonUserRole`] | ✓ | Access role |
 ///
 /// See: <https://api.immich.app/models/PeopleUserResponseDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct PeopleUserResponseDTO {
     /// (required)
     #[serde(rename = "avatarColor")]
     pub avatar_color: UserAvatarColor,
-    pub email: PeopleUserResponseEmail,
-    pub id: ::uuid::Uuid,
+    /// User email (pattern: `` ^[\p{L}\p{M}\p{N}.!#$%&'*+/=?^_`{|}~-]+@[\p{L}\p{N}](?:[\p{L}\p{M}\p{N}-]{0,61}[\p{L}\p{M}\p{N}])?(?:\.[\p{L}\p{N}](?:[\p{L}\p{M}\p{N}-]{0,61}[\p{L}\p{M}\p{N}])?)*$ ``) (required)
+    pub email: String,
+    /// User ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
+    pub id: UserId,
+    /// User name (required)
     pub name: String,
     /// Profile change date (required)
     #[serde(rename = "profileChangedAt")]
@@ -3499,17 +3624,18 @@ pub struct PeopleUserResponseDTO {
     /// Profile image path (required)
     #[serde(rename = "profileImagePath")]
     pub profile_image_path: String,
+    /// Access role (required)
     pub role: PersonUserRole,
 }
 
 impl PeopleUserResponseDTO {
-    ///Creates a new [`PeopleUserResponseDTO`].
+    /// Creates a new [`PeopleUserResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(
         avatar_color: UserAvatarColor,
-        email: PeopleUserResponseEmail,
-        id: ::uuid::Uuid,
+        email: impl Into<String>,
+        id: impl Into<UserId>,
         name: impl Into<String>,
         profile_changed_at: ::chrono::DateTime<::chrono::offset::Utc>,
         profile_image_path: impl Into<String>,
@@ -3517,58 +3643,51 @@ impl PeopleUserResponseDTO {
     ) -> Self {
         Self {
             avatar_color,
-            email,
-            id,
+            email: email.into(),
+            id: id.into(),
             name: name.into(),
             profile_changed_at,
             profile_image_path: profile_image_path.into(),
             role,
         }
     }
-
-    ///Sets `avatar_color`.
+    /// Sets `avatar_color`.
     #[must_use]
     pub fn avatar_color(mut self, value: UserAvatarColor) -> Self {
         self.avatar_color = value;
         self
     }
-
-    ///Sets `email`.
+    /// Sets `email`.
     #[must_use]
-    pub fn email(mut self, value: PeopleUserResponseEmail) -> Self {
-        self.email = value;
+    pub fn email(mut self, value: impl Into<String>) -> Self {
+        self.email = value.into();
         self
     }
-
-    ///Sets `id`.
+    /// Sets `id`.
     #[must_use]
-    pub fn id(mut self, value: ::uuid::Uuid) -> Self {
-        self.id = value;
+    pub fn id(mut self, value: impl Into<UserId>) -> Self {
+        self.id = value.into();
         self
     }
-
-    ///Sets `name`.
+    /// Sets `name`.
     #[must_use]
     pub fn name(mut self, value: impl Into<String>) -> Self {
         self.name = value.into();
         self
     }
-
-    ///Sets `profile_changed_at`.
+    /// Sets `profile_changed_at`.
     #[must_use]
     pub fn profile_changed_at(mut self, value: ::chrono::DateTime<::chrono::offset::Utc>) -> Self {
         self.profile_changed_at = value;
         self
     }
-
-    ///Sets `profile_image_path`.
+    /// Sets `profile_image_path`.
     #[must_use]
     pub fn profile_image_path(mut self, value: impl Into<String>) -> Self {
         self.profile_image_path = value.into();
         self
     }
-
-    ///Sets `role`.
+    /// Sets `role`.
     #[must_use]
     pub fn role(mut self, value: PersonUserRole) -> Self {
         self.role = value;
@@ -3583,67 +3702,64 @@ impl PeopleUserResponseDTO {
 /// | `birth_date` | [`String`] | ✓ |  |
 /// | `name` | [`String`] | ✓ |  |
 /// | `role` | [`PersonUserRole`] | ✓ |  |
-/// | `shared_by_id` | [`Uuid`](::uuid::Uuid) | ✓ |  |
+/// | `shared_by_id` | [`UserId`](crate::id::UserId) | ✓ | Pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}\|00000000-0000-0000-0000-000000000000\|ffffffff-ffff-ffff-ffff-ffffffffffff)$` |
 ///
 /// See: <https://api.immich.app/models/PersonOtherResponseDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct PersonOtherResponseDTO {
     /// (required)
     #[serde(rename = "birthDate")]
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub birth_date: Option<String>,
-    pub name: String,
-    pub role: PersonUserRole,
     /// (required)
+    pub name: String,
+    /// (required)
+    pub role: PersonUserRole,
+    /// Pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$` (required)
     #[serde(rename = "sharedById")]
-    pub shared_by_id: ::uuid::Uuid,
+    pub shared_by_id: UserId,
 }
 
 impl PersonOtherResponseDTO {
-    ///Creates a new [`PersonOtherResponseDTO`].
+    /// Creates a new [`PersonOtherResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(name: impl Into<String>, role: PersonUserRole, shared_by_id: ::uuid::Uuid) -> Self {
+    pub fn new(name: impl Into<String>, role: PersonUserRole, shared_by_id: impl Into<UserId>) -> Self {
         Self {
             birth_date: None,
             name: name.into(),
             role,
-            shared_by_id,
+            shared_by_id: shared_by_id.into(),
         }
     }
-
-    ///Sets `birth_date`.
+    /// Sets `birth_date`.
     #[must_use]
     pub fn birth_date(mut self, value: impl Into<String>) -> Self {
         self.birth_date = Some(value.into());
         self
     }
-
-    ///Sets or clears `birth_date`.
+    /// Sets or clears `birth_date`.
     #[must_use]
     pub fn set_birth_date(mut self, value: Option<String>) -> Self {
         self.birth_date = value;
         self
     }
-
-    ///Sets `name`.
+    /// Sets `name`.
     #[must_use]
     pub fn name(mut self, value: impl Into<String>) -> Self {
         self.name = value.into();
         self
     }
-
-    ///Sets `role`.
+    /// Sets `role`.
     #[must_use]
     pub fn role(mut self, value: PersonUserRole) -> Self {
         self.role = value;
         self
     }
-
-    ///Sets `shared_by_id`.
+    /// Sets `shared_by_id`.
     #[must_use]
-    pub fn shared_by_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.shared_by_id = value;
+    pub fn shared_by_id(mut self, value: impl Into<UserId>) -> Self {
+        self.shared_by_id = value.into();
         self
     }
 }
@@ -3654,7 +3770,7 @@ impl PersonOtherResponseDTO {
 /// |-------|------|:--------:|-------------|
 /// | `birth_date` | [`String`] | ✓ | Person date of birth |
 /// | `color` | [`String`] |  | Person color (hex) |
-/// | `id` | [`Uuid`](::uuid::Uuid) | ✓ | Person ID |
+/// | `id` | [`PersonId`](crate::id::PersonId) | ✓ | Person ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 /// | `is_favorite` | `bool` |  | Is favorite |
 /// | `is_hidden` | `bool` | ✓ | Is hidden |
 /// | `name` | [`String`] | ✓ | Person name |
@@ -3666,14 +3782,16 @@ impl PersonOtherResponseDTO {
 ///
 /// See: <https://api.immich.app/models/PersonResponseDto>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct PersonResponseDTO {
     /// Person date of birth (required)
     #[serde(rename = "birthDate")]
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub birth_date: Option<::chrono::naive::NaiveDate>,
+    /// Person color (hex)
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub color: Option<String>,
-    pub id: ::uuid::Uuid,
+    /// Person ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
+    pub id: PersonId,
     /// Is favorite
     #[serde(
         rename = "isFavorite",
@@ -3684,6 +3802,7 @@ pub struct PersonResponseDTO {
     /// Is hidden (required)
     #[serde(rename = "isHidden")]
     pub is_hidden: bool,
+    /// Person name (required)
     pub name: String,
     /// (required)
     #[serde(rename = "otherPeople")]
@@ -3707,132 +3826,117 @@ pub struct PersonResponseDTO {
 }
 
 impl PersonResponseDTO {
-    ///Creates a new [`PersonResponseDTO`].
+    /// Creates a new [`PersonResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(
-        id: ::uuid::Uuid,
+        id: impl Into<PersonId>,
         is_hidden: bool,
         name: impl Into<String>,
-        other_people: Vec<PersonOtherResponseDTO>,
-        shared_by: Vec<PeopleUserResponseDTO>,
-        shared_with: Vec<PeopleUserResponseDTO>,
+        other_people: impl IntoIterator<Item = PersonOtherResponseDTO>,
+        shared_by: impl IntoIterator<Item = PeopleUserResponseDTO>,
+        shared_with: impl IntoIterator<Item = PeopleUserResponseDTO>,
         thumbnail_path: impl Into<String>,
     ) -> Self {
         Self {
             birth_date: None,
             color: None,
-            id,
+            id: id.into(),
             is_favorite: None,
             is_hidden,
             name: name.into(),
-            other_people,
-            shared_by,
-            shared_with,
+            other_people: other_people.into_iter().collect(),
+            shared_by: shared_by.into_iter().collect(),
+            shared_with: shared_with.into_iter().collect(),
             thumbnail_path: thumbnail_path.into(),
             updated_at: None,
         }
     }
-
-    ///Sets `birth_date`.
+    /// Sets `birth_date`.
     #[must_use]
     pub fn birth_date(mut self, value: ::chrono::naive::NaiveDate) -> Self {
         self.birth_date = Some(value);
         self
     }
-
-    ///Sets or clears `birth_date`.
+    /// Sets or clears `birth_date`.
     #[must_use]
     pub fn set_birth_date(mut self, value: Option<::chrono::naive::NaiveDate>) -> Self {
         self.birth_date = value;
         self
     }
-
-    ///Sets `color`.
+    /// Sets `color`.
     #[must_use]
     pub fn color(mut self, value: impl Into<String>) -> Self {
         self.color = Some(value.into());
         self
     }
-
-    ///Sets or clears `color`.
+    /// Sets or clears `color`.
     #[must_use]
     pub fn set_color(mut self, value: Option<String>) -> Self {
         self.color = value;
         self
     }
-
-    ///Sets `id`.
+    /// Sets `id`.
     #[must_use]
-    pub fn id(mut self, value: ::uuid::Uuid) -> Self {
-        self.id = value;
+    pub fn id(mut self, value: impl Into<PersonId>) -> Self {
+        self.id = value.into();
         self
     }
-
-    ///Sets `is_favorite`.
+    /// Sets `is_favorite`.
     #[must_use]
     pub fn is_favorite(mut self, value: bool) -> Self {
         self.is_favorite = Some(value);
         self
     }
-
-    ///Sets or clears `is_favorite`.
+    /// Sets or clears `is_favorite`.
     #[must_use]
     pub fn set_is_favorite(mut self, value: Option<bool>) -> Self {
         self.is_favorite = value;
         self
     }
-
-    ///Sets `is_hidden`.
+    /// Sets `is_hidden`.
     #[must_use]
     pub fn is_hidden(mut self, value: bool) -> Self {
         self.is_hidden = value;
         self
     }
-
-    ///Sets `name`.
+    /// Sets `name`.
     #[must_use]
     pub fn name(mut self, value: impl Into<String>) -> Self {
         self.name = value.into();
         self
     }
-
-    ///Sets `other_people`.
+    /// Sets `other_people`.
     #[must_use]
-    pub fn other_people(mut self, value: Vec<PersonOtherResponseDTO>) -> Self {
-        self.other_people = value;
+    pub fn other_people(mut self, value: impl IntoIterator<Item = PersonOtherResponseDTO>) -> Self {
+        self.other_people = value.into_iter().collect();
         self
     }
-
-    ///Sets `shared_by`.
+    /// Sets `shared_by`.
     #[must_use]
-    pub fn shared_by(mut self, value: Vec<PeopleUserResponseDTO>) -> Self {
-        self.shared_by = value;
+    pub fn shared_by(mut self, value: impl IntoIterator<Item = PeopleUserResponseDTO>) -> Self {
+        self.shared_by = value.into_iter().collect();
         self
     }
-
-    ///Sets `shared_with`.
+    /// Sets `shared_with`.
     #[must_use]
-    pub fn shared_with(mut self, value: Vec<PeopleUserResponseDTO>) -> Self {
-        self.shared_with = value;
+    pub fn shared_with(mut self, value: impl IntoIterator<Item = PeopleUserResponseDTO>) -> Self {
+        self.shared_with = value.into_iter().collect();
         self
     }
-
-    ///Sets `thumbnail_path`.
+    /// Sets `thumbnail_path`.
     #[must_use]
     pub fn thumbnail_path(mut self, value: impl Into<String>) -> Self {
         self.thumbnail_path = value.into();
         self
     }
-
-    ///Sets `updated_at`.
+    /// Sets `updated_at`.
     #[must_use]
     pub fn updated_at(mut self, value: ::chrono::DateTime<::chrono::offset::Utc>) -> Self {
         self.updated_at = Some(value);
         self
     }
-
-    ///Sets or clears `updated_at`.
+    /// Sets or clears `updated_at`.
     #[must_use]
     pub fn set_updated_at(mut self, value: Option<::chrono::DateTime<::chrono::offset::Utc>>) -> Self {
         self.updated_at = value;
@@ -3843,62 +3947,104 @@ impl PersonResponseDTO {
 /// Levels of access for managing people resources on behalf of another user.
 ///
 /// See: <https://api.immich.app/models/PersonUserRole>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[non_exhaustive]
 pub enum PersonUserRole {
-    #[serde(rename = "read")]
     Read,
-    #[serde(rename = "write")]
     Write,
-    #[serde(rename = "admin")]
     Admin,
-    ///Unknown value returned by a newer version of the Immich server.
-    #[serde(other)]
-    UnknownValue,
+    /// Unknown value returned by a newer version of the Immich server.
+    Unknown(String),
 }
 
-#[allow(clippy::match_same_arms)]
+impl PersonUserRole {
+    /// Returns the wire string representation of this enum value.
+    #[must_use]
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::Read => "read",
+            Self::Write => "write",
+            Self::Admin => "admin",
+            Self::Unknown(s) => s.as_str(),
+        }
+    }
+}
+
 impl ::std::fmt::Display for PersonUserRole {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        match *self {
-            Self::Read => f.write_str("read"),
-            Self::Write => f.write_str("write"),
-            Self::Admin => f.write_str("admin"),
-            Self::UnknownValue => f.write_str("unknown"),
+        f.write_str(self.as_str())
+    }
+}
+
+impl From<&str> for PersonUserRole {
+    fn from(value: &str) -> Self {
+        match value {
+            "read" => Self::Read,
+            "write" => Self::Write,
+            "admin" => Self::Admin,
+            other => Self::Unknown(other.to_owned()),
         }
+    }
+}
+
+impl From<String> for PersonUserRole {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "read" => Self::Read,
+            "write" => Self::Write,
+            "admin" => Self::Admin,
+            _ => Self::Unknown(value),
+        }
+    }
+}
+
+impl From<&String> for PersonUserRole {
+    fn from(value: &String) -> Self {
+        Self::from(value.as_str())
     }
 }
 
 impl ::std::str::FromStr for PersonUserRole {
-    type Err = crate::common::error::ConversionError;
-    fn from_str(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        match value {
-            "read" => Ok(Self::Read),
-            "write" => Ok(Self::Write),
-            "admin" => Ok(Self::Admin),
-            _ => Err(format!("invalid value for {}: {}", "PersonUserRole", value).into()),
+    type Err = ::std::convert::Infallible;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        Ok(Self::from(value))
+    }
+}
+
+impl ::serde::Serialize for PersonUserRole {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: ::serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+
+impl<'de> ::serde::Deserialize<'de> for PersonUserRole {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        struct EnumVisitor;
+        impl ::serde::de::Visitor<'_> for EnumVisitor {
+            type Value = PersonUserRole;
+            fn expecting(&self, formatter: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                formatter.write_str("a string")
+            }
+            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(PersonUserRole::from(value))
+            }
+            fn visit_string<E>(self, value: String) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(PersonUserRole::from(value))
+            }
         }
-    }
-}
-
-impl TryFrom<&str> for PersonUserRole {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<&String> for PersonUserRole {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<String> for PersonUserRole {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
+        deserializer.deserialize_str(EnumVisitor)
     }
 }
 
@@ -3909,20 +4055,21 @@ impl TryFrom<String> for PersonUserRole {
 /// | `angle` | `i64` | ✓ | Rotation angle in degrees |
 ///
 /// See: <https://api.immich.app/models/RotateParameters>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct RotateParameters {
+    /// Rotation angle in degrees (required)
     pub angle: i64,
 }
 
 impl RotateParameters {
-    ///Creates a new [`RotateParameters`].
+    /// Creates a new [`RotateParameters`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(angle: i64) -> Self {
         Self { angle }
     }
-
-    ///Sets `angle`.
+    /// Sets `angle`.
     #[must_use]
     pub fn angle(mut self, value: i64) -> Self {
         self.angle = value;
@@ -3936,21 +4083,25 @@ impl RotateParameters {
 /// |-------|------|:--------:|-------------|
 /// | `color` | [`String`] |  | Tag color (hex) |
 /// | `created_at` | [`DateTime`](::chrono::DateTime) | ✓ | Creation date |
-/// | `id` | [`Uuid`](::uuid::Uuid) | ✓ | Tag ID |
+/// | `id` | [`TagId`](crate::id::TagId) | ✓ | Tag ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 /// | `name` | [`String`] | ✓ | Tag name |
 /// | `parent_id` | [`String`] |  | Parent tag ID |
 /// | `updated_at` | [`DateTime`](::chrono::DateTime) | ✓ | Last update date |
 /// | `value` | [`String`] | ✓ | Tag value (full path) |
 ///
 /// See: <https://api.immich.app/models/TagResponseDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct TagResponseDTO {
+    /// Tag color (hex)
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub color: Option<String>,
     /// Creation date (required)
     #[serde(rename = "createdAt")]
     pub created_at: ::chrono::DateTime<::chrono::offset::Utc>,
-    pub id: ::uuid::Uuid,
+    /// Tag ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
+    pub id: TagId,
+    /// Tag name (required)
     pub name: String,
     /// Parent tag ID
     #[serde(rename = "parentId", default, skip_serializing_if = "::std::option::Option::is_none")]
@@ -3958,16 +4109,17 @@ pub struct TagResponseDTO {
     /// Last update date (required)
     #[serde(rename = "updatedAt")]
     pub updated_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    /// Tag value (full path) (required)
     pub value: String,
 }
 
 impl TagResponseDTO {
-    ///Creates a new [`TagResponseDTO`].
+    /// Creates a new [`TagResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(
         created_at: ::chrono::DateTime<::chrono::offset::Utc>,
-        id: ::uuid::Uuid,
+        id: impl Into<TagId>,
         name: impl Into<String>,
         updated_at: ::chrono::DateTime<::chrono::offset::Utc>,
         value: impl Into<String>,
@@ -3975,71 +4127,62 @@ impl TagResponseDTO {
         Self {
             color: None,
             created_at,
-            id,
+            id: id.into(),
             name: name.into(),
             parent_id: None,
             updated_at,
             value: value.into(),
         }
     }
-
-    ///Sets `color`.
+    /// Sets `color`.
     #[must_use]
     pub fn color(mut self, value: impl Into<String>) -> Self {
         self.color = Some(value.into());
         self
     }
-
-    ///Sets or clears `color`.
+    /// Sets or clears `color`.
     #[must_use]
     pub fn set_color(mut self, value: Option<String>) -> Self {
         self.color = value;
         self
     }
-
-    ///Sets `created_at`.
+    /// Sets `created_at`.
     #[must_use]
     pub fn created_at(mut self, value: ::chrono::DateTime<::chrono::offset::Utc>) -> Self {
         self.created_at = value;
         self
     }
-
-    ///Sets `id`.
+    /// Sets `id`.
     #[must_use]
-    pub fn id(mut self, value: ::uuid::Uuid) -> Self {
-        self.id = value;
+    pub fn id(mut self, value: impl Into<TagId>) -> Self {
+        self.id = value.into();
         self
     }
-
-    ///Sets `name`.
+    /// Sets `name`.
     #[must_use]
     pub fn name(mut self, value: impl Into<String>) -> Self {
         self.name = value.into();
         self
     }
-
-    ///Sets `parent_id`.
+    /// Sets `parent_id`.
     #[must_use]
     pub fn parent_id(mut self, value: impl Into<String>) -> Self {
         self.parent_id = Some(value.into());
         self
     }
-
-    ///Sets or clears `parent_id`.
+    /// Sets or clears `parent_id`.
     #[must_use]
     pub fn set_parent_id(mut self, value: Option<String>) -> Self {
         self.parent_id = value;
         self
     }
-
-    ///Sets `updated_at`.
+    /// Sets `updated_at`.
     #[must_use]
     pub fn updated_at(mut self, value: ::chrono::DateTime<::chrono::offset::Utc>) -> Self {
         self.updated_at = value;
         self
     }
-
-    ///Sets `value`.
+    /// Sets `value`.
     #[must_use]
     pub fn value(mut self, value: impl Into<String>) -> Self {
         self.value = value.into();
@@ -4055,13 +4198,14 @@ impl TagResponseDTO {
 /// | `description` | [`String`] |  | Asset description |
 /// | `is_favorite` | `bool` |  | Mark as favorite |
 /// | `latitude` | `f64` |  | Latitude coordinate |
-/// | `live_photo_video_id` | [`Uuid`](::uuid::Uuid) |  | Live photo video ID |
+/// | `live_photo_video_id` | [`AssetId`](crate::id::AssetId) |  | Live photo video ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 /// | `longitude` | `f64` |  | Longitude coordinate |
-/// | `rating` | `i64` |  | Rating in range [1-5] (starred), -1 (rejected), or null (unrated) |
+/// | `rating` | `i64` |  | Rating in range \[1-5\] (starred), -1 (rejected), or null (unrated) |
 /// | `visibility` | [`AssetVisibility`] |  |  |
 ///
 /// See: <https://api.immich.app/models/UpdateAssetDto>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Default)]
+#[non_exhaustive]
 pub struct UpdateAssetDTO {
     /// Original date and time
     #[serde(
@@ -4070,6 +4214,7 @@ pub struct UpdateAssetDTO {
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub date_time_original: Option<String>,
+    /// Asset description
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub description: Option<String>,
     /// Mark as favorite
@@ -4079,17 +4224,20 @@ pub struct UpdateAssetDTO {
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub is_favorite: Option<bool>,
+    /// Latitude coordinate
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub latitude: Option<f64>,
-    /// Live photo video ID
+    /// Live photo video ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
     #[serde(
         rename = "livePhotoVideoId",
         default,
         skip_serializing_if = "::std::option::Option::is_none"
     )]
-    pub live_photo_video_id: Option<::uuid::Uuid>,
+    pub live_photo_video_id: Option<AssetId>,
+    /// Longitude coordinate
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub longitude: Option<f64>,
+    /// Rating in range \[1-5\] (starred), -1 (rejected), or null (unrated)
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub rating: Option<i64>,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
@@ -4097,7 +4245,7 @@ pub struct UpdateAssetDTO {
 }
 
 impl UpdateAssetDTO {
-    ///Creates a new [`UpdateAssetDTO`].
+    /// Creates a new [`UpdateAssetDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new() -> Self {
@@ -4112,113 +4260,97 @@ impl UpdateAssetDTO {
             visibility: None,
         }
     }
-
-    ///Sets `date_time_original`.
+    /// Sets `date_time_original`.
     #[must_use]
     pub fn date_time_original(mut self, value: impl Into<String>) -> Self {
         self.date_time_original = Some(value.into());
         self
     }
-
-    ///Sets or clears `date_time_original`.
+    /// Sets or clears `date_time_original`.
     #[must_use]
     pub fn set_date_time_original(mut self, value: Option<String>) -> Self {
         self.date_time_original = value;
         self
     }
-
-    ///Sets `description`.
+    /// Sets `description`.
     #[must_use]
     pub fn description(mut self, value: impl Into<String>) -> Self {
         self.description = Some(value.into());
         self
     }
-
-    ///Sets or clears `description`.
+    /// Sets or clears `description`.
     #[must_use]
     pub fn set_description(mut self, value: Option<String>) -> Self {
         self.description = value;
         self
     }
-
-    ///Sets `is_favorite`.
+    /// Sets `is_favorite`.
     #[must_use]
     pub fn is_favorite(mut self, value: bool) -> Self {
         self.is_favorite = Some(value);
         self
     }
-
-    ///Sets or clears `is_favorite`.
+    /// Sets or clears `is_favorite`.
     #[must_use]
     pub fn set_is_favorite(mut self, value: Option<bool>) -> Self {
         self.is_favorite = value;
         self
     }
-
-    ///Sets `latitude`.
+    /// Sets `latitude`.
     #[must_use]
     pub fn latitude(mut self, value: f64) -> Self {
         self.latitude = Some(value);
         self
     }
-
-    ///Sets or clears `latitude`.
+    /// Sets or clears `latitude`.
     #[must_use]
     pub fn set_latitude(mut self, value: Option<f64>) -> Self {
         self.latitude = value;
         self
     }
-
-    ///Sets `live_photo_video_id`.
+    /// Sets `live_photo_video_id`.
     #[must_use]
-    pub fn live_photo_video_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.live_photo_video_id = Some(value);
+    pub fn live_photo_video_id(mut self, value: impl Into<AssetId>) -> Self {
+        self.live_photo_video_id = Some(value.into());
         self
     }
-
-    ///Sets or clears `live_photo_video_id`.
+    /// Sets or clears `live_photo_video_id`.
     #[must_use]
-    pub fn set_live_photo_video_id(mut self, value: Option<::uuid::Uuid>) -> Self {
+    pub fn set_live_photo_video_id(mut self, value: Option<AssetId>) -> Self {
         self.live_photo_video_id = value;
         self
     }
-
-    ///Sets `longitude`.
+    /// Sets `longitude`.
     #[must_use]
     pub fn longitude(mut self, value: f64) -> Self {
         self.longitude = Some(value);
         self
     }
-
-    ///Sets or clears `longitude`.
+    /// Sets or clears `longitude`.
     #[must_use]
     pub fn set_longitude(mut self, value: Option<f64>) -> Self {
         self.longitude = value;
         self
     }
-
-    ///Sets `rating`.
+    /// Sets `rating`.
     #[must_use]
     pub fn rating(mut self, value: i64) -> Self {
         self.rating = Some(value);
         self
     }
-
-    ///Sets or clears `rating`.
+    /// Sets or clears `rating`.
     #[must_use]
     pub fn set_rating(mut self, value: Option<i64>) -> Self {
         self.rating = value;
         self
     }
-
-    ///Sets `visibility`.
+    /// Sets `visibility`.
     #[must_use]
     pub fn visibility(mut self, value: AssetVisibility) -> Self {
         self.visibility = Some(value);
         self
     }
-
-    ///Sets or clears `visibility`.
+    /// Sets or clears `visibility`.
     #[must_use]
     pub fn set_visibility(mut self, value: Option<AssetVisibility>) -> Self {
         self.visibility = value;

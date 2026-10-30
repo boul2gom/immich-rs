@@ -17,6 +17,7 @@ pub struct PropDoc {
     pub required: bool,
 }
 
+#[must_use]
 pub fn extract_schema_docs(spec: &serde_json::Value) -> HashMap<String, SchemaDoc> {
     let Some(schemas) = spec.pointer("/components/schemas").and_then(|v| v.as_object()) else {
         return HashMap::new();
@@ -47,13 +48,26 @@ pub fn extract_schema_docs(spec: &serde_json::Value) -> HashMap<String, SchemaDo
                     .iter()
                     .map(|(prop_name, prop_schema)| {
                         let is_required = required.contains(prop_name);
+                        let base_desc = prop_schema
+                            .get("description")
+                            .and_then(|v| v.as_str())
+                            .map(String::from);
+                        let format_pat = |pat: &str| {
+                            if pat.contains('`') {
+                                format!("`` {pat} ``")
+                            } else {
+                                format!("`{pat}`")
+                            }
+                        };
+                        let description = match (base_desc, prop_schema.get("pattern").and_then(|v| v.as_str())) {
+                            (Some(d), Some(pat)) => Some(format!("{d} (pattern: {})", format_pat(pat))),
+                            (None, Some(pat)) => Some(format!("Pattern: {}", format_pat(pat))),
+                            (d, None) => d,
+                        };
                         PropDoc {
                             required: is_required,
                             original_name: prop_name.clone(),
-                            description: prop_schema
-                                .get("description")
-                                .and_then(|v| v.as_str())
-                                .map(String::from),
+                            description,
                             type_hint: extract_type_hint(prop_schema),
                         }
                     })
@@ -75,6 +89,7 @@ pub fn extract_schema_docs(spec: &serde_json::Value) -> HashMap<String, SchemaDo
     docs
 }
 
+#[must_use]
 pub fn extract_type_hint(schema: &serde_json::Value) -> String {
     if let Some(ref_str) = schema.get("$ref").and_then(|v| v.as_str()) {
         return ref_str.split('/').next_back().unwrap_or("unknown").to_string();
@@ -105,6 +120,7 @@ pub fn extract_type_hint(schema: &serde_json::Value) -> String {
 }
 
 /// Map each schema name → the set of `OpenAPI` tags that reference it.
+#[must_use]
 pub fn build_schema_tag_map(spec: &serde_json::Value) -> HashMap<String, HashSet<String>> {
     let mut map: HashMap<String, HashSet<String>> = HashMap::new();
 
@@ -165,7 +181,11 @@ pub fn build_schema_tag_map(spec: &serde_json::Value) -> HashMap<String, HashSet
     map
 }
 
-pub fn collect_refs(val: &serde_json::Value, tags: &HashSet<String>, map: &mut HashMap<String, HashSet<String>>) {
+pub(crate) fn collect_refs(
+    val: &serde_json::Value,
+    tags: &HashSet<String>,
+    map: &mut HashMap<String, HashSet<String>>,
+) {
     match val {
         serde_json::Value::Object(obj) => {
             if let Some(r) = obj.get("$ref").and_then(|v| v.as_str())
@@ -186,8 +206,9 @@ pub fn collect_refs(val: &serde_json::Value, tags: &HashSet<String>, map: &mut H
     }
 }
 
-// ─── $ref rewriting ───────────────────────────────────────────────────────────
-
+/// Translates `OpenAPI` 3.0 schema idioms into JSON Schema Draft 7 for `typify`,
+/// stripping regex and string-length validations that would reject valid Immich responses
+/// (such as `admin@localhost`) or drag in runtime regex engines.
 pub fn patch_openapi_v3_to_jsonschema(val: &mut serde_json::Value) {
     match val {
         serde_json::Value::Object(map) => {
@@ -209,7 +230,23 @@ pub fn patch_openapi_v3_to_jsonschema(val: &mut serde_json::Value) {
                 map.remove("default");
             }
 
-            // 2b. Translate OpenAPI 3.0 boolean exclusiveMinimum / exclusiveMaximum to JSON Schema Draft 7 numbers
+            // 2b. Strip regex/email/length string validations so typify emits plain `String`
+            if map.get("pattern").is_some_and(serde_json::Value::is_string) {
+                map.remove("pattern");
+            }
+            if map.get("format").and_then(serde_json::Value::as_str) == Some("email") {
+                map.remove("format");
+            }
+            if map.get("type").and_then(serde_json::Value::as_str) == Some("string") {
+                if map.get("minLength").is_some_and(serde_json::Value::is_number) {
+                    map.remove("minLength");
+                }
+                if map.get("maxLength").is_some_and(serde_json::Value::is_number) {
+                    map.remove("maxLength");
+                }
+            }
+
+            // 2c. Translate OpenAPI 3.0 boolean exclusiveMinimum / exclusiveMaximum to JSON Schema Draft 7 numbers
             if let Some(excl_min) = map.get("exclusiveMinimum").and_then(serde_json::Value::as_bool) {
                 map.remove("exclusiveMinimum");
                 if excl_min && let Some(min_val) = map.remove("minimum") {
@@ -247,8 +284,10 @@ pub fn patch_openapi_v3_to_jsonschema(val: &mut serde_json::Value) {
     }
 }
 
-// ─── Root schema building ─────────────────────────────────────────────────────
-
+/// Builds a `schemars::schema::RootSchema` from the patched JSON Schema definitions.
+///
+/// # Errors
+/// Returns an error if a schema definition cannot be deserialized into `schemars::schema::Schema`.
 pub fn build_root_schema(schemas_val: &serde_json::Value) -> Result<schemars::schema::RootSchema> {
     let mut root = schemars::schema::RootSchema::default();
     if let Some(obj) = schemas_val.as_object() {
@@ -260,5 +299,3 @@ pub fn build_root_schema(schemas_val: &serde_json::Value) -> Result<schemars::sc
     }
     Ok(root)
 }
-
-// ─── AST transforms ───────────────────────────────────────────────────────────

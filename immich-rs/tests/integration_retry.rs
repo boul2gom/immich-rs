@@ -1,3 +1,5 @@
+#![cfg(not(target_arch = "wasm32"))]
+
 mod common;
 
 use anyhow::Result;
@@ -82,6 +84,45 @@ async fn does_not_retry_on_401() -> Result<()> {
 
     let result = client.server().ping_server().await;
     assert!(result.is_err(), "expected error on 401, got: {result:?}");
+    Ok(())
+}
+
+#[tokio::test]
+async fn internal_server_error_500_retried_on_idempotent_get_but_not_post() -> Result<()> {
+    let (client, server) = common::mock_client(3).await;
+
+    // 1. GET is idempotent: retries on 500
+    Mock::given(method("GET"))
+        .and(path("/server/ping"))
+        .respond_with(ResponseTemplate::new(500))
+        .up_to_n_times(1)
+        .mount(&server)
+        .await;
+
+    Mock::given(method("GET"))
+        .and(path("/server/ping"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({"res": "pong"})))
+        .mount(&server)
+        .await;
+
+    let result = client.server().ping_server().await?;
+    assert_eq!(result.res, "pong");
+
+    // 2. POST is non-idempotent: must NOT retry on 500
+    Mock::given(method("POST"))
+        .and(path("/albums"))
+        .respond_with(ResponseTemplate::new(500).set_body_json(serde_json::json!({
+            "message": "Database write failed",
+            "statusCode": 500
+        })))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let create_payload = immich_models::albums::CreateAlbumDTO::new("Vacation");
+    let post_result = client.albums().create_album(create_payload).await;
+    assert!(post_result.is_err(), "POST should not be retried on 500");
+
     Ok(())
 }
 

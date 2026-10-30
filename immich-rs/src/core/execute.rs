@@ -1,20 +1,50 @@
 use reqwest::header::{ACCEPT, HeaderValue};
-use reqwest::{Method, RequestBuilder};
+use reqwest::{Method, RequestBuilder, Url};
 use serde::de::DeserializeOwned;
 use tower_service::Service;
+use tracing::Instrument;
 
 use crate::client::ImmichClient;
 use crate::error::{Error, Result};
 
-impl ImmichClient {
-    /// Prepares a new HTTP request for the given module.
-    pub(crate) fn prepare_request(&self, method: Method, path: &str) -> Result<RequestBuilder> {
-        let safe_path = path.trim_start_matches('/');
-        let mut req = self
-            .inner
-            .raw_http
-            .request(method, self.inner.base_url.join(safe_path)?);
+/// A single URL path segment used to construct endpoint URLs safely without path traversal.
+#[derive(Debug, Clone, Copy)]
+pub(crate) enum PathSegment<'a> {
+    /// Static literal segment from the `OpenAPI` route template.
+    Static(&'static str),
+    /// Dynamic user-provided path parameter segment.
+    Param(&'a str),
+}
 
+pub(crate) fn build_endpoint_url(base_url: &Url, segments: &[PathSegment<'_>]) -> Result<Url> {
+    let mut url = base_url.clone();
+    {
+        let mut path_segments = url
+            .path_segments_mut()
+            .map_err(|()| Error::Validation(format!("base_url cannot be a base URL: {base_url}")))?;
+        path_segments.pop_if_empty();
+
+        for seg in segments {
+            match *seg {
+                PathSegment::Static(s) => {
+                    for part in s.split('/').filter(|p| !p.is_empty()) {
+                        path_segments.push(part);
+                    }
+                }
+                PathSegment::Param(p) => {
+                    if p.is_empty() || p == "." || p == ".." {
+                        return Err(Error::Validation(format!("invalid URL path parameter segment: {p:?}")));
+                    }
+                    path_segments.push(p);
+                }
+            }
+        }
+    }
+    Ok(url)
+}
+
+impl ImmichClient {
+    fn attach_auth(&self, mut req: RequestBuilder) -> RequestBuilder {
         match &self.inner.auth {
             crate::client::Auth::ApiKey(k) => req = req.header("x-api-key", k.clone()),
             crate::client::Auth::Bearer(t) => {
@@ -22,11 +52,26 @@ impl ImmichClient {
             }
             crate::client::Auth::None => {}
         }
-
-        Ok(req)
+        req
     }
 
-    /// Executes an HTTP request through the Tower execution stack with OpenTelemetry semantic spans.
+    /// Prepares a new HTTP request from a static `OpenAPI` path.
+    pub(crate) fn prepare_request(&self, method: Method, path: &'static str) -> Result<RequestBuilder> {
+        let url = build_endpoint_url(&self.inner.base_url, &[PathSegment::Static(path)])?;
+        Ok(self.attach_auth(self.inner.raw_http.request(method, url)))
+    }
+
+    /// Prepares a new HTTP request from structured static and parameter path segments.
+    pub(crate) fn prepare_request_segments(
+        &self,
+        method: Method,
+        segments: &[PathSegment<'_>],
+    ) -> Result<RequestBuilder> {
+        let url = build_endpoint_url(&self.inner.base_url, segments)?;
+        Ok(self.attach_auth(self.inner.raw_http.request(method, url)))
+    }
+
+    /// Executes an HTTP request through the Tower execution stack with `OpenTelemetry` semantic spans.
     pub(crate) async fn execute_stream(
         &self,
         module: &'static str,
@@ -53,38 +98,42 @@ impl ImmichClient {
             "error.type" = tracing::field::Empty,
         );
 
-        let _guard = span.enter();
-
-        #[cfg(feature = "opentelemetry")]
-        let start_time = std::time::Instant::now();
-
         let mut service = self.inner.http.clone();
-        let result = service.call(request).await;
 
-        #[cfg(feature = "opentelemetry")]
-        {
-            let elapsed = start_time.elapsed().as_secs_f64();
-            let status = result.as_ref().map(|r| r.status().as_u16()).ok();
-            crate::core::metrics::record_http_request(&method, status, elapsed);
-        }
+        async move {
+            #[cfg(feature = "opentelemetry")]
+            let start_time = crate::core::time::Instant::now();
 
-        match result {
-            Ok(resp) => {
-                let status_code = resp.status().as_u16();
-                span.record("http.response.status_code", status_code);
+            let result = service.call(request).await;
 
-                if resp.status().is_success() {
-                    Ok(resp)
-                } else {
-                    span.record("error.type", "http_status_error");
-                    Err(Error::from_api_response(module, resp).await)
+            #[cfg(feature = "opentelemetry")]
+            {
+                let elapsed = start_time.elapsed().as_secs_f64();
+                let status = result.as_ref().map(|r| r.status().as_u16()).ok();
+                crate::core::metrics::record_http_request(&method, status, elapsed);
+            }
+
+            let current_span = tracing::Span::current();
+            match result {
+                Ok(resp) => {
+                    let status_code = resp.status().as_u16();
+                    current_span.record("http.response.status_code", status_code);
+
+                    if resp.status().is_success() {
+                        Ok(resp)
+                    } else {
+                        current_span.record("error.type", "http_status_error");
+                        Err(Error::from_api_response(module, resp).await)
+                    }
+                }
+                Err(e) => {
+                    current_span.record("error.type", "transport_error");
+                    Err(e)
                 }
             }
-            Err(e) => {
-                span.record("error.type", "transport_error");
-                Err(e)
-            }
         }
+        .instrument(span)
+        .await
     }
 
     /// Executes an HTTP request and deserializes the JSON response.

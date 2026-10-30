@@ -1,20 +1,20 @@
 // @generated Made by @boul2gom with `immich-rs` - do not edit by hand.
 // Re-run `cargo xtask generate` to update.
-
-//! Generated `OpenAPI` data models for the Immich photo and video server.
+#![allow(clippy::struct_excessive_bools, clippy::too_many_lines)]
+#![doc = include_str!("../README.md")]
 
 pub mod activities;
+pub mod admin;
 pub mod albums;
 pub mod api_keys;
 pub mod assets;
 pub mod authentication;
+pub mod clusters;
 pub mod common;
-pub mod database;
 pub mod duplicates;
 pub mod id;
 pub mod jobs;
 pub mod libraries;
-pub mod maintenance;
 pub mod map;
 pub mod memories;
 pub mod notifications;

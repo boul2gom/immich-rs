@@ -1,3 +1,5 @@
+#![cfg(not(target_arch = "wasm32"))]
+
 mod common;
 
 use anyhow::Result;
@@ -61,7 +63,7 @@ async fn get_asset_info_returns_asset() -> Result<()> {
         .await;
 
     let asset = client.assets().get_asset_info(asset_id).slug("public-share").await?;
-    assert_eq!(asset.id, asset_id);
+    assert_eq!(asset.id, immich_models::id::AssetId::from(asset_id));
     Ok(())
 }
 

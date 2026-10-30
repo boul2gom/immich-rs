@@ -1,37 +1,35 @@
 // @generated Made by @boul2gom with `immich-rs` - do not edit by hand.
 // Re-run `cargo xtask generate` to update.
+#![allow(clippy::struct_excessive_bools, clippy::too_many_lines)]
 
 //! API endpoints for `memories`.
 
 use immich_models::albums::{BulkIdResponseDTO, BulkIdsDTO};
+use immich_models::id::MemoryId;
 use immich_models::memories::{
     MemoryCreateDTO, MemoryResponseDTO, MemorySearchOrder, MemoryStatisticsResponseDTO, MemoryType, MemoryUpdateDTO,
 };
 
 /// Fluent request builder for [`Memories::add_memory_assets`].
-#[derive(serde::Serialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 #[must_use = "request builders are lazy and do nothing unless awaited or sent"]
 pub struct AddMemoryAssetsBuilder<'a> {
-    #[serde(skip)]
     client: &'a crate::ImmichClient,
-    #[serde(skip)]
-    pub request_config: crate::core::RequestConfig,
-    #[serde(skip)]
-    pub id: immich_models::id::MemoryId,
-    #[serde(skip)]
-    pub body: &'a BulkIdsDTO,
+    request_config: crate::core::RequestConfig,
+    id: MemoryId,
+    body: BulkIdsDTO,
 }
 
-/// Type alias for [`AddMemoryAssetsBuilder`].
-pub type AddMemoryAssetsArgs<'a> = AddMemoryAssetsBuilder<'a>;
 impl AddMemoryAssetsBuilder<'_> {
     /// Overrides or sets the timeout for this specific request.
     pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
         self.request_config.set_timeout(timeout);
         self
     }
-
     /// Adds a custom HTTP header to this specific request.
+    ///
+    /// Invalid header names or values are recorded and surfaced as [`Error::Validation`](crate::Error::Validation)
+    /// when the request is sent.
     pub fn header(
         mut self,
         key: impl TryInto<reqwest::header::HeaderName>,
@@ -40,26 +38,29 @@ impl AddMemoryAssetsBuilder<'_> {
         self.request_config.insert_header(key, value);
         self
     }
-
     /// Sends the HTTP request and awaits the server response.
     ///
     /// # Errors
     ///
-    /// Returns an error if the API returns an HTTP 4xx/5xx or if deserialization fails.
+    /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
     pub async fn send(self) -> Result<Vec<BulkIdResponseDTO>, crate::Error> {
         tracing::trace!(
-            module = "Memories",
+            module = "memories",
             method = "PUT",
             path = "/memories/{id}/assets",
             "HTTP request"
         );
-
-        let mut request = self
-            .client
-            .prepare_request(reqwest::Method::PUT, &format!("/memories/{}/assets", self.id))?;
-        request = self.request_config.apply(request);
-        request = request.json(self.body);
-
+        let __seg_1 = self.id.to_string();
+        let mut request = self.client.prepare_request_segments(
+            reqwest::Method::PUT,
+            &[
+                crate::core::PathSegment::Static("memories"),
+                crate::core::PathSegment::Param(__seg_1.as_str()),
+                crate::core::PathSegment::Static("assets"),
+            ],
+        )?;
+        request = self.request_config.apply(request)?;
+        request = request.json(&self.body);
         let response = self
             .client
             .execute::<Vec<BulkIdResponseDTO>>("memories", request)
@@ -77,27 +78,24 @@ impl<'a> std::future::IntoFuture for AddMemoryAssetsBuilder<'a> {
 }
 
 /// Fluent request builder for [`Memories::create_memory`].
-#[derive(serde::Serialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 #[must_use = "request builders are lazy and do nothing unless awaited or sent"]
 pub struct CreateMemoryBuilder<'a> {
-    #[serde(skip)]
     client: &'a crate::ImmichClient,
-    #[serde(skip)]
-    pub request_config: crate::core::RequestConfig,
-    #[serde(skip)]
-    pub body: &'a MemoryCreateDTO,
+    request_config: crate::core::RequestConfig,
+    body: MemoryCreateDTO,
 }
 
-/// Type alias for [`CreateMemoryBuilder`].
-pub type CreateMemoryArgs<'a> = CreateMemoryBuilder<'a>;
 impl CreateMemoryBuilder<'_> {
     /// Overrides or sets the timeout for this specific request.
     pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
         self.request_config.set_timeout(timeout);
         self
     }
-
     /// Adds a custom HTTP header to this specific request.
+    ///
+    /// Invalid header names or values are recorded and surfaced as [`Error::Validation`](crate::Error::Validation)
+    /// when the request is sent.
     pub fn header(
         mut self,
         key: impl TryInto<reqwest::header::HeaderName>,
@@ -106,19 +104,16 @@ impl CreateMemoryBuilder<'_> {
         self.request_config.insert_header(key, value);
         self
     }
-
     /// Sends the HTTP request and awaits the server response.
     ///
     /// # Errors
     ///
-    /// Returns an error if the API returns an HTTP 4xx/5xx or if deserialization fails.
+    /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
     pub async fn send(self) -> Result<MemoryResponseDTO, crate::Error> {
-        tracing::trace!(module = "Memories", method = "POST", path = "/memories", "HTTP request");
-
+        tracing::trace!(module = "memories", method = "POST", path = "/memories", "HTTP request");
         let mut request = self.client.prepare_request(reqwest::Method::POST, "/memories")?;
-        request = self.request_config.apply(request);
-        request = request.json(self.body);
-
+        request = self.request_config.apply(request)?;
+        request = request.json(&self.body);
         let response = self.client.execute::<MemoryResponseDTO>("memories", request).await?;
         Ok(response)
     }
@@ -133,27 +128,24 @@ impl<'a> std::future::IntoFuture for CreateMemoryBuilder<'a> {
 }
 
 /// Fluent request builder for [`Memories::delete_memory`].
-#[derive(serde::Serialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 #[must_use = "request builders are lazy and do nothing unless awaited or sent"]
 pub struct DeleteMemoryBuilder<'a> {
-    #[serde(skip)]
     client: &'a crate::ImmichClient,
-    #[serde(skip)]
-    pub request_config: crate::core::RequestConfig,
-    #[serde(skip)]
-    pub id: immich_models::id::MemoryId,
+    request_config: crate::core::RequestConfig,
+    id: MemoryId,
 }
 
-/// Type alias for [`DeleteMemoryBuilder`].
-pub type DeleteMemoryArgs<'a> = DeleteMemoryBuilder<'a>;
 impl DeleteMemoryBuilder<'_> {
     /// Overrides or sets the timeout for this specific request.
     pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
         self.request_config.set_timeout(timeout);
         self
     }
-
     /// Adds a custom HTTP header to this specific request.
+    ///
+    /// Invalid header names or values are recorded and surfaced as [`Error::Validation`](crate::Error::Validation)
+    /// when the request is sent.
     pub fn header(
         mut self,
         key: impl TryInto<reqwest::header::HeaderName>,
@@ -162,24 +154,27 @@ impl DeleteMemoryBuilder<'_> {
         self.request_config.insert_header(key, value);
         self
     }
-
     /// Sends the HTTP request and awaits the server response.
     ///
     /// # Errors
     ///
-    /// Returns an error if the API returns an HTTP 4xx/5xx or if deserialization fails.
+    /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
     pub async fn send(self) -> Result<(), crate::Error> {
         tracing::trace!(
-            module = "Memories",
+            module = "memories",
             method = "DELETE",
             path = "/memories/{id}",
             "HTTP request"
         );
-
-        let mut request = self
-            .client
-            .prepare_request(reqwest::Method::DELETE, &format!("/memories/{}", self.id))?;
-        request = self.request_config.apply(request);
+        let __seg_1 = self.id.to_string();
+        let mut request = self.client.prepare_request_segments(
+            reqwest::Method::DELETE,
+            &[
+                crate::core::PathSegment::Static("memories"),
+                crate::core::PathSegment::Param(__seg_1.as_str()),
+            ],
+        )?;
+        request = self.request_config.apply(request)?;
         self.client.execute_unit("memories", request).await?;
         Ok(())
     }
@@ -194,27 +189,24 @@ impl<'a> std::future::IntoFuture for DeleteMemoryBuilder<'a> {
 }
 
 /// Fluent request builder for [`Memories::get_memory`].
-#[derive(serde::Serialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 #[must_use = "request builders are lazy and do nothing unless awaited or sent"]
 pub struct GetMemoryBuilder<'a> {
-    #[serde(skip)]
     client: &'a crate::ImmichClient,
-    #[serde(skip)]
-    pub request_config: crate::core::RequestConfig,
-    #[serde(skip)]
-    pub id: immich_models::id::MemoryId,
+    request_config: crate::core::RequestConfig,
+    id: MemoryId,
 }
 
-/// Type alias for [`GetMemoryBuilder`].
-pub type GetMemoryArgs<'a> = GetMemoryBuilder<'a>;
 impl GetMemoryBuilder<'_> {
     /// Overrides or sets the timeout for this specific request.
     pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
         self.request_config.set_timeout(timeout);
         self
     }
-
     /// Adds a custom HTTP header to this specific request.
+    ///
+    /// Invalid header names or values are recorded and surfaced as [`Error::Validation`](crate::Error::Validation)
+    /// when the request is sent.
     pub fn header(
         mut self,
         key: impl TryInto<reqwest::header::HeaderName>,
@@ -223,25 +215,27 @@ impl GetMemoryBuilder<'_> {
         self.request_config.insert_header(key, value);
         self
     }
-
     /// Sends the HTTP request and awaits the server response.
     ///
     /// # Errors
     ///
-    /// Returns an error if the API returns an HTTP 4xx/5xx or if deserialization fails.
+    /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
     pub async fn send(self) -> Result<MemoryResponseDTO, crate::Error> {
         tracing::trace!(
-            module = "Memories",
+            module = "memories",
             method = "GET",
             path = "/memories/{id}",
             "HTTP request"
         );
-
-        let mut request = self
-            .client
-            .prepare_request(reqwest::Method::GET, &format!("/memories/{}", self.id))?;
-        request = self.request_config.apply(request);
-
+        let __seg_1 = self.id.to_string();
+        let mut request = self.client.prepare_request_segments(
+            reqwest::Method::GET,
+            &[
+                crate::core::PathSegment::Static("memories"),
+                crate::core::PathSegment::Param(__seg_1.as_str()),
+            ],
+        )?;
+        request = self.request_config.apply(request)?;
         let response = self.client.execute::<MemoryResponseDTO>("memories", request).await?;
         Ok(response)
     }
@@ -256,43 +250,32 @@ impl<'a> std::future::IntoFuture for GetMemoryBuilder<'a> {
 }
 
 /// Fluent request builder for [`Memories::memories_statistics`].
-#[derive(serde::Serialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 #[must_use = "request builders are lazy and do nothing unless awaited or sent"]
 pub struct MemoriesStatisticsBuilder<'a> {
-    #[serde(skip)]
     client: &'a crate::ImmichClient,
-    #[serde(skip)]
-    pub request_config: crate::core::RequestConfig,
-    #[serde(rename = "for", skip_serializing_if = "Option::is_none")]
-    pub for_: Option<String>,
-    #[serde(rename = "id", skip_serializing_if = "Option::is_none")]
-    pub id: Option<immich_models::id::MemoryId>,
-    #[serde(rename = "isSaved", skip_serializing_if = "Option::is_none")]
-    pub is_saved: Option<bool>,
-    #[serde(rename = "isTrashed", skip_serializing_if = "Option::is_none")]
-    pub is_trashed: Option<bool>,
-    #[serde(rename = "isUpcoming", skip_serializing_if = "Option::is_none")]
-    pub is_upcoming: Option<bool>,
-    #[serde(rename = "order", skip_serializing_if = "Option::is_none")]
-    pub order: Option<MemorySearchOrder>,
-    #[serde(rename = "page", skip_serializing_if = "Option::is_none")]
-    pub page: Option<i64>,
-    #[serde(rename = "size", skip_serializing_if = "Option::is_none")]
-    pub size: Option<i64>,
-    #[serde(rename = "type", skip_serializing_if = "Option::is_none")]
-    pub type_: Option<MemoryType>,
+    request_config: crate::core::RequestConfig,
+    for_: Option<String>,
+    id: Option<MemoryId>,
+    is_saved: Option<bool>,
+    is_trashed: Option<bool>,
+    is_upcoming: Option<bool>,
+    order: Option<MemorySearchOrder>,
+    page: Option<i64>,
+    size: Option<i64>,
+    type_: Option<MemoryType>,
 }
 
-/// Type alias for [`MemoriesStatisticsBuilder`].
-pub type MemoriesStatisticsArgs<'a> = MemoriesStatisticsBuilder<'a>;
 impl MemoriesStatisticsBuilder<'_> {
     /// Overrides or sets the timeout for this specific request.
     pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
         self.request_config.set_timeout(timeout);
         self
     }
-
     /// Adds a custom HTTP header to this specific request.
+    ///
+    /// Invalid header names or values are recorded and surfaced as [`Error::Validation`](crate::Error::Validation)
+    /// when the request is sent.
     pub fn header(
         mut self,
         key: impl TryInto<reqwest::header::HeaderName>,
@@ -301,134 +284,145 @@ impl MemoriesStatisticsBuilder<'_> {
         self.request_config.insert_header(key, value);
         self
     }
-
     /// Filter by date
     pub fn for_(mut self, value: impl Into<String>) -> Self {
         self.for_ = Some(value.into());
         self
     }
-
     /// Sets or clears `for`.
     pub fn set_for_(mut self, value: Option<String>) -> Self {
         self.for_ = value;
         self
     }
-
     /// Memory ID
-    pub fn id(mut self, value: impl Into<immich_models::id::MemoryId>) -> Self {
+    pub fn id(mut self, value: impl Into<MemoryId>) -> Self {
         self.id = Some(value.into());
         self
     }
-
     /// Sets or clears `id`.
-    pub fn set_id(mut self, value: Option<immich_models::id::MemoryId>) -> Self {
+    pub fn set_id(mut self, value: Option<MemoryId>) -> Self {
         self.id = value;
         self
     }
-
     /// Filter by saved status
     pub fn is_saved(mut self, value: bool) -> Self {
         self.is_saved = Some(value);
         self
     }
-
     /// Sets or clears `isSaved`.
     pub fn set_is_saved(mut self, value: Option<bool>) -> Self {
         self.is_saved = value;
         self
     }
-
     /// Include trashed memories
     pub fn is_trashed(mut self, value: bool) -> Self {
         self.is_trashed = Some(value);
         self
     }
-
     /// Sets or clears `isTrashed`.
     pub fn set_is_trashed(mut self, value: Option<bool>) -> Self {
         self.is_trashed = value;
         self
     }
-
     /// Filter by memories that have not been shown yet
     pub fn is_upcoming(mut self, value: bool) -> Self {
         self.is_upcoming = Some(value);
         self
     }
-
     /// Sets or clears `isUpcoming`.
     pub fn set_is_upcoming(mut self, value: Option<bool>) -> Self {
         self.is_upcoming = value;
         self
     }
-
     /// Sets `order`.
     pub fn order(mut self, value: MemorySearchOrder) -> Self {
         self.order = Some(value);
         self
     }
-
     /// Sets or clears `order`.
     pub fn set_order(mut self, value: Option<MemorySearchOrder>) -> Self {
         self.order = value;
         self
     }
-
     /// Page number
     pub fn page(mut self, value: i64) -> Self {
         self.page = Some(value);
         self
     }
-
     /// Sets or clears `page`.
     pub fn set_page(mut self, value: Option<i64>) -> Self {
         self.page = value;
         self
     }
-
     /// Number of memories to return
     pub fn size(mut self, value: i64) -> Self {
         self.size = Some(value);
         self
     }
-
     /// Sets or clears `size`.
     pub fn set_size(mut self, value: Option<i64>) -> Self {
         self.size = value;
         self
     }
-
     /// Sets `type`.
     pub fn type_(mut self, value: MemoryType) -> Self {
         self.type_ = Some(value);
         self
     }
-
     /// Sets or clears `type`.
     pub fn set_type_(mut self, value: Option<MemoryType>) -> Self {
         self.type_ = value;
         self
     }
-
     /// Sends the HTTP request and awaits the server response.
     ///
     /// # Errors
     ///
-    /// Returns an error if the API returns an HTTP 4xx/5xx or if deserialization fails.
+    /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
     pub async fn send(self) -> Result<MemoryStatisticsResponseDTO, crate::Error> {
+        #[derive(serde::Serialize)]
+        struct QueryParams<'b> {
+            #[serde(rename = "for", skip_serializing_if = "Option::is_none")]
+            for_: Option<&'b String>,
+            #[serde(rename = "id", skip_serializing_if = "Option::is_none")]
+            id: Option<&'b MemoryId>,
+            #[serde(rename = "isSaved", skip_serializing_if = "Option::is_none")]
+            is_saved: Option<&'b bool>,
+            #[serde(rename = "isTrashed", skip_serializing_if = "Option::is_none")]
+            is_trashed: Option<&'b bool>,
+            #[serde(rename = "isUpcoming", skip_serializing_if = "Option::is_none")]
+            is_upcoming: Option<&'b bool>,
+            #[serde(rename = "order", skip_serializing_if = "Option::is_none")]
+            order: Option<&'b MemorySearchOrder>,
+            #[serde(rename = "page", skip_serializing_if = "Option::is_none")]
+            page: Option<&'b i64>,
+            #[serde(rename = "size", skip_serializing_if = "Option::is_none")]
+            size: Option<&'b i64>,
+            #[serde(rename = "type", skip_serializing_if = "Option::is_none")]
+            type_: Option<&'b MemoryType>,
+        }
         tracing::trace!(
-            module = "Memories",
+            module = "memories",
             method = "GET",
             path = "/memories/statistics",
             "HTTP request"
         );
-
         let mut request = self
             .client
             .prepare_request(reqwest::Method::GET, "/memories/statistics")?;
-        request = self.request_config.apply(request);
-        request = request.query(&self);
-
+        request = self.request_config.apply(request)?;
+        let query = QueryParams {
+            for_: self.for_.as_ref(),
+            id: self.id.as_ref(),
+            is_saved: self.is_saved.as_ref(),
+            is_trashed: self.is_trashed.as_ref(),
+            is_upcoming: self.is_upcoming.as_ref(),
+            order: self.order.as_ref(),
+            page: self.page.as_ref(),
+            size: self.size.as_ref(),
+            type_: self.type_.as_ref(),
+        };
+        request = request.query(&query);
         let response = self
             .client
             .execute::<MemoryStatisticsResponseDTO>("memories", request)
@@ -446,29 +440,25 @@ impl<'a> std::future::IntoFuture for MemoriesStatisticsBuilder<'a> {
 }
 
 /// Fluent request builder for [`Memories::remove_memory_assets`].
-#[derive(serde::Serialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 #[must_use = "request builders are lazy and do nothing unless awaited or sent"]
 pub struct RemoveMemoryAssetsBuilder<'a> {
-    #[serde(skip)]
     client: &'a crate::ImmichClient,
-    #[serde(skip)]
-    pub request_config: crate::core::RequestConfig,
-    #[serde(skip)]
-    pub id: immich_models::id::MemoryId,
-    #[serde(skip)]
-    pub body: &'a BulkIdsDTO,
+    request_config: crate::core::RequestConfig,
+    id: MemoryId,
+    body: BulkIdsDTO,
 }
 
-/// Type alias for [`RemoveMemoryAssetsBuilder`].
-pub type RemoveMemoryAssetsArgs<'a> = RemoveMemoryAssetsBuilder<'a>;
 impl RemoveMemoryAssetsBuilder<'_> {
     /// Overrides or sets the timeout for this specific request.
     pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
         self.request_config.set_timeout(timeout);
         self
     }
-
     /// Adds a custom HTTP header to this specific request.
+    ///
+    /// Invalid header names or values are recorded and surfaced as [`Error::Validation`](crate::Error::Validation)
+    /// when the request is sent.
     pub fn header(
         mut self,
         key: impl TryInto<reqwest::header::HeaderName>,
@@ -477,26 +467,29 @@ impl RemoveMemoryAssetsBuilder<'_> {
         self.request_config.insert_header(key, value);
         self
     }
-
     /// Sends the HTTP request and awaits the server response.
     ///
     /// # Errors
     ///
-    /// Returns an error if the API returns an HTTP 4xx/5xx or if deserialization fails.
+    /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
     pub async fn send(self) -> Result<Vec<BulkIdResponseDTO>, crate::Error> {
         tracing::trace!(
-            module = "Memories",
+            module = "memories",
             method = "DELETE",
             path = "/memories/{id}/assets",
             "HTTP request"
         );
-
-        let mut request = self
-            .client
-            .prepare_request(reqwest::Method::DELETE, &format!("/memories/{}/assets", self.id))?;
-        request = self.request_config.apply(request);
-        request = request.json(self.body);
-
+        let __seg_1 = self.id.to_string();
+        let mut request = self.client.prepare_request_segments(
+            reqwest::Method::DELETE,
+            &[
+                crate::core::PathSegment::Static("memories"),
+                crate::core::PathSegment::Param(__seg_1.as_str()),
+                crate::core::PathSegment::Static("assets"),
+            ],
+        )?;
+        request = self.request_config.apply(request)?;
+        request = request.json(&self.body);
         let response = self
             .client
             .execute::<Vec<BulkIdResponseDTO>>("memories", request)
@@ -514,43 +507,32 @@ impl<'a> std::future::IntoFuture for RemoveMemoryAssetsBuilder<'a> {
 }
 
 /// Fluent request builder for [`Memories::search_memories`].
-#[derive(serde::Serialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 #[must_use = "request builders are lazy and do nothing unless awaited or sent"]
 pub struct SearchMemoriesBuilder<'a> {
-    #[serde(skip)]
     client: &'a crate::ImmichClient,
-    #[serde(skip)]
-    pub request_config: crate::core::RequestConfig,
-    #[serde(rename = "for", skip_serializing_if = "Option::is_none")]
-    pub for_: Option<String>,
-    #[serde(rename = "id", skip_serializing_if = "Option::is_none")]
-    pub id: Option<immich_models::id::MemoryId>,
-    #[serde(rename = "isSaved", skip_serializing_if = "Option::is_none")]
-    pub is_saved: Option<bool>,
-    #[serde(rename = "isTrashed", skip_serializing_if = "Option::is_none")]
-    pub is_trashed: Option<bool>,
-    #[serde(rename = "isUpcoming", skip_serializing_if = "Option::is_none")]
-    pub is_upcoming: Option<bool>,
-    #[serde(rename = "order", skip_serializing_if = "Option::is_none")]
-    pub order: Option<MemorySearchOrder>,
-    #[serde(rename = "page", skip_serializing_if = "Option::is_none")]
-    pub page: Option<i64>,
-    #[serde(rename = "size", skip_serializing_if = "Option::is_none")]
-    pub size: Option<i64>,
-    #[serde(rename = "type", skip_serializing_if = "Option::is_none")]
-    pub type_: Option<MemoryType>,
+    request_config: crate::core::RequestConfig,
+    for_: Option<String>,
+    id: Option<MemoryId>,
+    is_saved: Option<bool>,
+    is_trashed: Option<bool>,
+    is_upcoming: Option<bool>,
+    order: Option<MemorySearchOrder>,
+    page: Option<i64>,
+    size: Option<i64>,
+    type_: Option<MemoryType>,
 }
 
-/// Type alias for [`SearchMemoriesBuilder`].
-pub type SearchMemoriesArgs<'a> = SearchMemoriesBuilder<'a>;
 impl<'a> SearchMemoriesBuilder<'a> {
     /// Overrides or sets the timeout for this specific request.
     pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
         self.request_config.set_timeout(timeout);
         self
     }
-
     /// Adds a custom HTTP header to this specific request.
+    ///
+    /// Invalid header names or values are recorded and surfaced as [`Error::Validation`](crate::Error::Validation)
+    /// when the request is sent.
     pub fn header(
         mut self,
         key: impl TryInto<reqwest::header::HeaderName>,
@@ -559,133 +541,143 @@ impl<'a> SearchMemoriesBuilder<'a> {
         self.request_config.insert_header(key, value);
         self
     }
-
     /// Filter by date
     pub fn for_(mut self, value: impl Into<String>) -> Self {
         self.for_ = Some(value.into());
         self
     }
-
     /// Sets or clears `for`.
     pub fn set_for_(mut self, value: Option<String>) -> Self {
         self.for_ = value;
         self
     }
-
     /// Memory ID
-    pub fn id(mut self, value: impl Into<immich_models::id::MemoryId>) -> Self {
+    pub fn id(mut self, value: impl Into<MemoryId>) -> Self {
         self.id = Some(value.into());
         self
     }
-
     /// Sets or clears `id`.
-    pub fn set_id(mut self, value: Option<immich_models::id::MemoryId>) -> Self {
+    pub fn set_id(mut self, value: Option<MemoryId>) -> Self {
         self.id = value;
         self
     }
-
     /// Filter by saved status
     pub fn is_saved(mut self, value: bool) -> Self {
         self.is_saved = Some(value);
         self
     }
-
     /// Sets or clears `isSaved`.
     pub fn set_is_saved(mut self, value: Option<bool>) -> Self {
         self.is_saved = value;
         self
     }
-
     /// Include trashed memories
     pub fn is_trashed(mut self, value: bool) -> Self {
         self.is_trashed = Some(value);
         self
     }
-
     /// Sets or clears `isTrashed`.
     pub fn set_is_trashed(mut self, value: Option<bool>) -> Self {
         self.is_trashed = value;
         self
     }
-
     /// Filter by memories that have not been shown yet
     pub fn is_upcoming(mut self, value: bool) -> Self {
         self.is_upcoming = Some(value);
         self
     }
-
     /// Sets or clears `isUpcoming`.
     pub fn set_is_upcoming(mut self, value: Option<bool>) -> Self {
         self.is_upcoming = value;
         self
     }
-
     /// Sets `order`.
     pub fn order(mut self, value: MemorySearchOrder) -> Self {
         self.order = Some(value);
         self
     }
-
     /// Sets or clears `order`.
     pub fn set_order(mut self, value: Option<MemorySearchOrder>) -> Self {
         self.order = value;
         self
     }
-
     /// Page number
     pub fn page(mut self, value: i64) -> Self {
         self.page = Some(value);
         self
     }
-
     /// Sets or clears `page`.
     pub fn set_page(mut self, value: Option<i64>) -> Self {
         self.page = value;
         self
     }
-
     /// Number of memories to return
     pub fn size(mut self, value: i64) -> Self {
         self.size = Some(value);
         self
     }
-
     /// Sets or clears `size`.
     pub fn set_size(mut self, value: Option<i64>) -> Self {
         self.size = value;
         self
     }
-
     /// Sets `type`.
     pub fn type_(mut self, value: MemoryType) -> Self {
         self.type_ = Some(value);
         self
     }
-
     /// Sets or clears `type`.
     pub fn set_type_(mut self, value: Option<MemoryType>) -> Self {
         self.type_ = value;
         self
     }
-
     /// Creates a paginator for this request, providing streams over pages or individual items.
     #[must_use = "paginators are lazy and do nothing unless .pages() or .items() is called"]
     pub fn into_paginator(self) -> SearchMemoriesPaginator<'a> {
         SearchMemoriesPaginator { builder: self }
     }
-
     /// Sends the HTTP request and awaits the server response.
     ///
     /// # Errors
     ///
-    /// Returns an error if the API returns an HTTP 4xx/5xx or if deserialization fails.
+    /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
     pub async fn send(self) -> Result<Vec<MemoryResponseDTO>, crate::Error> {
-        tracing::trace!(module = "Memories", method = "GET", path = "/memories", "HTTP request");
-
+        #[derive(serde::Serialize)]
+        struct QueryParams<'b> {
+            #[serde(rename = "for", skip_serializing_if = "Option::is_none")]
+            for_: Option<&'b String>,
+            #[serde(rename = "id", skip_serializing_if = "Option::is_none")]
+            id: Option<&'b MemoryId>,
+            #[serde(rename = "isSaved", skip_serializing_if = "Option::is_none")]
+            is_saved: Option<&'b bool>,
+            #[serde(rename = "isTrashed", skip_serializing_if = "Option::is_none")]
+            is_trashed: Option<&'b bool>,
+            #[serde(rename = "isUpcoming", skip_serializing_if = "Option::is_none")]
+            is_upcoming: Option<&'b bool>,
+            #[serde(rename = "order", skip_serializing_if = "Option::is_none")]
+            order: Option<&'b MemorySearchOrder>,
+            #[serde(rename = "page", skip_serializing_if = "Option::is_none")]
+            page: Option<&'b i64>,
+            #[serde(rename = "size", skip_serializing_if = "Option::is_none")]
+            size: Option<&'b i64>,
+            #[serde(rename = "type", skip_serializing_if = "Option::is_none")]
+            type_: Option<&'b MemoryType>,
+        }
+        tracing::trace!(module = "memories", method = "GET", path = "/memories", "HTTP request");
         let mut request = self.client.prepare_request(reqwest::Method::GET, "/memories")?;
-        request = self.request_config.apply(request);
-        request = request.query(&self);
-
+        request = self.request_config.apply(request)?;
+        let query = QueryParams {
+            for_: self.for_.as_ref(),
+            id: self.id.as_ref(),
+            is_saved: self.is_saved.as_ref(),
+            is_trashed: self.is_trashed.as_ref(),
+            is_upcoming: self.is_upcoming.as_ref(),
+            order: self.order.as_ref(),
+            page: self.page.as_ref(),
+            size: self.size.as_ref(),
+            type_: self.type_.as_ref(),
+        };
+        request = request.query(&query);
         let response = self
             .client
             .execute::<Vec<MemoryResponseDTO>>("memories", request)
@@ -715,7 +707,6 @@ impl<'a> SearchMemoriesPaginator<'a> {
         self.builder = self.builder.size(size);
         self
     }
-
     /// Returns an asynchronous [`Stream`](futures_core::Stream) yielding pages of items.
     #[must_use = "streams do nothing unless polled"]
     pub fn pages(self) -> impl futures_core::Stream<Item = Result<Vec<MemoryResponseDTO>, crate::Error>> + 'a {
@@ -729,7 +720,6 @@ impl<'a> SearchMemoriesPaginator<'a> {
             }
         }
     }
-
     /// Returns an asynchronous [`Stream`](futures_core::Stream) yielding individual items, flattened across pages.
     #[must_use = "streams do nothing unless polled"]
     pub fn items(self) -> impl futures_core::Stream<Item = Result<MemoryResponseDTO, crate::Error>> + 'a {
@@ -742,29 +732,25 @@ impl<'a> SearchMemoriesPaginator<'a> {
 }
 
 /// Fluent request builder for [`Memories::update_memory`].
-#[derive(serde::Serialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 #[must_use = "request builders are lazy and do nothing unless awaited or sent"]
 pub struct UpdateMemoryBuilder<'a> {
-    #[serde(skip)]
     client: &'a crate::ImmichClient,
-    #[serde(skip)]
-    pub request_config: crate::core::RequestConfig,
-    #[serde(skip)]
-    pub id: immich_models::id::MemoryId,
-    #[serde(skip)]
-    pub body: &'a MemoryUpdateDTO,
+    request_config: crate::core::RequestConfig,
+    id: MemoryId,
+    body: MemoryUpdateDTO,
 }
 
-/// Type alias for [`UpdateMemoryBuilder`].
-pub type UpdateMemoryArgs<'a> = UpdateMemoryBuilder<'a>;
 impl UpdateMemoryBuilder<'_> {
     /// Overrides or sets the timeout for this specific request.
     pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
         self.request_config.set_timeout(timeout);
         self
     }
-
     /// Adds a custom HTTP header to this specific request.
+    ///
+    /// Invalid header names or values are recorded and surfaced as [`Error::Validation`](crate::Error::Validation)
+    /// when the request is sent.
     pub fn header(
         mut self,
         key: impl TryInto<reqwest::header::HeaderName>,
@@ -773,26 +759,28 @@ impl UpdateMemoryBuilder<'_> {
         self.request_config.insert_header(key, value);
         self
     }
-
     /// Sends the HTTP request and awaits the server response.
     ///
     /// # Errors
     ///
-    /// Returns an error if the API returns an HTTP 4xx/5xx or if deserialization fails.
+    /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
     pub async fn send(self) -> Result<MemoryResponseDTO, crate::Error> {
         tracing::trace!(
-            module = "Memories",
+            module = "memories",
             method = "PUT",
             path = "/memories/{id}",
             "HTTP request"
         );
-
-        let mut request = self
-            .client
-            .prepare_request(reqwest::Method::PUT, &format!("/memories/{}", self.id))?;
-        request = self.request_config.apply(request);
-        request = request.json(self.body);
-
+        let __seg_1 = self.id.to_string();
+        let mut request = self.client.prepare_request_segments(
+            reqwest::Method::PUT,
+            &[
+                crate::core::PathSegment::Static("memories"),
+                crate::core::PathSegment::Param(__seg_1.as_str()),
+            ],
+        )?;
+        request = self.request_config.apply(request)?;
+        request = request.json(&self.body);
         let response = self.client.execute::<MemoryResponseDTO>("memories", request).await?;
         Ok(response)
     }
@@ -806,141 +794,157 @@ impl<'a> std::future::IntoFuture for UpdateMemoryBuilder<'a> {
     }
 }
 
-///Client handle for `Memories` endpoints.
+/// Client handle for `Memories` endpoints.
 #[derive(Debug, Clone, Copy)]
 pub struct Memories<'a> {
     client: &'a crate::ImmichClient,
 }
 
 impl<'a> Memories<'a> {
-    pub(crate) fn new(client: &'a crate::ImmichClient) -> Self {
+    #[inline]
+    pub(crate) const fn new(client: &'a crate::ImmichClient) -> Self {
         Self { client }
     }
-
     /// Add assets to a memory
+    ///
     /// Add a list of asset IDs to a specific memory.
     ///
     /// ### Parameters
     ///
     /// | Name | Type | Required | Description |
-    /// |--------|--------|:--------:|--------|
-    /// | `id` | `uuid::Uuid` | ✓ |  |
-    /// | `body` | `BulkIdsDTO` | ✅ | Request body |
+    /// |------|------|:--------:|-------------|
+    /// | `id` | `MemoryId` | ✓ |  |
+    /// | `body` | `BulkIdsDTO` | ✓ | JSON request body |
     ///
     /// ### Responses
     ///
     /// | Code | Description |
-    /// |--------|--------|
+    /// |------|-------------|
     /// | `200` |  |
     ///
     /// **Returns:** `Vec<BulkIdResponseDTO>`
+    ///
+    /// # Errors
+    /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
     pub fn add_memory_assets(
         &self,
-        id: impl Into<immich_models::id::MemoryId>,
-        body: &'a BulkIdsDTO,
+        id: impl Into<MemoryId>,
+        body: impl Into<BulkIdsDTO>,
     ) -> AddMemoryAssetsBuilder<'a> {
         AddMemoryAssetsBuilder {
             client: self.client,
             request_config: crate::core::RequestConfig::default(),
             id: id.into(),
-            body,
+            body: body.into(),
         }
     }
-
     /// Create a memory
+    ///
     /// Create a new memory by providing a name, description, and a list of asset IDs to include in the memory.
     ///
     /// ### Parameters
     ///
     /// | Name | Type | Required | Description |
-    /// |--------|--------|:--------:|--------|
-    /// | `body` | `MemoryCreateDTO` | ✅ | Request body |
+    /// |------|------|:--------:|-------------|
+    /// | `body` | `MemoryCreateDTO` | ✓ | JSON request body |
     ///
     /// ### Responses
     ///
     /// | Code | Description |
-    /// |--------|--------|
+    /// |------|-------------|
     /// | `201` |  |
     ///
     /// **Returns:** `MemoryResponseDTO`
-    pub fn create_memory(&self, body: &'a MemoryCreateDTO) -> CreateMemoryBuilder<'a> {
+    ///
+    /// # Errors
+    /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
+    pub fn create_memory(&self, body: impl Into<MemoryCreateDTO>) -> CreateMemoryBuilder<'a> {
         CreateMemoryBuilder {
             client: self.client,
             request_config: crate::core::RequestConfig::default(),
-            body,
+            body: body.into(),
         }
     }
-
     /// Delete a memory
+    ///
     /// Delete a specific memory by its ID.
     ///
     /// ### Parameters
     ///
     /// | Name | Type | Required | Description |
-    /// |--------|--------|:--------:|--------|
-    /// | `id` | `uuid::Uuid` | ✓ |  |
+    /// |------|------|:--------:|-------------|
+    /// | `id` | `MemoryId` | ✓ |  |
     ///
     /// ### Responses
     ///
     /// | Code | Description |
-    /// |--------|--------|
+    /// |------|-------------|
     /// | `204` |  |
-    pub fn delete_memory(&self, id: impl Into<immich_models::id::MemoryId>) -> DeleteMemoryBuilder<'a> {
+    ///
+    /// # Errors
+    /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
+    pub fn delete_memory(&self, id: impl Into<MemoryId>) -> DeleteMemoryBuilder<'a> {
         DeleteMemoryBuilder {
             client: self.client,
             request_config: crate::core::RequestConfig::default(),
             id: id.into(),
         }
     }
-
     /// Retrieve a memory
+    ///
     /// Retrieve a specific memory by its ID.
     ///
     /// ### Parameters
     ///
     /// | Name | Type | Required | Description |
-    /// |--------|--------|:--------:|--------|
-    /// | `id` | `uuid::Uuid` | ✓ |  |
+    /// |------|------|:--------:|-------------|
+    /// | `id` | `MemoryId` | ✓ |  |
     ///
     /// ### Responses
     ///
     /// | Code | Description |
-    /// |--------|--------|
+    /// |------|-------------|
     /// | `200` |  |
     ///
     /// **Returns:** `MemoryResponseDTO`
-    pub fn get_memory(&self, id: impl Into<immich_models::id::MemoryId>) -> GetMemoryBuilder<'a> {
+    ///
+    /// # Errors
+    /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
+    pub fn get_memory(&self, id: impl Into<MemoryId>) -> GetMemoryBuilder<'a> {
         GetMemoryBuilder {
             client: self.client,
             request_config: crate::core::RequestConfig::default(),
             id: id.into(),
         }
     }
-
     /// Retrieve memories statistics
+    ///
     /// Retrieve statistics about memories, such as total count and other relevant metrics.
     ///
     /// ### Parameters
     ///
     /// | Name | Type | Required | Description |
-    /// |--------|--------|:--------:|--------|
-    /// | `for` | `String` |  | Filter by date |
-    /// | `id` | `uuid::Uuid` |  | Memory ID |
-    /// | `isSaved` | `bool` |  | Filter by saved status |
-    /// | `isTrashed` | `bool` |  | Include trashed memories |
-    /// | `isUpcoming` | `bool` |  | Filter by memories that have not been shown yet |
+    /// |------|------|:--------:|-------------|
+    /// | `for_` | `String` |  | Filter by date |
+    /// | `id` | `MemoryId` |  | Memory ID |
+    /// | `is_saved` | `bool` |  | Filter by saved status |
+    /// | `is_trashed` | `bool` |  | Include trashed memories |
+    /// | `is_upcoming` | `bool` |  | Filter by memories that have not been shown yet |
     /// | `order` | `MemorySearchOrder` |  |  |
     /// | `page` | `i64` |  | Page number |
     /// | `size` | `i64` |  | Number of memories to return |
-    /// | `type` | `MemoryType` |  |  |
+    /// | `type_` | `MemoryType` |  |  |
     ///
     /// ### Responses
     ///
     /// | Code | Description |
-    /// |--------|--------|
+    /// |------|-------------|
     /// | `200` |  |
     ///
     /// **Returns:** `MemoryStatisticsResponseDTO`
+    ///
+    /// # Errors
+    /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
     pub fn memories_statistics(&self) -> MemoriesStatisticsBuilder<'a> {
         MemoriesStatisticsBuilder {
             client: self.client,
@@ -956,61 +960,67 @@ impl<'a> Memories<'a> {
             type_: None,
         }
     }
-
     /// Remove assets from a memory
+    ///
     /// Remove a list of asset IDs from a specific memory.
     ///
     /// ### Parameters
     ///
     /// | Name | Type | Required | Description |
-    /// |--------|--------|:--------:|--------|
-    /// | `id` | `uuid::Uuid` | ✓ |  |
-    /// | `body` | `BulkIdsDTO` | ✅ | Request body |
+    /// |------|------|:--------:|-------------|
+    /// | `id` | `MemoryId` | ✓ |  |
+    /// | `body` | `BulkIdsDTO` | ✓ | JSON request body |
     ///
     /// ### Responses
     ///
     /// | Code | Description |
-    /// |--------|--------|
+    /// |------|-------------|
     /// | `200` |  |
     ///
     /// **Returns:** `Vec<BulkIdResponseDTO>`
+    ///
+    /// # Errors
+    /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
     pub fn remove_memory_assets(
         &self,
-        id: impl Into<immich_models::id::MemoryId>,
-        body: &'a BulkIdsDTO,
+        id: impl Into<MemoryId>,
+        body: impl Into<BulkIdsDTO>,
     ) -> RemoveMemoryAssetsBuilder<'a> {
         RemoveMemoryAssetsBuilder {
             client: self.client,
             request_config: crate::core::RequestConfig::default(),
             id: id.into(),
-            body,
+            body: body.into(),
         }
     }
-
     /// Retrieve memories
+    ///
     /// Retrieve a list of memories. Memories are sorted descending by creation date by default, although they can also be sorted in ascending order, or randomly.
     ///
     /// ### Parameters
     ///
     /// | Name | Type | Required | Description |
-    /// |--------|--------|:--------:|--------|
-    /// | `for` | `String` |  | Filter by date |
-    /// | `id` | `uuid::Uuid` |  | Memory ID |
-    /// | `isSaved` | `bool` |  | Filter by saved status |
-    /// | `isTrashed` | `bool` |  | Include trashed memories |
-    /// | `isUpcoming` | `bool` |  | Filter by memories that have not been shown yet |
+    /// |------|------|:--------:|-------------|
+    /// | `for_` | `String` |  | Filter by date |
+    /// | `id` | `MemoryId` |  | Memory ID |
+    /// | `is_saved` | `bool` |  | Filter by saved status |
+    /// | `is_trashed` | `bool` |  | Include trashed memories |
+    /// | `is_upcoming` | `bool` |  | Filter by memories that have not been shown yet |
     /// | `order` | `MemorySearchOrder` |  |  |
     /// | `page` | `i64` |  | Page number |
     /// | `size` | `i64` |  | Number of memories to return |
-    /// | `type` | `MemoryType` |  |  |
+    /// | `type_` | `MemoryType` |  |  |
     ///
     /// ### Responses
     ///
     /// | Code | Description |
-    /// |--------|--------|
+    /// |------|-------------|
     /// | `200` |  |
     ///
     /// **Returns:** `Vec<MemoryResponseDTO>`
+    ///
+    /// # Errors
+    /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
     pub fn search_memories(&self) -> SearchMemoriesBuilder<'a> {
         SearchMemoriesBuilder {
             client: self.client,
@@ -1026,35 +1036,34 @@ impl<'a> Memories<'a> {
             type_: None,
         }
     }
-
     /// Update a memory
+    ///
     /// Update an existing memory by its ID.
     ///
     /// ### Parameters
     ///
     /// | Name | Type | Required | Description |
-    /// |--------|--------|:--------:|--------|
-    /// | `id` | `uuid::Uuid` | ✓ |  |
-    /// | `body` | `MemoryUpdateDTO` | ✅ | Request body |
+    /// |------|------|:--------:|-------------|
+    /// | `id` | `MemoryId` | ✓ |  |
+    /// | `body` | `MemoryUpdateDTO` | ✓ | JSON request body |
     ///
     /// ### Responses
     ///
     /// | Code | Description |
-    /// |--------|--------|
+    /// |------|-------------|
     /// | `200` |  |
     ///
     /// **Returns:** `MemoryResponseDTO`
+    ///
+    /// # Errors
+    /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
     #[deprecated(note = "Deprecated in the Immich OpenAPI specification.")]
-    pub fn update_memory(
-        &self,
-        id: impl Into<immich_models::id::MemoryId>,
-        body: &'a MemoryUpdateDTO,
-    ) -> UpdateMemoryBuilder<'a> {
+    pub fn update_memory(&self, id: impl Into<MemoryId>, body: impl Into<MemoryUpdateDTO>) -> UpdateMemoryBuilder<'a> {
         UpdateMemoryBuilder {
             client: self.client,
             request_config: crate::core::RequestConfig::default(),
             id: id.into(),
-            body,
+            body: body.into(),
         }
     }
 }

@@ -1,3 +1,5 @@
+#![cfg(not(target_arch = "wasm32"))]
+
 mod common;
 
 use std::time::Duration;
@@ -124,7 +126,7 @@ async fn config_and_user_modules_map_to_dedicated_variants() -> Result<()> {
     assert!(user_err.is_forbidden());
 
     #[allow(deprecated)]
-    let config_err = client.system_config().get_config().await.unwrap_err();
+    let config_err = client.system().config().get_config().await.unwrap_err();
     assert!(matches!(config_err, Error::Config(_)), "got {config_err:?}");
     Ok(())
 }
@@ -168,9 +170,7 @@ fn error_kind_classification_covers_gateway_statuses() {
 
 #[test]
 fn conversion_error_converts_into_validation_error() {
-    use immich_models::albums::AlbumUserRole;
-
-    let conversion = "not-a-role".parse::<AlbumUserRole>().unwrap_err();
+    let conversion = immich_models::common::error::ConversionError::from("bad conversion");
     let err: Error = conversion.into();
-    assert!(matches!(err, Error::Validation(msg) if msg.contains("not-a-role")));
+    assert!(matches!(err, Error::Validation(msg) if msg.contains("bad conversion")));
 }

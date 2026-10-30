@@ -8,7 +8,7 @@ use wiremock::MockServer;
 /// # Panics
 ///
 /// Panics if the client builder fails with the provided mock configuration.
-pub async fn mock_client(max_retries: u32) -> (ImmichClient, MockServer) {
+pub(crate) async fn mock_client(max_retries: u32) -> (ImmichClient, MockServer) {
     let server = MockServer::start().await;
     let client = ImmichClient::builder()
         .base_url(server.uri())
@@ -25,7 +25,7 @@ pub async fn mock_client(max_retries: u32) -> (ImmichClient, MockServer) {
 /// # Panics
 ///
 /// Panics if the client builder fails with the provided mock configuration.
-pub async fn mock_unauthenticated_client(max_retries: u32) -> (ImmichClient, MockServer) {
+pub(crate) async fn mock_unauthenticated_client(max_retries: u32) -> (ImmichClient, MockServer) {
     let server = MockServer::start().await;
     let client = ImmichClient::builder()
         .base_url(server.uri())

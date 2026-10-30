@@ -1,10 +1,11 @@
 [package]
 name = "immich-models"
 edition.workspace = true
+rust-version.workspace = true
 version.workspace = true
 
 authors.workspace = true
-description = "Generated OpenAPI data models for Immich."
+description = "Strongly typed, forward-compatible OpenAPI data models for the Immich photo and video management platform."
 
 license.workspace = true
 readme = "README.md"
@@ -12,8 +13,8 @@ documentation = "https://docs.rs/immich-models"
 homepage = "https://github.com/boul2gom/immich-rs"
 repository = "https://github.com/boul2gom/immich-rs"
 
-categories = ["api-bindings", "wasm"]
-keywords = ["immich", "openapi", "models", "dto", "wasm"]
+categories = ["api-bindings", "data-structures", "wasm"]
+keywords = ["immich", "photo", "openapi", "models", "wasm"]
 
 publish.workspace = true
 
@@ -37,10 +38,10 @@ serde.workspace = true
 serde_json.workspace = true
 uuid.workspace = true
 chrono.workspace = true
-regex.workspace = true
 
 [dev-dependencies]
 pretty_assertions.workspace = true
+uuid = { workspace = true, features = ["v4"] }
 
 [lints]
 workspace = true

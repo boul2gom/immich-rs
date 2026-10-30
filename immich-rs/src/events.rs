@@ -1,15 +1,18 @@
 //! Real-time event streaming via Socket.IO.
 //!
 //! Provides real-time notifications for upload completions, asset deletions,
-//! library scans, and background job updates.
+//! facial recognition updates, and server configuration changes.
 //!
-//! Activated with the `socketio` cargo feature.
+//! Activated with the `socketio` Cargo feature on native targets.
 
+use std::pin::Pin;
 use std::sync::Arc;
+use std::task::{Context, Poll};
 
+use futures_core::Stream;
 use futures_util::FutureExt;
-use rust_socketio::Payload;
 use rust_socketio::asynchronous::{Client as SocketIoClient, ClientBuilder};
+use rust_socketio::{Event, Payload};
 use tokio::sync::mpsc;
 
 use crate::client::ImmichClient;
@@ -17,6 +20,7 @@ use crate::error::{Error, Result};
 
 /// Strongly typed Immich real-time event.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum ServerEvent {
     /// An asset was successfully uploaded and registered.
     UploadSuccess(serde_json::Value),
@@ -30,18 +34,21 @@ pub enum ServerEvent {
     ServerVersion(serde_json::Value),
     /// Server configuration change notification.
     ConfigUpdate(serde_json::Value),
-    /// Any other event emitted by Immich.
+    /// Any other custom or future event emitted by Immich.
     Other {
         /// Name of the Socket.IO event.
         event: String,
-        /// Raw payload received with the event.
+        /// Raw JSON payload received with the event.
         payload: serde_json::Value,
     },
 }
 
 /// Active subscription to real-time Immich events.
+///
+/// Implements [`futures_core::Stream`] so it can be consumed with `StreamExt::next`
+/// or directly via [`Self::next_event`].
 pub struct EventSubscription {
-    client: SocketIoClient,
+    client: Option<SocketIoClient>,
     receiver: mpsc::UnboundedReceiver<ServerEvent>,
 }
 
@@ -52,6 +59,12 @@ impl std::fmt::Debug for EventSubscription {
 }
 
 impl EventSubscription {
+    /// Creates an in-memory `EventSubscription` backed by an `mpsc` receiver (used internally and in tests).
+    #[cfg(test)]
+    pub(crate) const fn from_receiver(receiver: mpsc::UnboundedReceiver<ServerEvent>) -> Self {
+        Self { client: None, receiver }
+    }
+
     /// Waits for and receives the next real-time event from the server.
     ///
     /// Returns `None` if the connection has been closed.
@@ -59,90 +72,130 @@ impl EventSubscription {
         self.receiver.recv().await
     }
 
-    /// Explicitly disconnects the event stream.
+    /// Explicitly disconnects the Socket.IO event stream.
     ///
     /// # Errors
-    /// Returns an error if the disconnection handshake fails.
+    ///
+    /// Returns [`Error::SocketIo`] if the disconnection handshake fails.
     pub async fn disconnect(self) -> Result<()> {
-        self.client
-            .disconnect()
-            .await
-            .map_err(|e| Error::Validation(format!("Failed to disconnect Socket.IO client: {e}")))
+        if let Some(client) = self.client {
+            client
+                .disconnect()
+                .await
+                .map_err(|e| Error::SocketIo(format!("failed to disconnect Socket.IO client: {e}")))?;
+        }
+        Ok(())
     }
+}
+
+impl Stream for EventSubscription {
+    type Item = ServerEvent;
+
+    fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+        self.receiver.poll_recv(cx)
+    }
+}
+
+pub(crate) fn payload_to_json(payload: Payload) -> serde_json::Value {
+    match payload {
+        Payload::Text(mut vals) => {
+            if vals.len() == 1 {
+                vals.remove(0)
+            } else {
+                serde_json::Value::Array(vals)
+            }
+        }
+        Payload::Binary(b) => serde_json::json!({ "binary_len": b.len() }),
+        #[allow(deprecated)]
+        Payload::String(s) => serde_json::from_str(&s).unwrap_or(serde_json::Value::String(s)),
+    }
+}
+
+/// Maps a raw `rust_socketio` [`Event`] and [`Payload`] into a [`ServerEvent`],
+/// ignoring internal Socket.IO lifecycle events (`Connect`, `Close`, `Error`).
+#[must_use]
+pub(crate) fn map_socket_event(event: Event, payload: Payload) -> Option<ServerEvent> {
+    let event_name = match event {
+        Event::Connect | Event::Close | Event::Error => return None,
+        Event::Message => "message".to_string(),
+        Event::Custom(name) => name,
+    };
+
+    let val = payload_to_json(payload);
+
+    let mapped = match event_name.as_str() {
+        "on_upload_success" => ServerEvent::UploadSuccess(val),
+        "on_asset_delete" => ServerEvent::AssetDelete(val),
+        "on_asset_trash" => ServerEvent::AssetTrash(val),
+        "on_person_thumbnail" => ServerEvent::PersonThumbnail(val),
+        "on_server_version" => ServerEvent::ServerVersion(val),
+        "on_config" => ServerEvent::ConfigUpdate(val),
+        _ => ServerEvent::Other {
+            event: event_name,
+            payload: val,
+        },
+    };
+    Some(mapped)
+}
+
+/// Builds the list of opening HTTP authentication headers (`x-api-key` or `Authorization: Bearer ...`)
+/// forwarded during the Socket.IO handshake.
+#[must_use]
+pub(crate) fn build_opening_headers(client: &ImmichClient) -> Vec<(&'static str, String)> {
+    let mut headers = Vec::new();
+    if let Some(key) = client.api_key() {
+        headers.push(("x-api-key", key.to_string()));
+    } else if let Some(token) = client.bearer_token() {
+        headers.push(("Authorization", format!("Bearer {token}")));
+    }
+    headers
 }
 
 impl ImmichClient {
     /// Subscribes to Immich real-time events over Socket.IO.
     ///
+    /// Forwards either `x-api-key` or `Authorization: Bearer <token>` depending on how the client was authenticated,
+    /// and delivers both known events and unknown server events (`ServerEvent::Other`) via `on_any`.
+    ///
     /// # Errors
-    /// Returns an error if connecting to the Socket.IO endpoint fails.
+    ///
+    /// Returns [`Error::SocketIo`] if connecting to the Socket.IO endpoint fails.
     pub async fn subscribe_events(&self) -> Result<EventSubscription> {
         let (tx, rx) = mpsc::unbounded_channel();
         let tx = Arc::new(tx);
 
-        let base = self.base_url();
-        let mut socket_url = base.clone();
-        // Socket.IO server connects to the root origin
+        let mut socket_url = self.base_url().clone();
         socket_url.set_path("");
 
         let mut builder = ClientBuilder::new(socket_url.as_str());
 
-        if let Some(key) = self.api_key() {
-            builder = builder.opening_header("x-api-key", key);
+        for (header_name, header_val) in build_opening_headers(self) {
+            builder = builder.opening_header(header_name, header_val);
         }
 
-        let known_events = [
-            "on_upload_success",
-            "on_asset_delete",
-            "on_asset_trash",
-            "on_person_thumbnail",
-            "on_server_version",
-            "on_config",
-        ];
-
-        for &event_name in &known_events {
-            let tx_outer = Arc::clone(&tx);
-            let name_outer = event_name.to_string();
-            builder = builder.on(event_name, move |payload: Payload, _| {
-                let tx_inner = Arc::clone(&tx_outer);
-                let name_inner = name_outer.clone();
-                async move {
-                    let val = match payload {
-                        Payload::Text(mut vals) => {
-                            if vals.len() == 1 {
-                                vals.remove(0)
-                            } else {
-                                serde_json::Value::Array(vals)
-                            }
-                        }
-                        Payload::Binary(b) => serde_json::json!({ "binary_len": b.len() }),
-                        #[allow(deprecated)]
-                        Payload::String(s) => serde_json::from_str(&s).unwrap_or(serde_json::Value::String(s)),
-                    };
-
-                    let event = match name_inner.as_str() {
-                        "on_upload_success" => ServerEvent::UploadSuccess(val),
-                        "on_asset_delete" => ServerEvent::AssetDelete(val),
-                        "on_asset_trash" => ServerEvent::AssetTrash(val),
-                        "on_person_thumbnail" => ServerEvent::PersonThumbnail(val),
-                        "on_server_version" => ServerEvent::ServerVersion(val),
-                        "on_config" => ServerEvent::ConfigUpdate(val),
-                        _ => ServerEvent::Other {
-                            event: name_inner,
-                            payload: val,
-                        },
-                    };
-                    let _ = tx_inner.send(event);
+        let tx_any = Arc::clone(&tx);
+        builder = builder.on_any(move |event: Event, payload: Payload, _| {
+            let tx_inner = Arc::clone(&tx_any);
+            async move {
+                if let Some(mapped) = map_socket_event(event, payload) {
+                    let _ = tx_inner.send(mapped);
                 }
-                .boxed()
-            });
-        }
+            }
+            .boxed()
+        });
 
         let client = builder
             .connect()
             .await
-            .map_err(|e| Error::Validation(format!("Failed to connect to Socket.IO: {e}")))?;
+            .map_err(|e| Error::SocketIo(format!("failed to connect to Socket.IO: {e}")))?;
 
-        Ok(EventSubscription { client, receiver: rx })
+        Ok(EventSubscription {
+            client: Some(client),
+            receiver: rx,
+        })
     }
 }
+
+#[cfg(test)]
+#[path = "events_tests.rs"]
+mod tests;

@@ -49,7 +49,7 @@ jobs:
 
       - name: 🧹 Remove trailing blank lines
         run: |
-          find immich-rs immich-models xtask examples -name '*.rs' -exec sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' {} +
+          find immich-rs immich-models xtask -name '*.rs' -exec sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' {} +
 
       - name: 📦 Update Cargo.lock dependencies
         run: cargo update

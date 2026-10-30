@@ -1,15 +1,15 @@
-//! cargo-xtask — development tasks for immich-rs
+//! `cargo-xtask` — `OpenAPI` AST code generation tasks for `immich-rs` and `immich-models`.
 //!
-//! Usage:
-//!   cargo xtask generate-models          # fetch the latest Immich release + generate immich-models
-//!   cargo xtask generate-models v3.1.0   # same, with a specific version
-//!   cargo xtask generate-client          # Generate immich-rs HTTP client
-//!   cargo xtask fetch-spec               # fetch the `OpenAPI` spec only (without generating)
-//!   cargo xtask fetch-spec v3.1.0        # same, with a specific version
+//! # Usage
 //!
-//! The spec is NOT committed to the repo: it is always fetched from GitHub
-//! on demand. This keeps the git history clean and ensures we always pull
-//! the exact version we target.
+//! ```bash
+//! cargo xtask generate [--offline] [VERSION]         # Fetch spec + generate models & client
+//! cargo xtask generate-models [--offline] [VERSION]  # Generate immich-models
+//! cargo xtask generate-client [--offline] [VERSION]  # Generate immich-rs HTTP client
+//! cargo xtask fetch-spec [VERSION]                   # Fetch the `OpenAPI` spec only
+//! ```
+
+#![allow(clippy::print_stdout, clippy::print_stderr)]
 
 pub mod client;
 pub mod common;
@@ -19,15 +19,24 @@ use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result, bail};
 
-// ─── Constants ───────────────────────────────────────────────────────────────
-
 const GITHUB_REPO: &str = "immich-app/immich";
 const SPEC_PATH: &str = "open-api/immich-openapi-specs.json";
 const USER_AGENT: &str = concat!("immich-rs-xtask/", env!("CARGO_PKG_VERSION"));
 
-// ─── Entry point ─────────────────────────────────────────────────────────────
+fn parse_cli_opts(args: impl Iterator<Item = String>) -> (bool, Option<String>) {
+    let mut offline = false;
+    let mut version = None;
+    for arg in args {
+        if arg == "--offline" || arg == "--local" {
+            offline = true;
+        } else if version.is_none() {
+            version = Some(arg);
+        }
+    }
+    (offline, version)
+}
 
-/// Runs the selected xtask command.
+/// Runs the selected `xtask` command.
 ///
 /// # Errors
 /// Returns an error if the command execution fails.
@@ -36,23 +45,27 @@ pub fn run() -> Result<()> {
 
     match args.next().as_deref() {
         Some("generate") => {
-            let version = args.next();
+            let (offline, version) = parse_cli_opts(args);
             let root = workspace_root()?;
-            models::run(&root, version.as_deref())?;
-            client::run(&root, version.as_deref())
+            let (spec, resolved_version) = common::spec::resolve_spec(&root, version.as_deref(), offline)?;
+            let model_index = models::run_with_spec(&root, &spec, &resolved_version)?;
+            client::run_with_spec(&root, &spec, &model_index)
         }
         Some("generate-models") => {
-            let version = args.next();
+            let (offline, version) = parse_cli_opts(args);
             let root = workspace_root()?;
-            models::run(&root, version.as_deref())
+            let (spec, resolved_version) = common::spec::resolve_spec(&root, version.as_deref(), offline)?;
+            models::run_with_spec(&root, &spec, &resolved_version).map(|_| ())
         }
         Some("generate-client") => {
-            let version = args.next();
+            let (offline, version) = parse_cli_opts(args);
             let root = workspace_root()?;
-            client::run(&root, version.as_deref())
+            let (spec, resolved_version) = common::spec::resolve_spec(&root, version.as_deref(), offline)?;
+            let model_index = models::build_model_index(&spec, &resolved_version)?;
+            client::run_with_spec(&root, &spec, &model_index)
         }
         Some("fetch-spec") => {
-            let version = args.next();
+            let (_, version) = parse_cli_opts(args);
             let (changed, _) = fetch_spec(version.as_deref())?;
             if !changed {
                 println!("[xtask] Nothing to do — spec is already current.");
@@ -64,35 +77,23 @@ pub fn run() -> Result<()> {
                 "immich-rs xtask\n\
                 \n\
                 USAGE:\n\
-                    cargo xtask generate [VERSION]         Fetch spec + generate models & client\n\
-                    cargo xtask generate-models [VERSION]  Fetch spec + generate immich-models\n\
-                    cargo xtask generate-client [VERSION]  Fetch spec + generate immich-rs HTTP client\n\
-                    cargo xtask fetch-spec [VERSION]       Fetch the OpenAPI spec only\n\
+                    cargo xtask generate [--offline] [VERSION]         Fetch spec + generate models & client\n\
+                    cargo xtask generate-models [--offline] [VERSION]  Fetch spec + generate immich-models\n\
+                    cargo xtask generate-client [--offline] [VERSION]  Fetch spec + generate immich-rs HTTP client\n\
+                    cargo xtask fetch-spec [VERSION]                   Fetch the OpenAPI spec only\n\
                 \n\
-                VERSION is optional (e.g. v3.1.0). Without VERSION, the latest\n\
-                Immich GitHub release is resolved automatically."
+                VERSION is optional (e.g. v3.3.5). Without VERSION (and without --offline),\n\
+                the latest Immich GitHub release is resolved automatically."
             );
             Ok(())
         }
     }
 }
 
-// ─── Command: fetch-spec ─────────────────────────────────────────────────────
-
 /// Ensures the local `OpenAPI` spec is in sync with the given Immich release.
 ///
-/// Strategy (cheap-first):
-/// 1. Call the **GitHub Contents API** — a tiny JSON response that includes the
-///    git blob SHA of the remote file, without downloading the spec itself.
-/// 2. If the local file exists, compute its git blob SHA (SHA-1 of `"blob {size}\0{content}"`).
-/// 3. If both SHAs match → already up to date, **no download performed**.
-/// 4. If they differ (or no local file exists) → download the spec and write it.
-///
-/// Fetches the `OpenAPI` spec from GitHub and writes it to disk.
-/// Returns a tuple `(changed, resolved_version)`.
-///
 /// # Errors
-/// Returns an error if the network request fails, or if writing to disk fails.
+/// Returns an error if the network request or disk write fails.
 pub fn fetch_spec(version: Option<&str>) -> Result<(bool, String)> {
     let tag = if let Some(v) = version {
         println!("[xtask] Target version: {v}");
@@ -102,11 +103,9 @@ pub fn fetch_spec(version: Option<&str>) -> Result<(bool, String)> {
         latest_immich_release().context("failed to resolve the latest Immich version")?
     };
 
-    // ── Step 1: ask GitHub for the blob SHA (no spec download yet) ────────────
     let remote_sha = github_blob_sha(&tag).with_context(|| format!("fetching blob SHA for {tag}"))?;
     println!("[xtask] Remote blob SHA: {remote_sha}");
 
-    // ── Step 2: compare with local file ───────────────────────────────────────
     let workspace_root = workspace_root()?;
     let out_path = workspace_root.join(SPEC_PATH);
 
@@ -121,16 +120,12 @@ pub fn fetch_spec(version: Option<&str>) -> Result<(bool, String)> {
         println!("[xtask] No local spec found — downloading.");
     }
 
-    // ── Step 3: download the spec ─────────────────────────────────────────────
     let raw_url = format!("https://raw.githubusercontent.com/{GITHUB_REPO}/{tag}/{SPEC_PATH}");
     println!("[xtask] Fetching: {raw_url}");
 
     let spec_bytes = fetch_url(&raw_url).with_context(|| format!("downloading Immich spec {tag}"))?;
-
-    // Quick validation
     let _: serde_json::Value = serde_json::from_slice(&spec_bytes).context("downloaded spec is not valid JSON")?;
 
-    // Verify the downloaded content matches what the API advertised
     let downloaded_sha = git_blob_sha(&spec_bytes);
     if downloaded_sha != remote_sha {
         bail!("blob SHA mismatch after download (expected {remote_sha}, got {downloaded_sha})");
@@ -148,9 +143,6 @@ pub fn fetch_spec(version: Option<&str>) -> Result<(bool, String)> {
     Ok((true, tag))
 }
 
-// ─── Network utilities ───────────────────────────────────────────────────────
-
-/// Fetches the tag of the latest published Immich release via the GitHub API.
 fn latest_immich_release() -> Result<String> {
     #[derive(serde::Deserialize)]
     struct GitHubRelease {
@@ -159,14 +151,12 @@ fn latest_immich_release() -> Result<String> {
 
     let url = format!("https://api.github.com/repos/{GITHUB_REPO}/releases/latest");
     let body = fetch_url(&url).context("calling the GitHub API")?;
-
     let release: GitHubRelease = serde_json::from_slice(&body).context("parsing GitHub releases/latest response")?;
-
     println!("[xtask] Latest Immich release detected: {}", release.tag_name);
     Ok(release.tag_name)
 }
 
-/// Helper: fetch a URL and return the raw bytes.
+/// Fetches a URL and returns the raw bytes.
 ///
 /// # Errors
 /// Returns an error if the HTTP request fails.
@@ -192,20 +182,13 @@ pub fn fetch_url(url: &str) -> Result<Vec<u8>> {
         bail!("HTTP {status} for {url}");
     }
 
-    let buf = response.into_body().read_to_vec().context("reading response body")?;
-
-    Ok(buf)
+    response.into_body().read_to_vec().context("reading response body")
 }
 
-// ─── Workspace utilities ─────────────────────────────────────────────────────
-
-/// Returns the Cargo workspace root by going one level up from the xtask manifest dir.
-///
-/// `CARGO_MANIFEST_DIR` points to `xtask/` when invoked via `cargo xtask`,
 /// Finds the root of the Cargo workspace.
 ///
 /// # Errors
-/// Returns an error if the workspace root cannot be found or parsed.
+/// Returns an error if the workspace root cannot be found.
 pub fn workspace_root() -> Result<PathBuf> {
     let manifest_dir = std::env::var("CARGO_MANIFEST_DIR")
         .context("CARGO_MANIFEST_DIR is not set — this binary must be run via `cargo xtask`")?;
@@ -216,7 +199,6 @@ pub fn workspace_root() -> Result<PathBuf> {
         .with_context(|| format!("cannot go up from {}", xtask_dir.display()))?
         .to_path_buf();
 
-    // Sanity check: a Cargo.toml must exist at the root
     let workspace_toml = root.join("Cargo.toml");
     if !workspace_toml.exists() {
         bail!(
@@ -228,12 +210,6 @@ pub fn workspace_root() -> Result<PathBuf> {
     Ok(root)
 }
 
-// ─── Hashing / git blob SHA ───────────────────────────────────────────────────
-
-/// Queries the GitHub Contents API for the git blob SHA of `SPEC_PATH` at `tag`.
-///
-/// This is a lightweight JSON call — the spec itself is **not** downloaded.
-/// GitHub always returns `sha` (a SHA-1 git blob hash) regardless of file size.
 fn github_blob_sha(tag: &str) -> Result<String> {
     #[derive(serde::Deserialize)]
     struct ContentsResponse {
@@ -246,10 +222,6 @@ fn github_blob_sha(tag: &str) -> Result<String> {
     Ok(resp.sha)
 }
 
-/// Computes the git blob SHA-1 of `content`.
-///
-/// Git hashes file content as `SHA1("blob {size}\0{content}")`, which is what
-/// the GitHub Contents API returns in its `sha` field.
 fn git_blob_sha(content: &[u8]) -> String {
     use sha1::{Digest, Sha1};
 

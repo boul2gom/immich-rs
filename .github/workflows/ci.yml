@@ -79,19 +79,19 @@ jobs:
         with:
           components: clippy
 
-      - name: 🦀 Check with Clippy
+      - name: 🦀 Check with Clippy (all targets, examples & features)
         run: cargo clippy --workspace --all-targets --all-features -- -D warnings
 
-      - name: 📦 Build test targets
-        run: cargo test --no-run --workspace --all-features --exclude immich-examples
+      - name: 📦 Build test & example targets
+        run: cargo test --no-run --workspace --all-features
 
       - name: 🧪 Run workspace tests
-        run: cargo test --workspace --all-features --exclude immich-examples
+        run: cargo test --workspace --all-features
         env:
           RUST_LOG: info
 
   targets-and-backends:
-    name: 🌐 Targets & TLS Backends
+    name: 🌐 Targets, Feature Matrix & MSRV
     runs-on: ubuntu-latest
     needs: [check-spell]
     env:
@@ -113,14 +113,33 @@ jobs:
         with:
           targets: wasm32-unknown-unknown
 
-      - name: 🌐 WASM target check
-        run: cargo check -p immich-models -p immich-rs --target wasm32-unknown-unknown --no-default-features
+      - name: 🌐 WASM target check (default, minimal & all-features)
+        run: |
+          cargo check -p immich-models -p immich-rs --target wasm32-unknown-unknown
+          cargo check -p immich-models -p immich-rs --target wasm32-unknown-unknown --no-default-features
+          cargo check -p immich-models -p immich-rs --target wasm32-unknown-unknown --all-features
 
       - name: 🦀 TLS backend check (native-tls)
         run: cargo check -p immich-rs --no-default-features --features native-tls
 
+      - name: 🛠️ Install cargo-hack
+        uses: taiki-e/install-action@7fa572463ed6f88f64fd37a4f8ca146df751432d # cargo-hack
+        with:
+          tool: cargo-hack
+
+      - name: 🧩 Check feature powerset
+        run: cargo hack check --feature-powerset -p immich-rs
+
+      - name: 🛠️ Set up MSRV toolchain (1.88)
+        uses: dtolnay/rust-toolchain@631a55b12751854ce901bb631d5902ceb48146f7 # 1.88
+        with:
+          toolchain: "1.88"
+
+      - name: 📌 MSRV compatibility check
+        run: cargo +1.88 check --workspace --all-features
+
   doc-tests:
-    name: 📚 Test docs
+    name: 📚 Test & Build Docs
     needs: [check-spell]
     runs-on: ubuntu-latest
     env:
@@ -137,11 +156,21 @@ jobs:
         with:
           shared-key: "immich-rs"
 
-      - name: 🛠️ Set up Rust toolchain
+      - name: 🛠️ Set up stable & nightly Rust toolchains
         uses: dtolnay/rust-toolchain@631a55b12751854ce901bb631d5902ceb48146f7 # stable
+
+      - name: 🛠️ Set up nightly Rust (for docsrs doc_cfg check)
+        uses: dtolnay/rust-toolchain@631a55b12751854ce901bb631d5902ceb48146f7 # nightly
+        with:
+          toolchain: nightly
 
       - name: 📚 Run doc tests
         run: cargo test --doc --workspace --all-features
+
+      - name: 📖 Build Rustdoc with strict link checking
+        run: cargo +nightly doc --workspace --all-features --no-deps
+        env:
+          RUSTDOCFLAGS: "-D warnings --cfg docsrs"
 
   analysis:
     name: 🔍 Static analysis
@@ -213,8 +242,7 @@ jobs:
           done
 
       - name: 🚀 Run E2E Seeded Demo Workflow Tests
-        run: cargo test --features e2e -p immich-rs --test e2e_workflow_tests -- --nocapture
+        run: cargo test -p immich-rs --test e2e_workflow_tests -- --ignored --nocapture
         env:
           RUST_LOG: info
-          IMMICH_RUN_E2E: "1"
           TESTCONTAINERS_RYUK_DISABLED: "true"

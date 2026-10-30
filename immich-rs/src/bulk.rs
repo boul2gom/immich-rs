@@ -1,5 +1,7 @@
-//! Helper for bulk uploading assets with concurrency control and upstream deduplication.
+//! Helper for bulk uploading assets with bounded concurrency and upstream SHA-1 deduplication.
 
+use std::borrow::Cow;
+use std::collections::{BTreeMap, BTreeSet};
 use std::path::PathBuf;
 
 use futures_util::stream::{self, StreamExt};
@@ -16,7 +18,8 @@ use crate::upload::UploadOptions;
 pub type BulkUploadItem<'a> = UploadOptions<'a>;
 
 /// Result of an individual asset processing step within a bulk upload operation.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum BulkUploadResult {
     /// Asset was uploaded successfully to Immich.
     Uploaded(AssetMediaResponseDTO),
@@ -26,6 +29,13 @@ pub enum BulkUploadResult {
         path: PathBuf,
         /// Existing asset ID on the Immich server, if returned by the check.
         existing_asset_id: Option<AssetId>,
+    },
+    /// Asset was rejected by Immich's bulk check for a non-duplicate reason (e.g. unsupported format).
+    Rejected {
+        /// Local path of the asset that was rejected.
+        path: PathBuf,
+        /// Server-reported rejection reason, if any.
+        reason: Option<AssetRejectReason>,
     },
 }
 
@@ -42,12 +52,18 @@ impl BulkUploadResult {
         matches!(self, Self::Duplicate { .. })
     }
 
-    /// Returns the uploaded asset DTO if successful, or `None` if skipped as a duplicate.
+    /// Returns `true` if the asset was rejected for a non-duplicate reason.
+    #[must_use]
+    pub const fn is_rejected(&self) -> bool {
+        matches!(self, Self::Rejected { .. })
+    }
+
+    /// Returns the uploaded asset DTO if newly uploaded, or `None` if skipped or rejected.
     #[must_use]
     pub fn uploaded(self) -> Option<AssetMediaResponseDTO> {
         match self {
             Self::Uploaded(dto) => Some(dto),
-            Self::Duplicate { .. } => None,
+            Self::Duplicate { .. } | Self::Rejected { .. } => None,
         }
     }
 }
@@ -68,7 +84,7 @@ where
     I: IntoIterator<Item = UploadOptions<'a>> + Send + 'a,
     I::IntoIter: Send,
 {
-    pub(crate) fn new(client: ImmichClient, assets: I) -> Self {
+    pub(crate) const fn new(client: ImmichClient, assets: I) -> Self {
         Self {
             client,
             assets,
@@ -78,7 +94,7 @@ where
         }
     }
 
-    /// Sets the maximum number of simultaneous upload requests (defaults to `4`).
+    /// Sets the maximum number of simultaneous checksum and upload workers (defaults to `4`).
     ///
     /// Clamped to at least `1`.
     pub fn concurrency(mut self, concurrency: usize) -> Self {
@@ -86,8 +102,8 @@ where
         self
     }
 
-    /// Enables or disables pre-upload duplicate checks via Immich's `checkBulkUpload` API (defaults to `true`).
-    pub fn check_duplicates(mut self, check: bool) -> Self {
+    /// Enables or disables pre-upload duplicate and format checks via Immich's `checkBulkUpload` API (defaults to `true`).
+    pub const fn check_duplicates(mut self, check: bool) -> Self {
         self.check_duplicates = check;
         self
     }
@@ -101,34 +117,48 @@ where
 
         async_stream::stream! {
             if check_duplicates && !items.is_empty() {
-                // Compute checksums for all items that do not already have one
-                let mut check_items = Vec::new();
-                let mut valid_indices = std::collections::HashSet::new();
-                let mut computed_checksums = std::collections::HashMap::new();
+                let mut valid_indices = BTreeSet::new();
+                let mut computed_checksums = BTreeMap::new();
 
-                for (idx, item) in items.iter().enumerate() {
-                    let checksum = match &item.checksum {
-                        Some(cs) => Ok(cs.to_string()),
-                        None => crate::utils::checksum::calculate_file_checksum(item.path).await,
-                    };
-                    match checksum {
-                        Ok(cs) => {
-                            check_items.push(AssetBulkUploadCheckItem::new(cs.clone(), idx.to_string()));
-                            computed_checksums.insert(idx, cs);
-                            valid_indices.insert(idx);
+                // Compute SHA-1 checksums concurrently across `concurrency` blocking worker tasks
+                {
+                    let checksum_tasks = items.iter().enumerate().map(|(idx, item)| {
+                        let existing = item.checksum.as_ref().map(ToString::to_string);
+                        let path = item.path.to_path_buf();
+                        async move {
+                            let cs = match existing {
+                                Some(cs) => Ok(cs),
+                                None => crate::utils::checksum::calculate_file_checksum(&path).await,
+                            };
+                            (idx, cs)
                         }
-                        Err(e) => {
-                            yield Err(e);
+                    });
+
+                    let mut checksum_stream = stream::iter(checksum_tasks).buffer_unordered(concurrency);
+                    while let Some((idx, res)) = checksum_stream.next().await {
+                        match res {
+                            Ok(cs) => {
+                                computed_checksums.insert(idx, cs);
+                                valid_indices.insert(idx);
+                            }
+                            Err(e) => {
+                                yield Err(e);
+                            }
                         }
                     }
                 }
 
-                if check_items.is_empty() {
+                if computed_checksums.is_empty() {
                     return;
                 }
 
+                let check_items: Vec<AssetBulkUploadCheckItem> = computed_checksums
+                    .iter()
+                    .map(|(idx, cs)| AssetBulkUploadCheckItem::new(cs.clone(), idx.to_string()))
+                    .collect();
+
                 let check_dto = AssetBulkUploadCheckDTO::new(check_items);
-                let check_resp = match client.assets().check_bulk_upload(&check_dto).await {
+                let check_resp = match client.assets().check_bulk_upload(check_dto).await {
                     Ok(resp) => resp,
                     Err(e) => {
                         yield Err(e);
@@ -136,24 +166,36 @@ where
                     }
                 };
 
+                let results_by_id: BTreeMap<&str, _> = check_resp
+                    .results
+                    .iter()
+                    .map(|r| (r.id.as_str(), r))
+                    .collect();
+
                 let mut to_upload = Vec::new();
                 for (idx, mut item) in items.into_iter().enumerate() {
                     if !valid_indices.contains(&idx) {
                         continue;
                     }
-                    if let Some(cs) = computed_checksums.get(&idx) {
-                        item.checksum = Some(std::borrow::Cow::Owned(cs.clone()));
+                    if let Some(cs) = computed_checksums.remove(&idx) {
+                        item.checksum = Some(Cow::Owned(cs));
                     }
 
-                    let match_res = check_resp.results.iter().find(|r| r.id == idx.to_string());
-                    if let Some(r) = match_res
+                    let idx_key = idx.to_string();
+                    if let Some(r) = results_by_id.get(idx_key.as_str())
                         && r.action == AssetUploadAction::Reject
-                        && r.reason == Some(AssetRejectReason::Duplicate)
                     {
-                        yield Ok(BulkUploadResult::Duplicate {
-                            path: item.path.to_path_buf(),
-                            existing_asset_id: r.asset_id.map(Into::into),
-                        });
+                        if r.reason == Some(AssetRejectReason::Duplicate) {
+                            yield Ok(BulkUploadResult::Duplicate {
+                                path: item.path.to_path_buf(),
+                                existing_asset_id: r.asset_id,
+                            });
+                        } else {
+                            yield Ok(BulkUploadResult::Rejected {
+                                path: item.path.to_path_buf(),
+                                reason: r.reason.clone(),
+                            });
+                        }
                         continue;
                     }
                     to_upload.push(item);
@@ -187,14 +229,8 @@ impl ImmichClient {
     /// Initiates a bulk upload operation with configurable concurrency and upstream deduplication checks.
     ///
     /// By default:
-    /// - Upstream duplicate checking is **enabled** via Immich's `POST /api/assets/bulk-upload-check` API.
-    /// - Concurrency is set to `4` simultaneous uploads.
-    ///
-    /// Returns a [`BulkUploadBuilder`] that can be customized with:
-    /// - [`.concurrency(usize)`](BulkUploadBuilder::concurrency) to change the number of concurrent uploads.
-    /// - [`.check_duplicates(bool)`](BulkUploadBuilder::check_duplicates) to disable or enable the pre-upload check.
-    ///
-    /// Calling [`.into_stream()`](BulkUploadBuilder::into_stream) executes the upload lazily as an asynchronous stream.
+    /// - Upstream duplicate and rejection checking is **enabled** via Immich's `POST /assets/bulk-upload-check` API.
+    /// - Concurrency is set to `4` simultaneous workers for both SHA-1 hashing and HTTP uploads.
     #[must_use = "bulk upload operations are lazy and do nothing unless .into_stream() is called"]
     pub fn upload_bulk<'a, I>(&self, assets: I) -> BulkUploadBuilder<'a, I>
     where

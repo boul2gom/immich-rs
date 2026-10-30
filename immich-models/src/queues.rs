@@ -1,5 +1,6 @@
 // @generated Made by @boul2gom with `immich-rs` - do not edit by hand.
 // Re-run `cargo xtask generate` to update.
+#![allow(clippy::struct_excessive_bools, clippy::too_many_lines)]
 
 //! `OpenAPI` data models for `queues`.
 
@@ -8,7 +9,7 @@ pub use crate::jobs::{QueueName, QueueStatisticsDTO};
 /// Job name
 ///
 /// See: <https://api.immich.app/models/JobName>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[non_exhaustive]
 pub enum JobName {
     AssetDelete,
@@ -77,179 +78,287 @@ pub enum JobName {
     IntegrityChecksumFilesRefresh,
     IntegrityDeleteReportType,
     IntegrityDeleteReports,
-    ///Unknown value returned by a newer version of the Immich server.
-    #[serde(other)]
-    UnknownValue,
+    /// Unknown value returned by a newer version of the Immich server.
+    Unknown(String),
 }
 
-#[allow(clippy::match_same_arms)]
+impl JobName {
+    /// Returns the wire string representation of this enum value.
+    #[must_use]
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::AssetDelete => "AssetDelete",
+            Self::AssetDeleteCheck => "AssetDeleteCheck",
+            Self::AssetDetectFacesQueueAll => "AssetDetectFacesQueueAll",
+            Self::AssetDetectFaces => "AssetDetectFaces",
+            Self::AssetDetectDuplicatesQueueAll => "AssetDetectDuplicatesQueueAll",
+            Self::AssetDetectDuplicates => "AssetDetectDuplicates",
+            Self::AssetEditThumbnailGeneration => "AssetEditThumbnailGeneration",
+            Self::AssetEncodeVideoQueueAll => "AssetEncodeVideoQueueAll",
+            Self::AssetEncodeVideo => "AssetEncodeVideo",
+            Self::AssetEmptyTrash => "AssetEmptyTrash",
+            Self::AssetExtractMetadataQueueAll => "AssetExtractMetadataQueueAll",
+            Self::AssetExtractMetadata => "AssetExtractMetadata",
+            Self::AssetFileMigration => "AssetFileMigration",
+            Self::AssetGenerateThumbnailsQueueAll => "AssetGenerateThumbnailsQueueAll",
+            Self::AssetGenerateThumbnails => "AssetGenerateThumbnails",
+            Self::AuditTableCleanup => "AuditTableCleanup",
+            Self::DatabaseBackup => "DatabaseBackup",
+            Self::FacialRecognitionQueueAll => "FacialRecognitionQueueAll",
+            Self::FacialRecognition => "FacialRecognition",
+            Self::FileDelete => "FileDelete",
+            Self::FileMigrationQueueAll => "FileMigrationQueueAll",
+            Self::LibraryDeleteCheck => "LibraryDeleteCheck",
+            Self::LibraryDelete => "LibraryDelete",
+            Self::LibraryRemoveAsset => "LibraryRemoveAsset",
+            Self::LibraryScanAssetsQueueAll => "LibraryScanAssetsQueueAll",
+            Self::LibrarySyncAssets => "LibrarySyncAssets",
+            Self::LibrarySyncFilesQueueAll => "LibrarySyncFilesQueueAll",
+            Self::LibrarySyncFiles => "LibrarySyncFiles",
+            Self::LibraryScanQueueAll => "LibraryScanQueueAll",
+            Self::HlsSessionCleanup => "HlsSessionCleanup",
+            Self::MemoryCleanup => "MemoryCleanup",
+            Self::MemoryGenerate => "MemoryGenerate",
+            Self::NotificationsCleanup => "NotificationsCleanup",
+            Self::NotifyUserSignup => "NotifyUserSignup",
+            Self::NotifyAlbumInvite => "NotifyAlbumInvite",
+            Self::NotifyAlbumUpdate => "NotifyAlbumUpdate",
+            Self::UserDelete => "UserDelete",
+            Self::UserDeleteCheck => "UserDeleteCheck",
+            Self::UserSyncUsage => "UserSyncUsage",
+            Self::PersonCleanup => "PersonCleanup",
+            Self::PersonFileMigration => "PersonFileMigration",
+            Self::PersonGenerateThumbnail => "PersonGenerateThumbnail",
+            Self::SessionCleanup => "SessionCleanup",
+            Self::SendMail => "SendMail",
+            Self::SidecarQueueAll => "SidecarQueueAll",
+            Self::SidecarCheck => "SidecarCheck",
+            Self::SidecarWrite => "SidecarWrite",
+            Self::SmartSearchQueueAll => "SmartSearchQueueAll",
+            Self::SmartSearch => "SmartSearch",
+            Self::StorageTemplateMigration => "StorageTemplateMigration",
+            Self::StorageTemplateMigrationSingle => "StorageTemplateMigrationSingle",
+            Self::TagCleanup => "TagCleanup",
+            Self::VersionCheck => "VersionCheck",
+            Self::OcrQueueAll => "OcrQueueAll",
+            Self::Ocr => "Ocr",
+            Self::WorkflowAssetTrigger => "WorkflowAssetTrigger",
+            Self::IntegrityUntrackedFilesQueueAll => "IntegrityUntrackedFilesQueueAll",
+            Self::IntegrityUntrackedFiles => "IntegrityUntrackedFiles",
+            Self::IntegrityUntrackedRefresh => "IntegrityUntrackedRefresh",
+            Self::IntegrityMissingFilesQueueAll => "IntegrityMissingFilesQueueAll",
+            Self::IntegrityMissingFiles => "IntegrityMissingFiles",
+            Self::IntegrityMissingFilesRefresh => "IntegrityMissingFilesRefresh",
+            Self::IntegrityChecksumFiles => "IntegrityChecksumFiles",
+            Self::IntegrityChecksumFilesRefresh => "IntegrityChecksumFilesRefresh",
+            Self::IntegrityDeleteReportType => "IntegrityDeleteReportType",
+            Self::IntegrityDeleteReports => "IntegrityDeleteReports",
+            Self::Unknown(s) => s.as_str(),
+        }
+    }
+}
+
 impl ::std::fmt::Display for JobName {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        match *self {
-            Self::AssetDelete => f.write_str("AssetDelete"),
-            Self::AssetDeleteCheck => f.write_str("AssetDeleteCheck"),
-            Self::AssetDetectFacesQueueAll => f.write_str("AssetDetectFacesQueueAll"),
-            Self::AssetDetectFaces => f.write_str("AssetDetectFaces"),
-            Self::AssetDetectDuplicatesQueueAll => f.write_str("AssetDetectDuplicatesQueueAll"),
-            Self::AssetDetectDuplicates => f.write_str("AssetDetectDuplicates"),
-            Self::AssetEditThumbnailGeneration => f.write_str("AssetEditThumbnailGeneration"),
-            Self::AssetEncodeVideoQueueAll => f.write_str("AssetEncodeVideoQueueAll"),
-            Self::AssetEncodeVideo => f.write_str("AssetEncodeVideo"),
-            Self::AssetEmptyTrash => f.write_str("AssetEmptyTrash"),
-            Self::AssetExtractMetadataQueueAll => f.write_str("AssetExtractMetadataQueueAll"),
-            Self::AssetExtractMetadata => f.write_str("AssetExtractMetadata"),
-            Self::AssetFileMigration => f.write_str("AssetFileMigration"),
-            Self::AssetGenerateThumbnailsQueueAll => f.write_str("AssetGenerateThumbnailsQueueAll"),
-            Self::AssetGenerateThumbnails => f.write_str("AssetGenerateThumbnails"),
-            Self::AuditTableCleanup => f.write_str("AuditTableCleanup"),
-            Self::DatabaseBackup => f.write_str("DatabaseBackup"),
-            Self::FacialRecognitionQueueAll => f.write_str("FacialRecognitionQueueAll"),
-            Self::FacialRecognition => f.write_str("FacialRecognition"),
-            Self::FileDelete => f.write_str("FileDelete"),
-            Self::FileMigrationQueueAll => f.write_str("FileMigrationQueueAll"),
-            Self::LibraryDeleteCheck => f.write_str("LibraryDeleteCheck"),
-            Self::LibraryDelete => f.write_str("LibraryDelete"),
-            Self::LibraryRemoveAsset => f.write_str("LibraryRemoveAsset"),
-            Self::LibraryScanAssetsQueueAll => f.write_str("LibraryScanAssetsQueueAll"),
-            Self::LibrarySyncAssets => f.write_str("LibrarySyncAssets"),
-            Self::LibrarySyncFilesQueueAll => f.write_str("LibrarySyncFilesQueueAll"),
-            Self::LibrarySyncFiles => f.write_str("LibrarySyncFiles"),
-            Self::LibraryScanQueueAll => f.write_str("LibraryScanQueueAll"),
-            Self::HlsSessionCleanup => f.write_str("HlsSessionCleanup"),
-            Self::MemoryCleanup => f.write_str("MemoryCleanup"),
-            Self::MemoryGenerate => f.write_str("MemoryGenerate"),
-            Self::NotificationsCleanup => f.write_str("NotificationsCleanup"),
-            Self::NotifyUserSignup => f.write_str("NotifyUserSignup"),
-            Self::NotifyAlbumInvite => f.write_str("NotifyAlbumInvite"),
-            Self::NotifyAlbumUpdate => f.write_str("NotifyAlbumUpdate"),
-            Self::UserDelete => f.write_str("UserDelete"),
-            Self::UserDeleteCheck => f.write_str("UserDeleteCheck"),
-            Self::UserSyncUsage => f.write_str("UserSyncUsage"),
-            Self::PersonCleanup => f.write_str("PersonCleanup"),
-            Self::PersonFileMigration => f.write_str("PersonFileMigration"),
-            Self::PersonGenerateThumbnail => f.write_str("PersonGenerateThumbnail"),
-            Self::SessionCleanup => f.write_str("SessionCleanup"),
-            Self::SendMail => f.write_str("SendMail"),
-            Self::SidecarQueueAll => f.write_str("SidecarQueueAll"),
-            Self::SidecarCheck => f.write_str("SidecarCheck"),
-            Self::SidecarWrite => f.write_str("SidecarWrite"),
-            Self::SmartSearchQueueAll => f.write_str("SmartSearchQueueAll"),
-            Self::SmartSearch => f.write_str("SmartSearch"),
-            Self::StorageTemplateMigration => f.write_str("StorageTemplateMigration"),
-            Self::StorageTemplateMigrationSingle => f.write_str("StorageTemplateMigrationSingle"),
-            Self::TagCleanup => f.write_str("TagCleanup"),
-            Self::VersionCheck => f.write_str("VersionCheck"),
-            Self::OcrQueueAll => f.write_str("OcrQueueAll"),
-            Self::Ocr => f.write_str("Ocr"),
-            Self::WorkflowAssetTrigger => f.write_str("WorkflowAssetTrigger"),
-            Self::IntegrityUntrackedFilesQueueAll => f.write_str("IntegrityUntrackedFilesQueueAll"),
-            Self::IntegrityUntrackedFiles => f.write_str("IntegrityUntrackedFiles"),
-            Self::IntegrityUntrackedRefresh => f.write_str("IntegrityUntrackedRefresh"),
-            Self::IntegrityMissingFilesQueueAll => f.write_str("IntegrityMissingFilesQueueAll"),
-            Self::IntegrityMissingFiles => f.write_str("IntegrityMissingFiles"),
-            Self::IntegrityMissingFilesRefresh => f.write_str("IntegrityMissingFilesRefresh"),
-            Self::IntegrityChecksumFiles => f.write_str("IntegrityChecksumFiles"),
-            Self::IntegrityChecksumFilesRefresh => f.write_str("IntegrityChecksumFilesRefresh"),
-            Self::IntegrityDeleteReportType => f.write_str("IntegrityDeleteReportType"),
-            Self::IntegrityDeleteReports => f.write_str("IntegrityDeleteReports"),
-            Self::UnknownValue => f.write_str("unknown"),
+        f.write_str(self.as_str())
+    }
+}
+
+impl From<&str> for JobName {
+    fn from(value: &str) -> Self {
+        match value {
+            "AssetDelete" => Self::AssetDelete,
+            "AssetDeleteCheck" => Self::AssetDeleteCheck,
+            "AssetDetectFacesQueueAll" => Self::AssetDetectFacesQueueAll,
+            "AssetDetectFaces" => Self::AssetDetectFaces,
+            "AssetDetectDuplicatesQueueAll" => Self::AssetDetectDuplicatesQueueAll,
+            "AssetDetectDuplicates" => Self::AssetDetectDuplicates,
+            "AssetEditThumbnailGeneration" => Self::AssetEditThumbnailGeneration,
+            "AssetEncodeVideoQueueAll" => Self::AssetEncodeVideoQueueAll,
+            "AssetEncodeVideo" => Self::AssetEncodeVideo,
+            "AssetEmptyTrash" => Self::AssetEmptyTrash,
+            "AssetExtractMetadataQueueAll" => Self::AssetExtractMetadataQueueAll,
+            "AssetExtractMetadata" => Self::AssetExtractMetadata,
+            "AssetFileMigration" => Self::AssetFileMigration,
+            "AssetGenerateThumbnailsQueueAll" => Self::AssetGenerateThumbnailsQueueAll,
+            "AssetGenerateThumbnails" => Self::AssetGenerateThumbnails,
+            "AuditTableCleanup" => Self::AuditTableCleanup,
+            "DatabaseBackup" => Self::DatabaseBackup,
+            "FacialRecognitionQueueAll" => Self::FacialRecognitionQueueAll,
+            "FacialRecognition" => Self::FacialRecognition,
+            "FileDelete" => Self::FileDelete,
+            "FileMigrationQueueAll" => Self::FileMigrationQueueAll,
+            "LibraryDeleteCheck" => Self::LibraryDeleteCheck,
+            "LibraryDelete" => Self::LibraryDelete,
+            "LibraryRemoveAsset" => Self::LibraryRemoveAsset,
+            "LibraryScanAssetsQueueAll" => Self::LibraryScanAssetsQueueAll,
+            "LibrarySyncAssets" => Self::LibrarySyncAssets,
+            "LibrarySyncFilesQueueAll" => Self::LibrarySyncFilesQueueAll,
+            "LibrarySyncFiles" => Self::LibrarySyncFiles,
+            "LibraryScanQueueAll" => Self::LibraryScanQueueAll,
+            "HlsSessionCleanup" => Self::HlsSessionCleanup,
+            "MemoryCleanup" => Self::MemoryCleanup,
+            "MemoryGenerate" => Self::MemoryGenerate,
+            "NotificationsCleanup" => Self::NotificationsCleanup,
+            "NotifyUserSignup" => Self::NotifyUserSignup,
+            "NotifyAlbumInvite" => Self::NotifyAlbumInvite,
+            "NotifyAlbumUpdate" => Self::NotifyAlbumUpdate,
+            "UserDelete" => Self::UserDelete,
+            "UserDeleteCheck" => Self::UserDeleteCheck,
+            "UserSyncUsage" => Self::UserSyncUsage,
+            "PersonCleanup" => Self::PersonCleanup,
+            "PersonFileMigration" => Self::PersonFileMigration,
+            "PersonGenerateThumbnail" => Self::PersonGenerateThumbnail,
+            "SessionCleanup" => Self::SessionCleanup,
+            "SendMail" => Self::SendMail,
+            "SidecarQueueAll" => Self::SidecarQueueAll,
+            "SidecarCheck" => Self::SidecarCheck,
+            "SidecarWrite" => Self::SidecarWrite,
+            "SmartSearchQueueAll" => Self::SmartSearchQueueAll,
+            "SmartSearch" => Self::SmartSearch,
+            "StorageTemplateMigration" => Self::StorageTemplateMigration,
+            "StorageTemplateMigrationSingle" => Self::StorageTemplateMigrationSingle,
+            "TagCleanup" => Self::TagCleanup,
+            "VersionCheck" => Self::VersionCheck,
+            "OcrQueueAll" => Self::OcrQueueAll,
+            "Ocr" => Self::Ocr,
+            "WorkflowAssetTrigger" => Self::WorkflowAssetTrigger,
+            "IntegrityUntrackedFilesQueueAll" => Self::IntegrityUntrackedFilesQueueAll,
+            "IntegrityUntrackedFiles" => Self::IntegrityUntrackedFiles,
+            "IntegrityUntrackedRefresh" => Self::IntegrityUntrackedRefresh,
+            "IntegrityMissingFilesQueueAll" => Self::IntegrityMissingFilesQueueAll,
+            "IntegrityMissingFiles" => Self::IntegrityMissingFiles,
+            "IntegrityMissingFilesRefresh" => Self::IntegrityMissingFilesRefresh,
+            "IntegrityChecksumFiles" => Self::IntegrityChecksumFiles,
+            "IntegrityChecksumFilesRefresh" => Self::IntegrityChecksumFilesRefresh,
+            "IntegrityDeleteReportType" => Self::IntegrityDeleteReportType,
+            "IntegrityDeleteReports" => Self::IntegrityDeleteReports,
+            other => Self::Unknown(other.to_owned()),
         }
+    }
+}
+
+impl From<String> for JobName {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "AssetDelete" => Self::AssetDelete,
+            "AssetDeleteCheck" => Self::AssetDeleteCheck,
+            "AssetDetectFacesQueueAll" => Self::AssetDetectFacesQueueAll,
+            "AssetDetectFaces" => Self::AssetDetectFaces,
+            "AssetDetectDuplicatesQueueAll" => Self::AssetDetectDuplicatesQueueAll,
+            "AssetDetectDuplicates" => Self::AssetDetectDuplicates,
+            "AssetEditThumbnailGeneration" => Self::AssetEditThumbnailGeneration,
+            "AssetEncodeVideoQueueAll" => Self::AssetEncodeVideoQueueAll,
+            "AssetEncodeVideo" => Self::AssetEncodeVideo,
+            "AssetEmptyTrash" => Self::AssetEmptyTrash,
+            "AssetExtractMetadataQueueAll" => Self::AssetExtractMetadataQueueAll,
+            "AssetExtractMetadata" => Self::AssetExtractMetadata,
+            "AssetFileMigration" => Self::AssetFileMigration,
+            "AssetGenerateThumbnailsQueueAll" => Self::AssetGenerateThumbnailsQueueAll,
+            "AssetGenerateThumbnails" => Self::AssetGenerateThumbnails,
+            "AuditTableCleanup" => Self::AuditTableCleanup,
+            "DatabaseBackup" => Self::DatabaseBackup,
+            "FacialRecognitionQueueAll" => Self::FacialRecognitionQueueAll,
+            "FacialRecognition" => Self::FacialRecognition,
+            "FileDelete" => Self::FileDelete,
+            "FileMigrationQueueAll" => Self::FileMigrationQueueAll,
+            "LibraryDeleteCheck" => Self::LibraryDeleteCheck,
+            "LibraryDelete" => Self::LibraryDelete,
+            "LibraryRemoveAsset" => Self::LibraryRemoveAsset,
+            "LibraryScanAssetsQueueAll" => Self::LibraryScanAssetsQueueAll,
+            "LibrarySyncAssets" => Self::LibrarySyncAssets,
+            "LibrarySyncFilesQueueAll" => Self::LibrarySyncFilesQueueAll,
+            "LibrarySyncFiles" => Self::LibrarySyncFiles,
+            "LibraryScanQueueAll" => Self::LibraryScanQueueAll,
+            "HlsSessionCleanup" => Self::HlsSessionCleanup,
+            "MemoryCleanup" => Self::MemoryCleanup,
+            "MemoryGenerate" => Self::MemoryGenerate,
+            "NotificationsCleanup" => Self::NotificationsCleanup,
+            "NotifyUserSignup" => Self::NotifyUserSignup,
+            "NotifyAlbumInvite" => Self::NotifyAlbumInvite,
+            "NotifyAlbumUpdate" => Self::NotifyAlbumUpdate,
+            "UserDelete" => Self::UserDelete,
+            "UserDeleteCheck" => Self::UserDeleteCheck,
+            "UserSyncUsage" => Self::UserSyncUsage,
+            "PersonCleanup" => Self::PersonCleanup,
+            "PersonFileMigration" => Self::PersonFileMigration,
+            "PersonGenerateThumbnail" => Self::PersonGenerateThumbnail,
+            "SessionCleanup" => Self::SessionCleanup,
+            "SendMail" => Self::SendMail,
+            "SidecarQueueAll" => Self::SidecarQueueAll,
+            "SidecarCheck" => Self::SidecarCheck,
+            "SidecarWrite" => Self::SidecarWrite,
+            "SmartSearchQueueAll" => Self::SmartSearchQueueAll,
+            "SmartSearch" => Self::SmartSearch,
+            "StorageTemplateMigration" => Self::StorageTemplateMigration,
+            "StorageTemplateMigrationSingle" => Self::StorageTemplateMigrationSingle,
+            "TagCleanup" => Self::TagCleanup,
+            "VersionCheck" => Self::VersionCheck,
+            "OcrQueueAll" => Self::OcrQueueAll,
+            "Ocr" => Self::Ocr,
+            "WorkflowAssetTrigger" => Self::WorkflowAssetTrigger,
+            "IntegrityUntrackedFilesQueueAll" => Self::IntegrityUntrackedFilesQueueAll,
+            "IntegrityUntrackedFiles" => Self::IntegrityUntrackedFiles,
+            "IntegrityUntrackedRefresh" => Self::IntegrityUntrackedRefresh,
+            "IntegrityMissingFilesQueueAll" => Self::IntegrityMissingFilesQueueAll,
+            "IntegrityMissingFiles" => Self::IntegrityMissingFiles,
+            "IntegrityMissingFilesRefresh" => Self::IntegrityMissingFilesRefresh,
+            "IntegrityChecksumFiles" => Self::IntegrityChecksumFiles,
+            "IntegrityChecksumFilesRefresh" => Self::IntegrityChecksumFilesRefresh,
+            "IntegrityDeleteReportType" => Self::IntegrityDeleteReportType,
+            "IntegrityDeleteReports" => Self::IntegrityDeleteReports,
+            _ => Self::Unknown(value),
+        }
+    }
+}
+
+impl From<&String> for JobName {
+    fn from(value: &String) -> Self {
+        Self::from(value.as_str())
     }
 }
 
 impl ::std::str::FromStr for JobName {
-    type Err = crate::common::error::ConversionError;
-    fn from_str(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        match value {
-            "AssetDelete" => Ok(Self::AssetDelete),
-            "AssetDeleteCheck" => Ok(Self::AssetDeleteCheck),
-            "AssetDetectFacesQueueAll" => Ok(Self::AssetDetectFacesQueueAll),
-            "AssetDetectFaces" => Ok(Self::AssetDetectFaces),
-            "AssetDetectDuplicatesQueueAll" => Ok(Self::AssetDetectDuplicatesQueueAll),
-            "AssetDetectDuplicates" => Ok(Self::AssetDetectDuplicates),
-            "AssetEditThumbnailGeneration" => Ok(Self::AssetEditThumbnailGeneration),
-            "AssetEncodeVideoQueueAll" => Ok(Self::AssetEncodeVideoQueueAll),
-            "AssetEncodeVideo" => Ok(Self::AssetEncodeVideo),
-            "AssetEmptyTrash" => Ok(Self::AssetEmptyTrash),
-            "AssetExtractMetadataQueueAll" => Ok(Self::AssetExtractMetadataQueueAll),
-            "AssetExtractMetadata" => Ok(Self::AssetExtractMetadata),
-            "AssetFileMigration" => Ok(Self::AssetFileMigration),
-            "AssetGenerateThumbnailsQueueAll" => Ok(Self::AssetGenerateThumbnailsQueueAll),
-            "AssetGenerateThumbnails" => Ok(Self::AssetGenerateThumbnails),
-            "AuditTableCleanup" => Ok(Self::AuditTableCleanup),
-            "DatabaseBackup" => Ok(Self::DatabaseBackup),
-            "FacialRecognitionQueueAll" => Ok(Self::FacialRecognitionQueueAll),
-            "FacialRecognition" => Ok(Self::FacialRecognition),
-            "FileDelete" => Ok(Self::FileDelete),
-            "FileMigrationQueueAll" => Ok(Self::FileMigrationQueueAll),
-            "LibraryDeleteCheck" => Ok(Self::LibraryDeleteCheck),
-            "LibraryDelete" => Ok(Self::LibraryDelete),
-            "LibraryRemoveAsset" => Ok(Self::LibraryRemoveAsset),
-            "LibraryScanAssetsQueueAll" => Ok(Self::LibraryScanAssetsQueueAll),
-            "LibrarySyncAssets" => Ok(Self::LibrarySyncAssets),
-            "LibrarySyncFilesQueueAll" => Ok(Self::LibrarySyncFilesQueueAll),
-            "LibrarySyncFiles" => Ok(Self::LibrarySyncFiles),
-            "LibraryScanQueueAll" => Ok(Self::LibraryScanQueueAll),
-            "HlsSessionCleanup" => Ok(Self::HlsSessionCleanup),
-            "MemoryCleanup" => Ok(Self::MemoryCleanup),
-            "MemoryGenerate" => Ok(Self::MemoryGenerate),
-            "NotificationsCleanup" => Ok(Self::NotificationsCleanup),
-            "NotifyUserSignup" => Ok(Self::NotifyUserSignup),
-            "NotifyAlbumInvite" => Ok(Self::NotifyAlbumInvite),
-            "NotifyAlbumUpdate" => Ok(Self::NotifyAlbumUpdate),
-            "UserDelete" => Ok(Self::UserDelete),
-            "UserDeleteCheck" => Ok(Self::UserDeleteCheck),
-            "UserSyncUsage" => Ok(Self::UserSyncUsage),
-            "PersonCleanup" => Ok(Self::PersonCleanup),
-            "PersonFileMigration" => Ok(Self::PersonFileMigration),
-            "PersonGenerateThumbnail" => Ok(Self::PersonGenerateThumbnail),
-            "SessionCleanup" => Ok(Self::SessionCleanup),
-            "SendMail" => Ok(Self::SendMail),
-            "SidecarQueueAll" => Ok(Self::SidecarQueueAll),
-            "SidecarCheck" => Ok(Self::SidecarCheck),
-            "SidecarWrite" => Ok(Self::SidecarWrite),
-            "SmartSearchQueueAll" => Ok(Self::SmartSearchQueueAll),
-            "SmartSearch" => Ok(Self::SmartSearch),
-            "StorageTemplateMigration" => Ok(Self::StorageTemplateMigration),
-            "StorageTemplateMigrationSingle" => Ok(Self::StorageTemplateMigrationSingle),
-            "TagCleanup" => Ok(Self::TagCleanup),
-            "VersionCheck" => Ok(Self::VersionCheck),
-            "OcrQueueAll" => Ok(Self::OcrQueueAll),
-            "Ocr" => Ok(Self::Ocr),
-            "WorkflowAssetTrigger" => Ok(Self::WorkflowAssetTrigger),
-            "IntegrityUntrackedFilesQueueAll" => Ok(Self::IntegrityUntrackedFilesQueueAll),
-            "IntegrityUntrackedFiles" => Ok(Self::IntegrityUntrackedFiles),
-            "IntegrityUntrackedRefresh" => Ok(Self::IntegrityUntrackedRefresh),
-            "IntegrityMissingFilesQueueAll" => Ok(Self::IntegrityMissingFilesQueueAll),
-            "IntegrityMissingFiles" => Ok(Self::IntegrityMissingFiles),
-            "IntegrityMissingFilesRefresh" => Ok(Self::IntegrityMissingFilesRefresh),
-            "IntegrityChecksumFiles" => Ok(Self::IntegrityChecksumFiles),
-            "IntegrityChecksumFilesRefresh" => Ok(Self::IntegrityChecksumFilesRefresh),
-            "IntegrityDeleteReportType" => Ok(Self::IntegrityDeleteReportType),
-            "IntegrityDeleteReports" => Ok(Self::IntegrityDeleteReports),
-            _ => Err(format!("invalid value for {}: {}", "JobName", value).into()),
+    type Err = ::std::convert::Infallible;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        Ok(Self::from(value))
+    }
+}
+
+impl ::serde::Serialize for JobName {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: ::serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+
+impl<'de> ::serde::Deserialize<'de> for JobName {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        struct EnumVisitor;
+        impl ::serde::de::Visitor<'_> for EnumVisitor {
+            type Value = JobName;
+            fn expecting(&self, formatter: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                formatter.write_str("a string")
+            }
+            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(JobName::from(value))
+            }
+            fn visit_string<E>(self, value: String) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(JobName::from(value))
+            }
         }
-    }
-}
-
-impl TryFrom<&str> for JobName {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<&String> for JobName {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<String> for JobName {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
+        deserializer.deserialize_str(EnumVisitor)
     }
 }
 
@@ -260,28 +369,28 @@ impl TryFrom<String> for JobName {
 /// | `failed` | `bool` |  | If true, will also remove failed jobs from the queue. |
 ///
 /// See: <https://api.immich.app/models/QueueDeleteDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[non_exhaustive]
 pub struct QueueDeleteDTO {
+    /// If true, will also remove failed jobs from the queue.
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub failed: Option<bool>,
 }
 
 impl QueueDeleteDTO {
-    ///Creates a new [`QueueDeleteDTO`].
+    /// Creates a new [`QueueDeleteDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new() -> Self {
         Self { failed: None }
     }
-
-    ///Sets `failed`.
+    /// Sets `failed`.
     #[must_use]
     pub fn failed(mut self, value: bool) -> Self {
         self.failed = Some(value);
         self
     }
-
-    ///Sets or clears `failed`.
+    /// Sets or clears `failed`.
     #[must_use]
     pub fn set_failed(mut self, value: Option<bool>) -> Self {
         self.failed = value;
@@ -300,16 +409,21 @@ impl QueueDeleteDTO {
 ///
 /// See: <https://api.immich.app/models/QueueJobResponseDto>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct QueueJobResponseDTO {
+    /// Job data payload (required)
     pub data: ::serde_json::Map<String, ::serde_json::Value>,
+    /// Job ID
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub id: Option<String>,
+    /// (required)
     pub name: JobName,
+    /// Job creation timestamp (required)
     pub timestamp: i64,
 }
 
 impl QueueJobResponseDTO {
-    ///Creates a new [`QueueJobResponseDTO`].
+    /// Creates a new [`QueueJobResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(data: ::serde_json::Map<String, ::serde_json::Value>, name: JobName, timestamp: i64) -> Self {
@@ -320,36 +434,31 @@ impl QueueJobResponseDTO {
             timestamp,
         }
     }
-
-    ///Sets `data`.
+    /// Sets `data`.
     #[must_use]
     pub fn data(mut self, value: ::serde_json::Map<String, ::serde_json::Value>) -> Self {
         self.data = value;
         self
     }
-
-    ///Sets `id`.
+    /// Sets `id`.
     #[must_use]
     pub fn id(mut self, value: impl Into<String>) -> Self {
         self.id = Some(value.into());
         self
     }
-
-    ///Sets or clears `id`.
+    /// Sets or clears `id`.
     #[must_use]
     pub fn set_id(mut self, value: Option<String>) -> Self {
         self.id = value;
         self
     }
-
-    ///Sets `name`.
+    /// Sets `name`.
     #[must_use]
     pub fn name(mut self, value: JobName) -> Self {
         self.name = value;
         self
     }
-
-    ///Sets `timestamp`.
+    /// Sets `timestamp`.
     #[must_use]
     pub fn timestamp(mut self, value: i64) -> Self {
         self.timestamp = value;
@@ -360,74 +469,116 @@ impl QueueJobResponseDTO {
 /// Queue job status
 ///
 /// See: <https://api.immich.app/models/QueueJobStatus>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[non_exhaustive]
 pub enum QueueJobStatus {
-    #[serde(rename = "active")]
     Active,
-    #[serde(rename = "failed")]
     Failed,
-    #[serde(rename = "completed")]
     Completed,
-    #[serde(rename = "delayed")]
     Delayed,
-    #[serde(rename = "waiting")]
     Waiting,
-    #[serde(rename = "paused")]
     Paused,
-    ///Unknown value returned by a newer version of the Immich server.
-    #[serde(other)]
-    UnknownValue,
+    /// Unknown value returned by a newer version of the Immich server.
+    Unknown(String),
 }
 
-#[allow(clippy::match_same_arms)]
+impl QueueJobStatus {
+    /// Returns the wire string representation of this enum value.
+    #[must_use]
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::Active => "active",
+            Self::Failed => "failed",
+            Self::Completed => "completed",
+            Self::Delayed => "delayed",
+            Self::Waiting => "waiting",
+            Self::Paused => "paused",
+            Self::Unknown(s) => s.as_str(),
+        }
+    }
+}
+
 impl ::std::fmt::Display for QueueJobStatus {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        match *self {
-            Self::Active => f.write_str("active"),
-            Self::Failed => f.write_str("failed"),
-            Self::Completed => f.write_str("completed"),
-            Self::Delayed => f.write_str("delayed"),
-            Self::Waiting => f.write_str("waiting"),
-            Self::Paused => f.write_str("paused"),
-            Self::UnknownValue => f.write_str("unknown"),
+        f.write_str(self.as_str())
+    }
+}
+
+impl From<&str> for QueueJobStatus {
+    fn from(value: &str) -> Self {
+        match value {
+            "active" => Self::Active,
+            "failed" => Self::Failed,
+            "completed" => Self::Completed,
+            "delayed" => Self::Delayed,
+            "waiting" => Self::Waiting,
+            "paused" => Self::Paused,
+            other => Self::Unknown(other.to_owned()),
         }
+    }
+}
+
+impl From<String> for QueueJobStatus {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "active" => Self::Active,
+            "failed" => Self::Failed,
+            "completed" => Self::Completed,
+            "delayed" => Self::Delayed,
+            "waiting" => Self::Waiting,
+            "paused" => Self::Paused,
+            _ => Self::Unknown(value),
+        }
+    }
+}
+
+impl From<&String> for QueueJobStatus {
+    fn from(value: &String) -> Self {
+        Self::from(value.as_str())
     }
 }
 
 impl ::std::str::FromStr for QueueJobStatus {
-    type Err = crate::common::error::ConversionError;
-    fn from_str(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        match value {
-            "active" => Ok(Self::Active),
-            "failed" => Ok(Self::Failed),
-            "completed" => Ok(Self::Completed),
-            "delayed" => Ok(Self::Delayed),
-            "waiting" => Ok(Self::Waiting),
-            "paused" => Ok(Self::Paused),
-            _ => Err(format!("invalid value for {}: {}", "QueueJobStatus", value).into()),
+    type Err = ::std::convert::Infallible;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        Ok(Self::from(value))
+    }
+}
+
+impl ::serde::Serialize for QueueJobStatus {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: ::serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+
+impl<'de> ::serde::Deserialize<'de> for QueueJobStatus {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        struct EnumVisitor;
+        impl ::serde::de::Visitor<'_> for EnumVisitor {
+            type Value = QueueJobStatus;
+            fn expecting(&self, formatter: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                formatter.write_str("a string")
+            }
+            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(QueueJobStatus::from(value))
+            }
+            fn visit_string<E>(self, value: String) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(QueueJobStatus::from(value))
+            }
         }
-    }
-}
-
-impl TryFrom<&str> for QueueJobStatus {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<&String> for QueueJobStatus {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<String> for QueueJobStatus {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
+        deserializer.deserialize_str(EnumVisitor)
     }
 }
 
@@ -440,17 +591,20 @@ impl TryFrom<String> for QueueJobStatus {
 /// | `statistics` | [`QueueStatisticsDTO`] | ✓ |  |
 ///
 /// See: <https://api.immich.app/models/QueueResponseDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct QueueResponseDTO {
     /// Whether the queue is paused (required)
     #[serde(rename = "isPaused")]
     pub is_paused: bool,
+    /// (required)
     pub name: QueueName,
+    /// (required)
     pub statistics: QueueStatisticsDTO,
 }
 
 impl QueueResponseDTO {
-    ///Creates a new [`QueueResponseDTO`].
+    /// Creates a new [`QueueResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(is_paused: bool, name: QueueName, statistics: QueueStatisticsDTO) -> Self {
@@ -460,22 +614,19 @@ impl QueueResponseDTO {
             statistics,
         }
     }
-
-    ///Sets `is_paused`.
+    /// Sets `is_paused`.
     #[must_use]
     pub fn is_paused(mut self, value: bool) -> Self {
         self.is_paused = value;
         self
     }
-
-    ///Sets `name`.
+    /// Sets `name`.
     #[must_use]
     pub fn name(mut self, value: QueueName) -> Self {
         self.name = value;
         self
     }
-
-    ///Sets `statistics`.
+    /// Sets `statistics`.
     #[must_use]
     pub fn statistics(mut self, value: QueueStatisticsDTO) -> Self {
         self.statistics = value;
@@ -490,7 +641,8 @@ impl QueueResponseDTO {
 /// | `is_paused` | `bool` |  | Whether to pause the queue |
 ///
 /// See: <https://api.immich.app/models/QueueUpdateDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[non_exhaustive]
 pub struct QueueUpdateDTO {
     /// Whether to pause the queue
     #[serde(rename = "isPaused", default, skip_serializing_if = "::std::option::Option::is_none")]
@@ -498,21 +650,19 @@ pub struct QueueUpdateDTO {
 }
 
 impl QueueUpdateDTO {
-    ///Creates a new [`QueueUpdateDTO`].
+    /// Creates a new [`QueueUpdateDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new() -> Self {
         Self { is_paused: None }
     }
-
-    ///Sets `is_paused`.
+    /// Sets `is_paused`.
     #[must_use]
     pub fn is_paused(mut self, value: bool) -> Self {
         self.is_paused = Some(value);
         self
     }
-
-    ///Sets or clears `is_paused`.
+    /// Sets or clears `is_paused`.
     #[must_use]
     pub fn set_is_paused(mut self, value: Option<bool>) -> Self {
         self.is_paused = value;

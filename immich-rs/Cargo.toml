@@ -1,19 +1,20 @@
 [package]
 name = "immich-rs"
 edition.workspace = true
+rust-version.workspace = true
 version.workspace = true
 
 authors.workspace = true
-description = "Async Rust SDK for the Immich self-hosted photo backup server."
+description = "Async, type-safe Rust SDK for the Immich self-hosted photo and video management platform."
 
 license.workspace = true
-readme = "README.md"
+readme = "../README.md"
 documentation = "https://docs.rs/immich-rs"
 homepage = "https://github.com/boul2gom/immich-rs"
 repository = "https://github.com/boul2gom/immich-rs"
 
-categories = ["api-bindings", "web-programming::http-client", "wasm"]
-keywords = ["immich", "photo", "backup", "api", "wasm"]
+categories = ["api-bindings", "asynchronous", "web-programming::http-client", "multimedia", "wasm"]
+keywords = ["immich", "photo", "video", "sdk", "async"]
 
 publish.workspace = true
 
@@ -33,21 +34,20 @@ pre-release-replacements = [
 
 [features]
 default = ["fs", "rustls-tls"]
-fs = ["tokio/fs", "dep:tokio-util"]
+fs = ["dep:tokio-util"]
 rustls-tls = ["reqwest/rustls-tls"]
 native-tls = ["reqwest/default-tls"]
 socketio = ["dep:rust_socketio"]
 opentelemetry = ["dep:opentelemetry"]
-e2e = []   # flag marker only — testcontainers comes from dev-dependencies
 
 [dependencies]
 # Workspace crates
 immich-models.workspace = true
 
-# Runtime and async
-tokio = { workspace = true, features = ["sync", "macros", "io-util", "rt", "time"] }
-tokio-util = { workspace = true, features = ["io"], optional = true }
+# Runtime and async (cross-platform)
+tokio = { workspace = true, features = ["sync", "io-util"] }
 reqwest = { workspace = true, features = ["json", "multipart", "stream"] }
+tower.workspace = true
 tower-service.workspace = true
 tower-layer.workspace = true
 futures-core.workspace = true
@@ -57,6 +57,7 @@ async-stream.workspace = true
 # Serialization
 serde.workspace = true
 serde_json.workspace = true
+serde_urlencoded.workspace = true
 uuid.workspace = true
 chrono.workspace = true
 
@@ -67,10 +68,10 @@ thiserror.workspace = true
 tracing.workspace = true
 opentelemetry = { workspace = true, optional = true }
 
-# Networking and URLs
+# Networking, URLs and HTTP headers
 url.workspace = true
-urlencoding.workspace = true
 mime_guess.workspace = true
+httpdate.workspace = true
 
 # Hashing and Crypto
 sha1.workspace = true
@@ -80,22 +81,63 @@ hex.workspace = true
 rand.workspace = true
 scopeguard.workspace = true
 
-# Real-time events (optional)
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+tokio = { workspace = true, features = ["rt", "time", "fs"] }
+tokio-util = { workspace = true, features = ["io"], optional = true }
 rust_socketio = { workspace = true, optional = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 getrandom = { workspace = true, features = ["wasm_js"] }
 wasm-bindgen-futures.workspace = true
+web-time.workspace = true
+gloo-timers.workspace = true
 
-[dev-dependencies]
-tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
-uuid = { workspace = true, features = ["v4"] }
+[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
+tokio = { workspace = true, features = ["rt-multi-thread", "macros", "signal", "test-util"] }
 testcontainers.workspace = true
 wiremock.workspace = true
+tempfile.workspace = true
+
+[target.'cfg(target_arch = "wasm32")'.dev-dependencies]
+wasm-bindgen-test.workspace = true
+
+[dev-dependencies]
+uuid = { workspace = true, features = ["v4"] }
 tracing-subscriber.workspace = true
 anyhow.workspace = true
-tempfile.workspace = true
 pretty_assertions.workspace = true
 
 [lints]
 workspace = true
+
+[[example]]
+name = "ping_server"
+
+[[example]]
+name = "list_albums"
+
+[[example]]
+name = "paginate_people"
+
+[[example]]
+name = "upload_asset"
+required-features = ["fs"]
+
+[[example]]
+name = "bulk_upload"
+required-features = ["fs"]
+
+[[example]]
+name = "cleanup_duplicates"
+
+[[example]]
+name = "export_album"
+required-features = ["fs"]
+
+[[example]]
+name = "live_events"
+required-features = ["socketio"]
+
+[[example]]
+name = "server_stats"
+

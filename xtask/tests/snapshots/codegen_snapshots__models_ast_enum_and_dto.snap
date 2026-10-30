@@ -1,0 +1,163 @@
+---
+source: xtask/tests/codegen_snapshots.rs
+expression: rendered
+---
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[non_exhaustive]
+pub enum ReactionType {
+    Comment,
+    Like,
+    /// Unknown value returned by a newer version of the Immich server.
+    Unknown(String),
+}
+impl ReactionType {
+    /// Returns the wire string representation of this enum value.
+    #[must_use]
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::Comment => "comment",
+            Self::Like => "like",
+            Self::Unknown(s) => s.as_str(),
+        }
+    }
+}
+impl ::std::fmt::Display for ReactionType {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+impl From<&str> for ReactionType {
+    fn from(value: &str) -> Self {
+        match value {
+            "comment" => Self::Comment,
+            "like" => Self::Like,
+            other => Self::Unknown(other.to_owned()),
+        }
+    }
+}
+impl From<String> for ReactionType {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "comment" => Self::Comment,
+            "like" => Self::Like,
+            _ => Self::Unknown(value),
+        }
+    }
+}
+impl From<&String> for ReactionType {
+    fn from(value: &String) -> Self {
+        Self::from(value.as_str())
+    }
+}
+impl ::std::str::FromStr for ReactionType {
+    type Err = ::std::convert::Infallible;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        Ok(Self::from(value))
+    }
+}
+impl ::serde::Serialize for ReactionType {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: ::serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ReactionType {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        struct EnumVisitor;
+        impl ::serde::de::Visitor<'_> for EnumVisitor {
+            type Value = ReactionType;
+            fn expecting(
+                &self,
+                formatter: &mut ::std::fmt::Formatter<'_>,
+            ) -> ::std::fmt::Result {
+                formatter.write_str("a string")
+            }
+            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(ReactionType::from(value))
+            }
+            fn visit_string<E>(self, value: String) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(ReactionType::from(value))
+            }
+        }
+        deserializer.deserialize_str(EnumVisitor)
+    }
+}
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+pub struct ActivityCreateDTO {
+    #[serde(rename = "albumId")]
+    pub album_id: AlbumId,
+    #[serde(
+        rename = "assetId",
+        default,
+        skip_serializing_if = "::std::option::Option::is_none"
+    )]
+    pub asset_id: Option<AssetId>,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub comment: Option<String>,
+    #[serde(rename = "type")]
+    pub type_: ReactionType,
+}
+impl ActivityCreateDTO {
+    /// Creates a new [`ActivityCreateDTO`].
+    #[must_use]
+    #[allow(
+        clippy::too_many_arguments,
+        clippy::fn_params_excessive_bools,
+        clippy::similar_names
+    )]
+    pub fn new(album_id: impl Into<AlbumId>, type_: ReactionType) -> Self {
+        Self {
+            album_id: album_id.into(),
+            asset_id: None,
+            comment: None,
+            type_,
+        }
+    }
+    /// Sets `album_id`.
+    #[must_use]
+    pub fn album_id(mut self, value: impl Into<AlbumId>) -> Self {
+        self.album_id = value.into();
+        self
+    }
+    /// Sets `asset_id`.
+    #[must_use]
+    pub fn asset_id(mut self, value: impl Into<AssetId>) -> Self {
+        self.asset_id = Some(value.into());
+        self
+    }
+    /// Sets or clears `asset_id`.
+    #[must_use]
+    pub fn set_asset_id(mut self, value: Option<AssetId>) -> Self {
+        self.asset_id = value;
+        self
+    }
+    /// Sets `comment`.
+    #[must_use]
+    pub fn comment(mut self, value: impl Into<String>) -> Self {
+        self.comment = Some(value.into());
+        self
+    }
+    /// Sets or clears `comment`.
+    #[must_use]
+    pub fn set_comment(mut self, value: Option<String>) -> Self {
+        self.comment = value;
+        self
+    }
+    /// Sets `type_`.
+    #[must_use]
+    pub fn type_(mut self, value: ReactionType) -> Self {
+        self.type_ = value;
+        self
+    }
+}

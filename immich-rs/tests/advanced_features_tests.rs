@@ -1,3 +1,5 @@
+#![cfg(all(feature = "fs", not(target_arch = "wasm32")))]
+
 mod common;
 
 use std::pin::pin;
@@ -127,16 +129,16 @@ async fn upload_bulk_skips_upstream_duplicates_via_bulk_upload_check() -> Result
             existing_asset_id,
         } => {
             assert_eq!(path, &file1);
-            assert_eq!(existing_asset_id, &Some(AssetId(existing_id)));
+            assert_eq!(existing_asset_id, &Some(AssetId::from(existing_id)));
         }
-        BulkUploadResult::Uploaded(_) => unreachable!(),
+        _ => unreachable!(),
     }
 
     let fresh = results
         .iter()
         .find(|r| r.is_uploaded())
         .expect("expected uploaded result");
-    assert_eq!(fresh.clone().uploaded().unwrap().id, fresh_id);
+    assert_eq!(fresh.clone().uploaded().unwrap().id, AssetId::from(fresh_id));
 
     Ok(())
 }
@@ -179,7 +181,7 @@ async fn upload_live_photo_orchestrates_video_upload_and_photo_linking() -> Resu
         .await;
 
     let result = client.upload_live_photo(&photo_path, &video_path).await?;
-    assert_eq!(result.id, photo_id);
+    assert_eq!(result.id, AssetId::from(photo_id));
 
     Ok(())
 }
@@ -207,7 +209,7 @@ async fn upload_with_sidecar_attaches_sidecar_multipart_part() -> Result<()> {
         .await;
 
     let result = client.upload_with_sidecar(&photo_path, &sidecar_path).await?;
-    assert_eq!(result.id, photo_id);
+    assert_eq!(result.id, AssetId::from(photo_id));
 
     Ok(())
 }
@@ -274,4 +276,74 @@ async fn direct_page_paginator_paginates_raw_json_array() -> Result<()> {
     assert_eq!(total_items, 3);
 
     Ok(())
+}
+
+#[tokio::test]
+async fn upload_bulk_handles_rejected_action_without_uploading() -> Result<()> {
+    let (client, server) = common::mock_client(0).await;
+
+    let dir = tempdir()?;
+    let corrupt_file = dir.path().join("corrupt.raw");
+    tokio::fs::write(&corrupt_file, b"corrupted-file-bytes").await?;
+
+    // Bulk upload check returns reject with unsupported_format
+    Mock::given(method("POST"))
+        .and(path("/assets/bulk-upload-check"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
+            "results": [
+                {
+                    "id": "0",
+                    "action": "reject",
+                    "reason": "unsupported-format"
+                }
+            ]
+        })))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    // POST /assets must NEVER be called (expect 0)
+    Mock::given(method("POST"))
+        .and(path("/assets"))
+        .respond_with(ResponseTemplate::new(500))
+        .expect(0)
+        .mount(&server)
+        .await;
+
+    let items = vec![UploadOptions::new(&corrupt_file)];
+    let mut stream = pin!(client.upload_bulk(items).check_duplicates(true).into_stream());
+
+    let res = stream.next().await.expect("one result")?;
+    assert!(res.is_rejected());
+    assert!(!res.is_uploaded());
+    assert!(!res.is_duplicate());
+
+    match res {
+        BulkUploadResult::Rejected { path, reason } => {
+            assert_eq!(path, corrupt_file);
+            assert!(matches!(
+                reason,
+                Some(immich_models::assets::AssetRejectReason::UnsupportedFormat)
+            ));
+        }
+        _ => unreachable!(),
+    }
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn client_rejects_path_traversal_segments() {
+    let (client, _server) = common::mock_client(0).await;
+    let fake_id = AssetId::new(uuid::Uuid::new_v4());
+
+    let err = client
+        .assets()
+        .get_asset_metadata_by_key(fake_id, "..")
+        .await
+        .unwrap_err();
+    assert!(
+        matches!(err, Error::Validation(ref msg) if msg.contains("invalid URL path parameter segment")),
+        "expected validation error for traversal path, got: {err:?}"
+    );
 }

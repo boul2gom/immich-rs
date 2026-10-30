@@ -9,14 +9,14 @@ use crate::error::Error;
 
 /// Base Tower [`Service`] that delivers requests using an underlying [`reqwest::Client`].
 #[derive(Clone, Debug)]
-pub struct ReqwestTransport {
+pub(crate) struct ReqwestTransport {
     client: reqwest::Client,
 }
 
 impl ReqwestTransport {
     /// Creates a new `ReqwestTransport` wrapping the given client.
     #[must_use]
-    pub fn new(client: reqwest::Client) -> Self {
+    pub(crate) const fn new(client: reqwest::Client) -> Self {
         Self { client }
     }
 }
@@ -36,8 +36,7 @@ impl Service<reqwest::Request> for ReqwestTransport {
     }
 }
 
-/// Helper trait for cloning boxed thread-safe Tower services.
-pub trait CloneSyncService<Req>: Service<Req> {
+trait CloneSyncService<Req>: Service<Req> {
     fn clone_box(
         &self,
     ) -> Box<
@@ -58,7 +57,7 @@ where
     }
 }
 
-/// A boxed, cloneable, thread-safe (`Send + Sync`) Tower service.
+/// A boxed, cloneable, thread-safe (`Send + Sync`) Tower service compatible with WebAssembly futures.
 pub struct BoxCloneSyncService<Req, Res, Err> {
     inner: Box<
         dyn CloneSyncService<Req, Response = Res, Error = Err, Future = BoxFuture<'static, Result<Res, Err>>>
@@ -83,7 +82,7 @@ impl<Req: 'static, Res: 'static, Err: 'static> BoxCloneSyncService<Req, Res, Err
         struct Adapter<S>(S);
         impl<S: Clone> Clone for Adapter<S> {
             fn clone(&self) -> Self {
-                Adapter(self.0.clone())
+                Self(self.0.clone())
             }
         }
         impl<Req: 'static, Res: 'static, Err: 'static, S> Service<Req> for Adapter<S>
@@ -110,6 +109,14 @@ impl<Req: 'static, Res: 'static, Err: 'static> BoxCloneSyncService<Req, Res, Err
     }
 }
 
+impl<Req, Res, Err> Clone for BoxCloneSyncService<Req, Res, Err> {
+    fn clone(&self) -> Self {
+        Self {
+            inner: self.inner.clone_box(),
+        }
+    }
+}
+
 impl<Req, Res, Err> Service<Req> for BoxCloneSyncService<Req, Res, Err> {
     type Response = Res;
     type Error = Err;
@@ -121,13 +128,5 @@ impl<Req, Res, Err> Service<Req> for BoxCloneSyncService<Req, Res, Err> {
 
     fn call(&mut self, req: Req) -> Self::Future {
         self.inner.call(req)
-    }
-}
-
-impl<Req, Res, Err> Clone for BoxCloneSyncService<Req, Res, Err> {
-    fn clone(&self) -> Self {
-        Self {
-            inner: self.inner.clone_box(),
-        }
     }
 }

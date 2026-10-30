@@ -1,15 +1,14 @@
-//! Client-side rate limiting Tower layer implementing smooth async token-bucket throttling.
+//! Client-side rate limiting Tower layer implementing O(1) slot-reservation token-bucket throttling.
 
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use std::task::{Context, Poll};
 use std::time::Duration;
 
-use tokio::sync::Mutex;
-use tokio::time::Instant;
 use tower_layer::Layer;
 use tower_service::Service;
 
 use crate::BoxFuture;
+use crate::core::time::Instant;
 
 #[derive(Debug)]
 struct TokenBucket {
@@ -17,7 +16,7 @@ struct TokenBucket {
     last_refill: Instant,
 }
 
-/// Token-bucket rate limiter that asynchronously waits until capacity is available.
+/// Token-bucket rate limiter that reserves slots in `O(1)` time and asynchronously waits without lock contention.
 #[derive(Debug, Clone)]
 pub struct RateLimiter {
     state: Arc<Mutex<TokenBucket>>,
@@ -26,7 +25,7 @@ pub struct RateLimiter {
 }
 
 impl RateLimiter {
-    /// Creates a new rate limiter with the given requests per second.
+    /// Creates a new rate limiter enforcing at most `requests_per_second` (clamped to at least `1`).
     #[must_use]
     pub fn new(requests_per_second: u32) -> Self {
         let rps = f64::from(requests_per_second.max(1));
@@ -40,31 +39,30 @@ impl RateLimiter {
         }
     }
 
-    /// Acquires a token, asynchronously waiting if the rate limit is currently exhausted.
+    /// Reserves a single request token and asynchronously waits if the bucket is currently depleted.
     pub async fn acquire(&self) {
-        loop {
-            let wait_duration = {
-                let mut bucket = self.state.lock().await;
-                let now = Instant::now();
-                let elapsed = now.duration_since(bucket.last_refill).as_secs_f64();
-                bucket.available = (bucket.available + elapsed * self.refill_rate).min(self.capacity);
-                bucket.last_refill = now;
+        let wait_duration = {
+            let mut bucket = self.state.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+            let now = Instant::now();
+            let elapsed = now.duration_since(bucket.last_refill).as_secs_f64();
+            bucket.available = (bucket.available + elapsed * self.refill_rate).min(self.capacity);
+            bucket.last_refill = now;
+            bucket.available -= 1.0;
 
-                if bucket.available >= 1.0 {
-                    bucket.available -= 1.0;
-                    return;
-                }
+            if bucket.available >= 0.0 {
+                Duration::ZERO
+            } else {
+                Duration::from_secs_f64((-bucket.available) / self.refill_rate)
+            }
+        };
 
-                let needed = 1.0 - bucket.available;
-                Duration::from_secs_f64(needed / self.refill_rate)
-            };
-
-            tokio::time::sleep(wait_duration).await;
+        if !wait_duration.is_zero() {
+            crate::core::time::sleep(wait_duration).await;
         }
     }
 }
 
-/// A Tower [`Layer`] that applies client-side token bucket rate limiting.
+/// A Tower [`Layer`] that applies client-side token-bucket rate limiting.
 #[derive(Debug, Clone)]
 pub struct RateLimitLayer {
     rate_limiter: Arc<RateLimiter>,
@@ -97,7 +95,7 @@ impl<S> Layer<S> for RateLimitLayer {
     }
 }
 
-/// A Tower [`Service`] that enforces token bucket rate limiting before forwarding requests.
+/// A Tower [`Service`] that enforces token-bucket rate limiting before forwarding requests.
 #[derive(Debug, Clone)]
 pub struct RateLimitService<S> {
     inner: S,
@@ -106,9 +104,9 @@ pub struct RateLimitService<S> {
 
 impl<S, Req> Service<Req> for RateLimitService<S>
 where
-    S: Service<Req> + Clone + Send + 'static,
+    S: Service<Req> + Clone + crate::MaybeSend + 'static,
     S::Future: crate::MaybeSend + 'static,
-    Req: Send + 'static,
+    Req: crate::MaybeSend + 'static,
 {
     type Response = S::Response;
     type Error = S::Error;

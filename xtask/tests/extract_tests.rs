@@ -1,9 +1,9 @@
 use pretty_assertions::assert_eq;
 use serde_json::json;
-use xtask::client::openapi::*;
+use xtask::client::openapi::{BodyDef, BodyKind, EndpointDef, ParamDef, ParamLocation, extract_endpoints};
 
 #[test]
-fn test_extract_endpoints_with_path_level_params_fusion_and_types() {
+fn extract_endpoints_fuses_path_level_params_and_normalizes_dto_names() {
     let spec = json!({
         "paths": {
             "/users/{id}": {
@@ -39,7 +39,7 @@ fn test_extract_endpoints_with_path_level_params_fusion_and_types() {
                             "content": {
                                 "application/json": {
                                     "schema": {
-                                        "$ref": "#/components/schemas/UserResponseDTO"
+                                        "$ref": "#/components/schemas/UserResponseDto"
                                     }
                                 }
                             }
@@ -52,7 +52,6 @@ fn test_extract_endpoints_with_path_level_params_fusion_and_types() {
 
     let endpoints = extract_endpoints(&spec).unwrap();
     assert_eq!(endpoints.len(), 1);
-    let ep = &endpoints[0];
 
     let expected = EndpointDef {
         description: None,
@@ -87,11 +86,11 @@ fn test_extract_endpoints_with_path_level_params_fusion_and_types() {
         deprecated: false,
     };
 
-    assert_eq!(*ep, expected);
+    assert_eq!(endpoints[0], expected);
 }
 
 #[test]
-fn test_extract_endpoints_detects_raw_streaming_and_deprecated() {
+fn extract_endpoints_detects_raw_streaming_json_body_and_deprecated_flag() {
     let spec = json!({
         "paths": {
             "/sync/stream": {
@@ -103,7 +102,7 @@ fn test_extract_endpoints_detects_raw_streaming_and_deprecated() {
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/SyncConfigDTO"
+                                    "$ref": "#/components/schemas/SyncConfigDto"
                                 }
                             }
                         }
@@ -137,13 +136,13 @@ fn test_extract_endpoints_detects_raw_streaming_and_deprecated() {
         ep.body,
         Some(BodyDef {
             rust_type: "SyncConfigDTO".to_string(),
-            is_multipart: false,
+            kind: BodyKind::Json,
         })
     );
 }
 
 #[test]
-fn test_extract_endpoints_detects_multipart_and_array_query() {
+fn extract_endpoints_detects_multipart_and_form_urlencoded_content_types() {
     let spec = json!({
         "paths": {
             "/assets": {
@@ -168,15 +167,31 @@ fn test_extract_endpoints_detects_multipart_and_array_query() {
                         "content": {
                             "multipart/form-data": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/AssetUploadDTO"
+                                    "$ref": "#/components/schemas/AssetUploadDto"
                                 }
                             }
                         }
                     },
                     "responses": {
-                        "201": {
-                            "description": "Created"
+                        "201": { "description": "Created" }
+                    }
+                }
+            },
+            "/oauth/mobile-redirect": {
+                "post": {
+                    "operationId": "logoutOAuth",
+                    "tags": ["Authentication"],
+                    "requestBody": {
+                        "content": {
+                            "application/x-www-form-urlencoded": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OAuthLogoutDto"
+                                }
+                            }
                         }
+                    },
+                    "responses": {
+                        "200": { "description": "Logged out" }
                     }
                 }
             }
@@ -184,21 +199,27 @@ fn test_extract_endpoints_detects_multipart_and_array_query() {
     });
 
     let endpoints = extract_endpoints(&spec).unwrap();
-    assert_eq!(endpoints.len(), 1);
-    let ep = &endpoints[0];
+    assert_eq!(endpoints.len(), 2);
 
-    assert_eq!(ep.params.len(), 1);
-    assert_eq!(ep.params[0].name, "tagIds");
-    assert_eq!(ep.params[0].rust_type, "Vec<uuid::Uuid>");
-    assert!(
-        ep.params[0].is_array,
-        "array query parameter should be detected as array"
-    );
+    let upload = endpoints.iter().find(|e| e.operation_id == "uploadAsset").unwrap();
+    assert_eq!(upload.params.len(), 1);
+    assert_eq!(upload.params[0].name, "tagIds");
+    assert_eq!(upload.params[0].rust_type, "Vec<uuid::Uuid>");
+    assert!(upload.params[0].is_array);
     assert_eq!(
-        ep.body,
+        upload.body,
         Some(BodyDef {
             rust_type: "AssetUploadDTO".to_string(),
-            is_multipart: true,
+            kind: BodyKind::Multipart,
+        })
+    );
+
+    let oauth = endpoints.iter().find(|e| e.operation_id == "logoutOAuth").unwrap();
+    assert_eq!(
+        oauth.body,
+        Some(BodyDef {
+            rust_type: "OAuthLogoutDTO".to_string(),
+            kind: BodyKind::FormUrlEncoded,
         })
     );
 }

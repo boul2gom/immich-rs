@@ -1,5 +1,6 @@
 // @generated Made by @boul2gom with `immich-rs` - do not edit by hand.
 // Re-run `cargo xtask generate` to update.
+#![allow(clippy::struct_excessive_bools, clippy::too_many_lines)]
 
 //! `OpenAPI` data models for `trash`.
 
@@ -10,20 +11,21 @@
 /// | `count` | `i64` | ✓ | Number of items in trash |
 ///
 /// See: <https://api.immich.app/models/TrashResponseDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct TrashResponseDTO {
+    /// Number of items in trash (required)
     pub count: i64,
 }
 
 impl TrashResponseDTO {
-    ///Creates a new [`TrashResponseDTO`].
+    /// Creates a new [`TrashResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(count: i64) -> Self {
         Self { count }
     }
-
-    ///Sets `count`.
+    /// Sets `count`.
     #[must_use]
     pub fn count(mut self, value: i64) -> Self {
         self.count = value;

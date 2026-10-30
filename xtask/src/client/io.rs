@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::fmt::Write;
 use std::path::Path;
 
@@ -6,56 +6,75 @@ use anyhow::{Context, Result};
 
 use super::{ast, openapi};
 
-/// Write the generated client modules to disk.
+/// Writes the generated client modules (including nested sub-client handles) to disk.
 ///
 /// # Errors
 /// Returns an error if writing files fails.
 pub fn write_modules<S: std::hash::BuildHasher>(
     out_dir: &Path,
-    by_module: BTreeMap<String, Vec<openapi::EndpointDef>>,
+    mut by_module: BTreeMap<String, Vec<openapi::EndpointDef>>,
     type_map: &std::collections::HashMap<String, String, S>,
 ) -> Result<()> {
     if out_dir.exists() {
         std::fs::remove_dir_all(out_dir)?;
     }
 
-    let mut vfs = crate::common::fs_tree::VirtualFs::new("mod.rs");
-    let mut lib_mods: Vec<String> = Vec::new();
+    // Collect full module hierarchy (including pure container modules like `admin` and `system`)
+    let mut children_of: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
+    let leaf_paths: Vec<String> = by_module.keys().cloned().collect();
+    for module_path in &leaf_paths {
+        let parts: Vec<&str> = module_path.split('/').collect();
+        for depth in 0..parts.len() {
+            let parent = parts[..depth].join("/");
+            let child = parts[depth].to_string();
+            children_of.entry(parent.clone()).or_default().insert(child);
+            if !parent.is_empty() {
+                by_module.entry(parent).or_default();
+            }
+        }
+    }
 
-    for (module_name, eps) in by_module {
-        let last_part = module_name
+    let mut vfs = crate::common::fs_tree::VirtualFs::new("mod.rs");
+
+    for (module_path, eps) in &by_module {
+        let last_part = module_path
             .split('/')
             .next_back()
-            .ok_or_else(|| anyhow::anyhow!("empty parts"))?;
-        vfs.set_module_doc(&module_name, format!("//! API endpoints for `{last_part}`.\n"));
-        let mod_tokens = ast::emit_client_module(last_part, &eps, type_map);
+            .ok_or_else(|| anyhow::anyhow!("empty module path"))?;
+        vfs.set_module_doc(module_path, format!("//! API endpoints for `{last_part}`.\n"));
+
+        let child_list: Vec<String> = children_of
+            .get(module_path)
+            .map(|set| set.iter().cloned().collect())
+            .unwrap_or_default();
+
+        let mod_tokens = ast::emit_client_module(module_path, eps, &child_list, type_map);
         let mod_tokens = crate::common::ast_utils::resolve_and_inject_imports(mod_tokens, type_map);
 
         let parsed_file: syn::File =
-            syn::parse2(mod_tokens).with_context(|| format!("parsing generated tokens for module {module_name}"))?;
-        let mut code = prettyplease::unparse(&parsed_file);
-        crate::common::fmt::post_process_formatting(&mut code);
+            syn::parse2(mod_tokens).with_context(|| format!("parsing generated tokens for module {module_path}"))?;
+        let code = crate::common::fmt::unparse_with_spacing(&parsed_file);
 
-        vfs.add_file(&module_name, code);
-        lib_mods.push(module_name);
+        vfs.add_file(module_path, code);
     }
 
     let mut accessors = String::new();
-    let mut sorted_libs = lib_mods.clone();
-    sorted_libs.sort();
-    for m in sorted_libs {
-        let rust_path = m.replace('/', "::");
-        let parts: Vec<&str> = m.split('/').collect();
-        let last_part = parts.last().ok_or_else(|| anyhow::anyhow!("empty parts"))?;
-        let camel_name = crate::common::snake_to_camel(last_part);
-        let fn_name = m.replace('/', "_");
-        let _ = write!(
-            accessors,
-            "    /// Returns an API handle for the [`{last_part}`](crate::api::{rust_path}::{camel_name}) endpoints.\n    #[must_use]\n    pub fn {fn_name}(&self) -> {rust_path}::{camel_name}<'_> {{\n        {rust_path}::{camel_name}::new(self)\n    }}\n"
-        );
+    if let Some(root_mods) = children_of.get("") {
+        for m in root_mods {
+            let camel_name = crate::common::snake_to_camel(m);
+            let _ = write!(
+                accessors,
+                "    /// Returns an API handle for the [`{m}`](crate::api::{m}::{camel_name}) endpoints.\n    \
+                 #[inline]\n    \
+                 #[must_use]\n    \
+                 pub const fn {m}(&self) -> {m}::{camel_name}<'_> {{\n        \
+                 {m}::{camel_name}::new(self)\n    \
+                 }}\n\n"
+            );
+        }
     }
 
-    let impl_block = format!("\nimpl crate::ImmichClient {{\n{accessors}}}\n");
+    let impl_block = format!("\nimpl crate::ImmichClient {{\n{}}}\n", accessors.trim_end());
     vfs.set_module_doc("", "//! Generated API client endpoints for Immich.\n".to_string());
     vfs.add_module_content("", impl_block);
     vfs.write_to_disk(out_dir)?;

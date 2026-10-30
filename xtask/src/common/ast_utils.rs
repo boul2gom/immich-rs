@@ -4,19 +4,21 @@ use proc_macro2::TokenStream;
 use quote::quote;
 use syn::visit_mut::VisitMut;
 
-/// Inject the unified header to a file content
+/// Injects the unified `@generated` header and scoped Clippy allows for generated files.
 #[must_use]
 pub fn inject_unified_header(code: &str) -> String {
-    let header = "// @generated Made by @boul2gom with `immich-rs` - do not edit by hand.\n// Re-run `cargo xtask generate` to update.\n\n";
+    let header = "// @generated Made by @boul2gom with `immich-rs` - do not edit by hand.\n\
+                  // Re-run `cargo xtask generate` to update.\n\
+                  #![allow(clippy::struct_excessive_bools, clippy::too_many_lines)]\n\n";
     let code = code.trim_start_matches("// @generated\n\n");
     let code = code.trim_start_matches("// @generated\n");
     format!("{header}{code}")
 }
 
-/// Visitor to find all types referenced in a token stream
+/// Visitor to find all model types referenced in a client token stream and rewrite them to short imports.
 #[derive(Debug)]
 pub struct ImportResolver<'a, S: std::hash::BuildHasher> {
-    pub type_map: &'a HashMap<String, String, S>, // maps type_name -> FQDN or module path
+    pub type_map: &'a HashMap<String, String, S>,
     pub found_imports: BTreeSet<String>,
 }
 
@@ -25,16 +27,12 @@ impl<S: std::hash::BuildHasher> VisitMut for ImportResolver<'_, S> {
         if node.segments.len() == 1 {
             let ident = node.segments[0].ident.to_string();
             if let Some(fqdn) = self.type_map.get(&ident) {
-                // Only import if it's a model
                 self.found_imports.insert(fqdn.clone());
             }
         } else if node.segments.len() >= 2 && node.segments[0].ident == "immich_models" {
-            // Already fully qualified, we could simplify it but let's just leave it or extract it.
-            // Actually, if we use this for immich-rs, we want to strip the fully qualified path!
             let last_segment = node.segments.last().unwrap().clone();
             if let Some(fqdn) = self.type_map.get(&last_segment.ident.to_string()) {
                 self.found_imports.insert(fqdn.clone());
-                // Strip the path to just the last segment (preserving generics)
                 let mut new_path = syn::Path {
                     leading_colon: None,
                     segments: syn::punctuated::Punctuated::new(),
@@ -47,15 +45,15 @@ impl<S: std::hash::BuildHasher> VisitMut for ImportResolver<'_, S> {
     }
 }
 
-/// Helper: runs `cargo clippy --fix` on `tokens` if possible, otherwise just formats.
+/// Resolves and prepends `use immich_models::...;` statements for all referenced model types.
 ///
 /// # Panics
-/// Panics if the generated token stream cannot be parsed as a valid `syn::File`.
+/// Panics if `tokens` cannot be parsed as a valid `syn::File`.
 pub fn resolve_and_inject_imports<S: std::hash::BuildHasher>(
     tokens: TokenStream,
     type_map: &HashMap<String, String, S>,
 ) -> TokenStream {
-    let mut file: syn::File = syn::parse2(tokens).expect("Failed to parse tokens");
+    let mut file: syn::File = syn::parse2(tokens).expect("Failed to parse generated client tokens");
     let mut resolver = ImportResolver {
         type_map,
         found_imports: BTreeSet::new(),

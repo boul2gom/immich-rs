@@ -1,12 +1,13 @@
+#![cfg(not(target_arch = "wasm32"))]
+
 use std::time::Duration;
 
-use immich_rs::{ApiErrorDetails, Error, ErrorKind};
+use immich_rs::{ApiErrorDetails, Error, ErrorKind, ImmichErrorCode};
 use pretty_assertions::assert_eq;
 use reqwest::StatusCode;
 
-#[test]
-fn error_predicates_correctly_identify_status_codes() {
-    let make_api_err = |status: StatusCode| Error::Api {
+fn make_api_err(status: StatusCode) -> Error {
+    Error::Api {
         module: "test",
         details: ApiErrorDetails {
             status,
@@ -14,34 +15,67 @@ fn error_predicates_correctly_identify_status_codes() {
             error_code: None,
             message: "test message".to_string(),
             correlation_id: Some("corr-123".to_string()),
-            retry_after: Some(Duration::from_secs(5)),
+            retry_after: None,
         },
-    };
+    }
+}
 
+fn make_api_err_with_retry(status: StatusCode, retry_after: Option<Duration>) -> Error {
+    Error::Api {
+        module: "test",
+        details: ApiErrorDetails {
+            status,
+            kind: status.into(),
+            error_code: None,
+            message: "test message".to_string(),
+            correlation_id: Some("corr-123".to_string()),
+            retry_after,
+        },
+    }
+}
+
+#[test]
+fn error_predicates_correctly_identify_status_codes() {
     let not_found = make_api_err(StatusCode::NOT_FOUND);
     assert!(not_found.is_not_found());
     assert!(!not_found.is_unauthorized());
+    assert!(!not_found.is_retryable());
     assert_eq!(not_found.status(), Some(StatusCode::NOT_FOUND));
     assert_eq!(not_found.kind(), Some(ErrorKind::NotFound));
     assert_eq!(not_found.correlation_id(), Some("corr-123"));
-    assert_eq!(not_found.retry_after(), Some(Duration::from_secs(5)));
+    assert_eq!(not_found.retry_after(), None);
 
     let unauthorized = make_api_err(StatusCode::UNAUTHORIZED);
     assert!(unauthorized.is_unauthorized());
     assert!(!unauthorized.is_not_found());
+    assert!(!unauthorized.is_retryable());
 
     let forbidden = make_api_err(StatusCode::FORBIDDEN);
     assert!(forbidden.is_forbidden());
+    assert!(!forbidden.is_retryable());
+
+    let bad_req = make_api_err(StatusCode::BAD_REQUEST);
+    assert!(!bad_req.is_retryable());
 
     let conflict = make_api_err(StatusCode::CONFLICT);
     assert!(conflict.is_conflict());
+    assert!(!conflict.is_retryable());
 
-    let rate_limited = make_api_err(StatusCode::TOO_MANY_REQUESTS);
+    let rate_limited = make_api_err_with_retry(StatusCode::TOO_MANY_REQUESTS, Some(Duration::from_secs(5)));
     assert!(rate_limited.is_rate_limited());
     assert!(rate_limited.is_retryable());
+    assert_eq!(rate_limited.retry_after(), Some(Duration::from_secs(5)));
 
     let server_error = make_api_err(StatusCode::INTERNAL_SERVER_ERROR);
     assert!(server_error.is_server_error());
+
+    let bad_gateway = make_api_err(StatusCode::BAD_GATEWAY);
+    assert!(bad_gateway.is_server_error());
+    assert!(bad_gateway.is_retryable());
+
+    let service_unavail = make_api_err(StatusCode::SERVICE_UNAVAILABLE);
+    assert!(service_unavail.is_server_error());
+    assert!(service_unavail.is_retryable());
 
     let gateway_timeout = make_api_err(StatusCode::GATEWAY_TIMEOUT);
     assert!(gateway_timeout.is_server_error());
@@ -60,8 +94,6 @@ fn non_api_errors_return_none_for_api_details() {
 
 #[test]
 fn error_code_classification_covers_domain_errors() {
-    use immich_rs::ImmichErrorCode;
-
     let check = |status: StatusCode, msg: &str, err_field: Option<&str>| {
         let details = ApiErrorDetails {
             status,

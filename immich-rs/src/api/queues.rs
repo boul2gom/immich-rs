@@ -1,5 +1,6 @@
 // @generated Made by @boul2gom with `immich-rs` - do not edit by hand.
 // Re-run `cargo xtask generate` to update.
+#![allow(clippy::struct_excessive_bools, clippy::too_many_lines)]
 
 //! API endpoints for `queues`.
 
@@ -7,29 +8,25 @@ use immich_models::jobs::QueueName;
 use immich_models::queues::{QueueDeleteDTO, QueueJobResponseDTO, QueueJobStatus, QueueResponseDTO, QueueUpdateDTO};
 
 /// Fluent request builder for [`Queues::empty_queue`].
-#[derive(serde::Serialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 #[must_use = "request builders are lazy and do nothing unless awaited or sent"]
 pub struct EmptyQueueBuilder<'a> {
-    #[serde(skip)]
     client: &'a crate::ImmichClient,
-    #[serde(skip)]
-    pub request_config: crate::core::RequestConfig,
-    #[serde(skip)]
-    pub name: QueueName,
-    #[serde(skip)]
-    pub body: &'a QueueDeleteDTO,
+    request_config: crate::core::RequestConfig,
+    name: QueueName,
+    body: QueueDeleteDTO,
 }
 
-/// Type alias for [`EmptyQueueBuilder`].
-pub type EmptyQueueArgs<'a> = EmptyQueueBuilder<'a>;
 impl EmptyQueueBuilder<'_> {
     /// Overrides or sets the timeout for this specific request.
     pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
         self.request_config.set_timeout(timeout);
         self
     }
-
     /// Adds a custom HTTP header to this specific request.
+    ///
+    /// Invalid header names or values are recorded and surfaced as [`Error::Validation`](crate::Error::Validation)
+    /// when the request is sent.
     pub fn header(
         mut self,
         key: impl TryInto<reqwest::header::HeaderName>,
@@ -38,25 +35,29 @@ impl EmptyQueueBuilder<'_> {
         self.request_config.insert_header(key, value);
         self
     }
-
     /// Sends the HTTP request and awaits the server response.
     ///
     /// # Errors
     ///
-    /// Returns an error if the API returns an HTTP 4xx/5xx or if deserialization fails.
+    /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
     pub async fn send(self) -> Result<(), crate::Error> {
         tracing::trace!(
-            module = "Queues",
+            module = "queues",
             method = "DELETE",
             path = "/queues/{name}/jobs",
             "HTTP request"
         );
-
-        let mut request = self
-            .client
-            .prepare_request(reqwest::Method::DELETE, &format!("/queues/{}/jobs", self.name))?;
-        request = self.request_config.apply(request);
-        request = request.json(self.body);
+        let __seg_1 = self.name.to_string();
+        let mut request = self.client.prepare_request_segments(
+            reqwest::Method::DELETE,
+            &[
+                crate::core::PathSegment::Static("queues"),
+                crate::core::PathSegment::Param(__seg_1.as_str()),
+                crate::core::PathSegment::Static("jobs"),
+            ],
+        )?;
+        request = self.request_config.apply(request)?;
+        request = request.json(&self.body);
         self.client.execute_unit("queues", request).await?;
         Ok(())
     }
@@ -71,27 +72,24 @@ impl<'a> std::future::IntoFuture for EmptyQueueBuilder<'a> {
 }
 
 /// Fluent request builder for [`Queues::get_queue`].
-#[derive(serde::Serialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 #[must_use = "request builders are lazy and do nothing unless awaited or sent"]
 pub struct GetQueueBuilder<'a> {
-    #[serde(skip)]
     client: &'a crate::ImmichClient,
-    #[serde(skip)]
-    pub request_config: crate::core::RequestConfig,
-    #[serde(skip)]
-    pub name: QueueName,
+    request_config: crate::core::RequestConfig,
+    name: QueueName,
 }
 
-/// Type alias for [`GetQueueBuilder`].
-pub type GetQueueArgs<'a> = GetQueueBuilder<'a>;
 impl GetQueueBuilder<'_> {
     /// Overrides or sets the timeout for this specific request.
     pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
         self.request_config.set_timeout(timeout);
         self
     }
-
     /// Adds a custom HTTP header to this specific request.
+    ///
+    /// Invalid header names or values are recorded and surfaced as [`Error::Validation`](crate::Error::Validation)
+    /// when the request is sent.
     pub fn header(
         mut self,
         key: impl TryInto<reqwest::header::HeaderName>,
@@ -100,25 +98,27 @@ impl GetQueueBuilder<'_> {
         self.request_config.insert_header(key, value);
         self
     }
-
     /// Sends the HTTP request and awaits the server response.
     ///
     /// # Errors
     ///
-    /// Returns an error if the API returns an HTTP 4xx/5xx or if deserialization fails.
+    /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
     pub async fn send(self) -> Result<QueueResponseDTO, crate::Error> {
         tracing::trace!(
-            module = "Queues",
+            module = "queues",
             method = "GET",
             path = "/queues/{name}",
             "HTTP request"
         );
-
-        let mut request = self
-            .client
-            .prepare_request(reqwest::Method::GET, &format!("/queues/{}", self.name))?;
-        request = self.request_config.apply(request);
-
+        let __seg_1 = self.name.to_string();
+        let mut request = self.client.prepare_request_segments(
+            reqwest::Method::GET,
+            &[
+                crate::core::PathSegment::Static("queues"),
+                crate::core::PathSegment::Param(__seg_1.as_str()),
+            ],
+        )?;
+        request = self.request_config.apply(request)?;
         let response = self.client.execute::<QueueResponseDTO>("queues", request).await?;
         Ok(response)
     }
@@ -133,29 +133,25 @@ impl<'a> std::future::IntoFuture for GetQueueBuilder<'a> {
 }
 
 /// Fluent request builder for [`Queues::get_queue_jobs`].
-#[derive(serde::Serialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 #[must_use = "request builders are lazy and do nothing unless awaited or sent"]
 pub struct GetQueueJobsBuilder<'a> {
-    #[serde(skip)]
     client: &'a crate::ImmichClient,
-    #[serde(skip)]
-    pub request_config: crate::core::RequestConfig,
-    #[serde(skip)]
-    pub name: QueueName,
-    #[serde(skip)]
-    pub status: Option<Vec<QueueJobStatus>>,
+    request_config: crate::core::RequestConfig,
+    name: QueueName,
+    status: Option<Vec<QueueJobStatus>>,
 }
 
-/// Type alias for [`GetQueueJobsBuilder`].
-pub type GetQueueJobsArgs<'a> = GetQueueJobsBuilder<'a>;
 impl GetQueueJobsBuilder<'_> {
     /// Overrides or sets the timeout for this specific request.
     pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
         self.request_config.set_timeout(timeout);
         self
     }
-
     /// Adds a custom HTTP header to this specific request.
+    ///
+    /// Invalid header names or values are recorded and surfaced as [`Error::Validation`](crate::Error::Validation)
+    /// when the request is sent.
     pub fn header(
         mut self,
         key: impl TryInto<reqwest::header::HeaderName>,
@@ -164,42 +160,43 @@ impl GetQueueJobsBuilder<'_> {
         self.request_config.insert_header(key, value);
         self
     }
-
     /// Filter jobs by status
-    pub fn status(mut self, value: Vec<QueueJobStatus>) -> Self {
-        self.status = Some(value);
+    pub fn status(mut self, value: impl IntoIterator<Item = QueueJobStatus>) -> Self {
+        self.status = Some(value.into_iter().collect());
         self
     }
-
     /// Sets or clears `status`.
     pub fn set_status(mut self, value: Option<Vec<QueueJobStatus>>) -> Self {
         self.status = value;
         self
     }
-
     /// Sends the HTTP request and awaits the server response.
     ///
     /// # Errors
     ///
-    /// Returns an error if the API returns an HTTP 4xx/5xx or if deserialization fails.
+    /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
     pub async fn send(self) -> Result<Vec<QueueJobResponseDTO>, crate::Error> {
         tracing::trace!(
-            module = "Queues",
+            module = "queues",
             method = "GET",
             path = "/queues/{name}/jobs",
             "HTTP request"
         );
-
-        let mut request = self
-            .client
-            .prepare_request(reqwest::Method::GET, &format!("/queues/{}/jobs", self.name))?;
-        request = self.request_config.apply(request);
+        let __seg_1 = self.name.to_string();
+        let mut request = self.client.prepare_request_segments(
+            reqwest::Method::GET,
+            &[
+                crate::core::PathSegment::Static("queues"),
+                crate::core::PathSegment::Param(__seg_1.as_str()),
+                crate::core::PathSegment::Static("jobs"),
+            ],
+        )?;
+        request = self.request_config.apply(request)?;
         if let Some(items) = &self.status {
             for item in items {
                 request = request.query(&[("status", item)]);
             }
         }
-
         let response = self
             .client
             .execute::<Vec<QueueJobResponseDTO>>("queues", request)
@@ -217,25 +214,23 @@ impl<'a> std::future::IntoFuture for GetQueueJobsBuilder<'a> {
 }
 
 /// Fluent request builder for [`Queues::get_queues`].
-#[derive(serde::Serialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 #[must_use = "request builders are lazy and do nothing unless awaited or sent"]
 pub struct GetQueuesBuilder<'a> {
-    #[serde(skip)]
     client: &'a crate::ImmichClient,
-    #[serde(skip)]
-    pub request_config: crate::core::RequestConfig,
+    request_config: crate::core::RequestConfig,
 }
 
-/// Type alias for [`GetQueuesBuilder`].
-pub type GetQueuesArgs<'a> = GetQueuesBuilder<'a>;
 impl GetQueuesBuilder<'_> {
     /// Overrides or sets the timeout for this specific request.
     pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
         self.request_config.set_timeout(timeout);
         self
     }
-
     /// Adds a custom HTTP header to this specific request.
+    ///
+    /// Invalid header names or values are recorded and surfaced as [`Error::Validation`](crate::Error::Validation)
+    /// when the request is sent.
     pub fn header(
         mut self,
         key: impl TryInto<reqwest::header::HeaderName>,
@@ -244,18 +239,15 @@ impl GetQueuesBuilder<'_> {
         self.request_config.insert_header(key, value);
         self
     }
-
     /// Sends the HTTP request and awaits the server response.
     ///
     /// # Errors
     ///
-    /// Returns an error if the API returns an HTTP 4xx/5xx or if deserialization fails.
+    /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
     pub async fn send(self) -> Result<Vec<QueueResponseDTO>, crate::Error> {
-        tracing::trace!(module = "Queues", method = "GET", path = "/queues", "HTTP request");
-
+        tracing::trace!(module = "queues", method = "GET", path = "/queues", "HTTP request");
         let mut request = self.client.prepare_request(reqwest::Method::GET, "/queues")?;
-        request = self.request_config.apply(request);
-
+        request = self.request_config.apply(request)?;
         let response = self.client.execute::<Vec<QueueResponseDTO>>("queues", request).await?;
         Ok(response)
     }
@@ -270,29 +262,25 @@ impl<'a> std::future::IntoFuture for GetQueuesBuilder<'a> {
 }
 
 /// Fluent request builder for [`Queues::update_queue`].
-#[derive(serde::Serialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 #[must_use = "request builders are lazy and do nothing unless awaited or sent"]
 pub struct UpdateQueueBuilder<'a> {
-    #[serde(skip)]
     client: &'a crate::ImmichClient,
-    #[serde(skip)]
-    pub request_config: crate::core::RequestConfig,
-    #[serde(skip)]
-    pub name: QueueName,
-    #[serde(skip)]
-    pub body: &'a QueueUpdateDTO,
+    request_config: crate::core::RequestConfig,
+    name: QueueName,
+    body: QueueUpdateDTO,
 }
 
-/// Type alias for [`UpdateQueueBuilder`].
-pub type UpdateQueueArgs<'a> = UpdateQueueBuilder<'a>;
 impl UpdateQueueBuilder<'_> {
     /// Overrides or sets the timeout for this specific request.
     pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
         self.request_config.set_timeout(timeout);
         self
     }
-
     /// Adds a custom HTTP header to this specific request.
+    ///
+    /// Invalid header names or values are recorded and surfaced as [`Error::Validation`](crate::Error::Validation)
+    /// when the request is sent.
     pub fn header(
         mut self,
         key: impl TryInto<reqwest::header::HeaderName>,
@@ -301,26 +289,28 @@ impl UpdateQueueBuilder<'_> {
         self.request_config.insert_header(key, value);
         self
     }
-
     /// Sends the HTTP request and awaits the server response.
     ///
     /// # Errors
     ///
-    /// Returns an error if the API returns an HTTP 4xx/5xx or if deserialization fails.
+    /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
     pub async fn send(self) -> Result<QueueResponseDTO, crate::Error> {
         tracing::trace!(
-            module = "Queues",
+            module = "queues",
             method = "PUT",
             path = "/queues/{name}",
             "HTTP request"
         );
-
-        let mut request = self
-            .client
-            .prepare_request(reqwest::Method::PUT, &format!("/queues/{}", self.name))?;
-        request = self.request_config.apply(request);
-        request = request.json(self.body);
-
+        let __seg_1 = self.name.to_string();
+        let mut request = self.client.prepare_request_segments(
+            reqwest::Method::PUT,
+            &[
+                crate::core::PathSegment::Static("queues"),
+                crate::core::PathSegment::Param(__seg_1.as_str()),
+            ],
+        )?;
+        request = self.request_config.apply(request)?;
+        request = request.json(&self.body);
         let response = self.client.execute::<QueueResponseDTO>("queues", request).await?;
         Ok(response)
     }
@@ -334,57 +324,64 @@ impl<'a> std::future::IntoFuture for UpdateQueueBuilder<'a> {
     }
 }
 
-///Client handle for `Queues` endpoints.
+/// Client handle for `Queues` endpoints.
 #[derive(Debug, Clone, Copy)]
 pub struct Queues<'a> {
     client: &'a crate::ImmichClient,
 }
 
 impl<'a> Queues<'a> {
-    pub(crate) fn new(client: &'a crate::ImmichClient) -> Self {
+    #[inline]
+    pub(crate) const fn new(client: &'a crate::ImmichClient) -> Self {
         Self { client }
     }
-
     /// Empty a queue
+    ///
     /// Removes all jobs from the specified queue.
     ///
     /// ### Parameters
     ///
     /// | Name | Type | Required | Description |
-    /// |--------|--------|:--------:|--------|
+    /// |------|------|:--------:|-------------|
     /// | `name` | `QueueName` | ✓ |  |
-    /// | `body` | `QueueDeleteDTO` | ✅ | Request body |
+    /// | `body` | `QueueDeleteDTO` | ✓ | JSON request body |
     ///
     /// ### Responses
     ///
     /// | Code | Description |
-    /// |--------|--------|
+    /// |------|-------------|
     /// | `204` |  |
-    pub fn empty_queue(&self, name: QueueName, body: &'a QueueDeleteDTO) -> EmptyQueueBuilder<'a> {
+    ///
+    /// # Errors
+    /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
+    pub fn empty_queue(&self, name: QueueName, body: impl Into<QueueDeleteDTO>) -> EmptyQueueBuilder<'a> {
         EmptyQueueBuilder {
             client: self.client,
             request_config: crate::core::RequestConfig::default(),
             name,
-            body,
+            body: body.into(),
         }
     }
-
     /// Retrieve a queue
+    ///
     /// Retrieves a specific queue by its name.
     ///
     /// ### Parameters
     ///
     /// | Name | Type | Required | Description |
-    /// |--------|--------|:--------:|--------|
+    /// |------|------|:--------:|-------------|
     /// | `name` | `QueueName` | ✓ |  |
     ///
     /// ### Responses
     ///
     /// | Code | Description |
-    /// |--------|--------|
+    /// |------|-------------|
     /// | `200` |  |
     ///
     /// **Returns:** `QueueResponseDTO`
+    ///
+    /// # Errors
+    /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
     pub fn get_queue(&self, name: QueueName) -> GetQueueBuilder<'a> {
         GetQueueBuilder {
             client: self.client,
@@ -392,24 +389,27 @@ impl<'a> Queues<'a> {
             name,
         }
     }
-
     /// Retrieve queue jobs
+    ///
     /// Retrieves a list of queue jobs from the specified queue.
     ///
     /// ### Parameters
     ///
     /// | Name | Type | Required | Description |
-    /// |--------|--------|:--------:|--------|
+    /// |------|------|:--------:|-------------|
     /// | `name` | `QueueName` | ✓ |  |
     /// | `status` | `Vec<QueueJobStatus>` |  | Filter jobs by status |
     ///
     /// ### Responses
     ///
     /// | Code | Description |
-    /// |--------|--------|
+    /// |------|-------------|
     /// | `200` |  |
     ///
     /// **Returns:** `Vec<QueueJobResponseDTO>`
+    ///
+    /// # Errors
+    /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
     pub fn get_queue_jobs(&self, name: QueueName) -> GetQueueJobsBuilder<'a> {
         GetQueueJobsBuilder {
             client: self.client,
@@ -418,46 +418,53 @@ impl<'a> Queues<'a> {
             status: None,
         }
     }
-
     /// List all queues
+    ///
     /// Retrieves a list of queues.
+    ///
     /// ### Responses
     ///
     /// | Code | Description |
-    /// |--------|--------|
+    /// |------|-------------|
     /// | `200` |  |
     ///
     /// **Returns:** `Vec<QueueResponseDTO>`
+    ///
+    /// # Errors
+    /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
     pub fn get_queues(&self) -> GetQueuesBuilder<'a> {
         GetQueuesBuilder {
             client: self.client,
             request_config: crate::core::RequestConfig::default(),
         }
     }
-
     /// Update a queue
+    ///
     /// Change the paused status of a specific queue.
     ///
     /// ### Parameters
     ///
     /// | Name | Type | Required | Description |
-    /// |--------|--------|:--------:|--------|
+    /// |------|------|:--------:|-------------|
     /// | `name` | `QueueName` | ✓ |  |
-    /// | `body` | `QueueUpdateDTO` | ✅ | Request body |
+    /// | `body` | `QueueUpdateDTO` | ✓ | JSON request body |
     ///
     /// ### Responses
     ///
     /// | Code | Description |
-    /// |--------|--------|
+    /// |------|-------------|
     /// | `200` |  |
     ///
     /// **Returns:** `QueueResponseDTO`
-    pub fn update_queue(&self, name: QueueName, body: &'a QueueUpdateDTO) -> UpdateQueueBuilder<'a> {
+    ///
+    /// # Errors
+    /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
+    pub fn update_queue(&self, name: QueueName, body: impl Into<QueueUpdateDTO>) -> UpdateQueueBuilder<'a> {
         UpdateQueueBuilder {
             client: self.client,
             request_config: crate::core::RequestConfig::default(),
             name,
-            body,
+            body: body.into(),
         }
     }
 }

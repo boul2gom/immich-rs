@@ -1,9 +1,9 @@
-#[cfg(feature = "fs")]
+#[cfg(all(feature = "fs", not(target_arch = "wasm32")))]
 use std::path::Path;
 
 use sha1::{Digest, Sha1};
 
-#[cfg(feature = "fs")]
+#[cfg(all(feature = "fs", not(target_arch = "wasm32")))]
 use crate::error::Result;
 
 /// Calculate the SHA-1 checksum of a slice of bytes.
@@ -14,12 +14,12 @@ pub fn calculate_bytes_checksum(data: &[u8]) -> String {
     hex::encode(hasher.finalize())
 }
 
-/// Calculate the SHA-1 checksum of a file efficiently by reading it in chunks.
+/// Calculate the SHA-1 checksum of a file efficiently by reading it in chunks on a blocking worker thread.
 ///
 /// # Errors
 ///
 /// Returns an error if the file cannot be opened or read.
-#[cfg(feature = "fs")]
+#[cfg(all(feature = "fs", not(target_arch = "wasm32")))]
 pub async fn calculate_file_checksum<P: AsRef<Path>>(path: P) -> Result<String> {
     let path = path.as_ref().to_owned();
     tokio::task::spawn_blocking(move || {

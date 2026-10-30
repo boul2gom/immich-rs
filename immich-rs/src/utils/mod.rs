@@ -1,4 +1,4 @@
-pub mod checksum;
+pub(crate) mod checksum;
 pub(crate) mod mime;
 
 pub(crate) trait IsTrue: Copy {

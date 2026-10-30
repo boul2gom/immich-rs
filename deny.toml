@@ -29,8 +29,6 @@ allow = [
     "Unicode-DFS-2016",
     # Weak copyleft
     "LGPL-2.1-or-later",
-    # Strong copyleft
-    "GPL-3.0-only",
 ]
 confidence-threshold = 0.8
 exceptions = []

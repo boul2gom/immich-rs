@@ -82,7 +82,7 @@ jobs:
           git add immich-models/src immich-rs/src/api open-api
           if ! git diff --cached --quiet; then
             cargo clippy --workspace --all-targets --all-features -- -D warnings
-            cargo test --workspace --exclude immich-examples
+            cargo test --workspace --all-features
 
             git checkout -B sync-api
             git commit -m "chore: sync OpenAPI client and models"

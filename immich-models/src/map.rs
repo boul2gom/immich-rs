@@ -1,5 +1,6 @@
 // @generated Made by @boul2gom with `immich-rs` - do not edit by hand.
 // Re-run `cargo xtask generate` to update.
+#![allow(clippy::struct_excessive_bools, clippy::too_many_lines)]
 
 //! `OpenAPI` data models for `map`.
 
@@ -14,18 +15,19 @@ pub use crate::sync::{SyncAckV1, SyncCompleteV1, SyncResetV1};
 /// | `state` | [`String`] | ✓ | State/Province name |
 ///
 /// See: <https://api.immich.app/models/MapReverseGeocodeResponseDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct MapReverseGeocodeResponseDTO {
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// City name (required)
     pub city: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Country name (required)
     pub country: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// State/Province name (required)
     pub state: Option<String>,
 }
 
 impl MapReverseGeocodeResponseDTO {
-    ///Creates a new [`MapReverseGeocodeResponseDTO`].
+    /// Creates a new [`MapReverseGeocodeResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new() -> Self {
@@ -35,43 +37,37 @@ impl MapReverseGeocodeResponseDTO {
             state: None,
         }
     }
-
-    ///Sets `city`.
+    /// Sets `city`.
     #[must_use]
     pub fn city(mut self, value: impl Into<String>) -> Self {
         self.city = Some(value.into());
         self
     }
-
-    ///Sets or clears `city`.
+    /// Sets or clears `city`.
     #[must_use]
     pub fn set_city(mut self, value: Option<String>) -> Self {
         self.city = value;
         self
     }
-
-    ///Sets `country`.
+    /// Sets `country`.
     #[must_use]
     pub fn country(mut self, value: impl Into<String>) -> Self {
         self.country = Some(value.into());
         self
     }
-
-    ///Sets or clears `country`.
+    /// Sets or clears `country`.
     #[must_use]
     pub fn set_country(mut self, value: Option<String>) -> Self {
         self.country = value;
         self
     }
-
-    ///Sets `state`.
+    /// Sets `state`.
     #[must_use]
     pub fn state(mut self, value: impl Into<String>) -> Self {
         self.state = Some(value.into());
         self
     }
-
-    ///Sets or clears `state`.
+    /// Sets or clears `state`.
     #[must_use]
     pub fn set_state(mut self, value: Option<String>) -> Self {
         self.state = value;

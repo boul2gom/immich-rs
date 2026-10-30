@@ -1,10 +1,12 @@
 // @generated Made by @boul2gom with `immich-rs` - do not edit by hand.
 // Re-run `cargo xtask generate` to update.
+#![allow(clippy::struct_excessive_bools, clippy::too_many_lines)]
 
 //! `OpenAPI` data models for `people`.
 
 pub use crate::activities::UserResponseDTO;
 pub use crate::assets::{PersonResponseDTO, PersonUserRole};
+pub use crate::id::{AssetId, PersonId, UserId};
 
 /// `AssetFaceUpdateDTO`
 ///
@@ -13,23 +15,26 @@ pub use crate::assets::{PersonResponseDTO, PersonUserRole};
 /// | `data` | [`Vec<AssetFaceUpdateItem>`](crate::people::AssetFaceUpdateItem) | ✓ | Face update items |
 ///
 /// See: <https://api.immich.app/models/AssetFaceUpdateDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct AssetFaceUpdateDTO {
+    /// Face update items (required)
     pub data: Vec<AssetFaceUpdateItem>,
 }
 
 impl AssetFaceUpdateDTO {
-    ///Creates a new [`AssetFaceUpdateDTO`].
+    /// Creates a new [`AssetFaceUpdateDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(data: Vec<AssetFaceUpdateItem>) -> Self {
-        Self { data }
+    pub fn new(data: impl IntoIterator<Item = AssetFaceUpdateItem>) -> Self {
+        Self {
+            data: data.into_iter().collect(),
+        }
     }
-
-    ///Sets `data`.
+    /// Sets `data`.
     #[must_use]
-    pub fn data(mut self, value: Vec<AssetFaceUpdateItem>) -> Self {
-        self.data = value;
+    pub fn data(mut self, value: impl IntoIterator<Item = AssetFaceUpdateItem>) -> Self {
+        self.data = value.into_iter().collect();
         self
     }
 }
@@ -38,60 +43,57 @@ impl AssetFaceUpdateDTO {
 ///
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
-/// | `asset_id` | [`Uuid`](::uuid::Uuid) | ✓ | Asset ID |
-/// | `person_id` | [`Uuid`](::uuid::Uuid) | ✓ | Person ID |
-/// | `user_id` | [`Uuid`](::uuid::Uuid) |  | User ID |
+/// | `asset_id` | [`AssetId`](crate::id::AssetId) | ✓ | Asset ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
+/// | `person_id` | [`PersonId`](crate::id::PersonId) | ✓ | Person ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
+/// | `user_id` | [`UserId`](crate::id::UserId) |  | User ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 ///
 /// See: <https://api.immich.app/models/AssetFaceUpdateItem>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct AssetFaceUpdateItem {
-    /// Asset ID (required)
+    /// Asset ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
     #[serde(rename = "assetId")]
-    pub asset_id: ::uuid::Uuid,
-    /// Person ID (required)
+    pub asset_id: AssetId,
+    /// Person ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
     #[serde(rename = "personId")]
-    pub person_id: ::uuid::Uuid,
-    /// User ID
+    pub person_id: PersonId,
+    /// User ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
     #[serde(rename = "userId", default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub user_id: Option<::uuid::Uuid>,
+    pub user_id: Option<UserId>,
 }
 
 impl AssetFaceUpdateItem {
-    ///Creates a new [`AssetFaceUpdateItem`].
+    /// Creates a new [`AssetFaceUpdateItem`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(asset_id: ::uuid::Uuid, person_id: ::uuid::Uuid) -> Self {
+    pub fn new(asset_id: impl Into<AssetId>, person_id: impl Into<PersonId>) -> Self {
         Self {
-            asset_id,
-            person_id,
+            asset_id: asset_id.into(),
+            person_id: person_id.into(),
             user_id: None,
         }
     }
-
-    ///Sets `asset_id`.
+    /// Sets `asset_id`.
     #[must_use]
-    pub fn asset_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.asset_id = value;
+    pub fn asset_id(mut self, value: impl Into<AssetId>) -> Self {
+        self.asset_id = value.into();
         self
     }
-
-    ///Sets `person_id`.
+    /// Sets `person_id`.
     #[must_use]
-    pub fn person_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.person_id = value;
+    pub fn person_id(mut self, value: impl Into<PersonId>) -> Self {
+        self.person_id = value.into();
         self
     }
-
-    ///Sets `user_id`.
+    /// Sets `user_id`.
     #[must_use]
-    pub fn user_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.user_id = Some(value);
+    pub fn user_id(mut self, value: impl Into<UserId>) -> Self {
+        self.user_id = Some(value.into());
         self
     }
-
-    ///Sets or clears `user_id`.
+    /// Sets or clears `user_id`.
     #[must_use]
-    pub fn set_user_id(mut self, value: Option<::uuid::Uuid>) -> Self {
+    pub fn set_user_id(mut self, value: Option<UserId>) -> Self {
         self.user_id = value;
         self
     }
@@ -101,26 +103,29 @@ impl AssetFaceUpdateItem {
 ///
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
-/// | `ids` | [`Vec<Uuid>`](::uuid::Uuid) | ✓ | Person IDs to merge |
+/// | `ids` | [`Vec<PersonId>`](crate::id::PersonId) | ✓ | Person IDs to merge |
 ///
 /// See: <https://api.immich.app/models/MergePersonDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct MergePersonDTO {
-    pub ids: Vec<::uuid::Uuid>,
+    /// Person IDs to merge (required)
+    pub ids: Vec<PersonId>,
 }
 
 impl MergePersonDTO {
-    ///Creates a new [`MergePersonDTO`].
+    /// Creates a new [`MergePersonDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(ids: Vec<::uuid::Uuid>) -> Self {
-        Self { ids }
+    pub fn new(ids: impl IntoIterator<Item = impl Into<PersonId>>) -> Self {
+        Self {
+            ids: ids.into_iter().map(Into::into).collect(),
+        }
     }
-
-    ///Sets `ids`.
+    /// Sets `ids`.
     #[must_use]
-    pub fn ids(mut self, value: Vec<::uuid::Uuid>) -> Self {
-        self.ids = value;
+    pub fn ids(mut self, value: impl IntoIterator<Item = impl Into<PersonId>>) -> Self {
+        self.ids = value.into_iter().map(Into::into).collect();
         self
     }
 }
@@ -129,40 +134,42 @@ impl MergePersonDTO {
 ///
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
-/// | `ids` | [`Vec<Uuid>`](::uuid::Uuid) | ✓ | IDs to process |
-/// | `user_id` | [`String`] |  |  |
+/// | `ids` | [`Vec<PersonId>`](crate::id::PersonId) | ✓ | IDs to process |
+/// | `user_id` | [`UserId`](crate::id::UserId) |  |  |
 ///
 /// See: <https://api.immich.app/models/PeopleDeleteDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct PeopleDeleteDTO {
-    pub ids: Vec<::uuid::Uuid>,
+    /// IDs to process (required)
+    pub ids: Vec<PersonId>,
     #[serde(rename = "userId", default, skip_serializing_if = "::std::option::Option::is_none")]
     pub user_id: Option<String>,
 }
 
 impl PeopleDeleteDTO {
-    ///Creates a new [`PeopleDeleteDTO`].
+    /// Creates a new [`PeopleDeleteDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(ids: Vec<::uuid::Uuid>) -> Self {
-        Self { ids, user_id: None }
+    pub fn new(ids: impl IntoIterator<Item = impl Into<PersonId>>) -> Self {
+        Self {
+            ids: ids.into_iter().map(Into::into).collect(),
+            user_id: None,
+        }
     }
-
-    ///Sets `ids`.
+    /// Sets `ids`.
     #[must_use]
-    pub fn ids(mut self, value: Vec<::uuid::Uuid>) -> Self {
-        self.ids = value;
+    pub fn ids(mut self, value: impl IntoIterator<Item = impl Into<PersonId>>) -> Self {
+        self.ids = value.into_iter().map(Into::into).collect();
         self
     }
-
-    ///Sets `user_id`.
+    /// Sets `user_id`.
     #[must_use]
     pub fn user_id(mut self, value: impl Into<String>) -> Self {
         self.user_id = Some(value.into());
         self
     }
-
-    ///Sets or clears `user_id`.
+    /// Sets or clears `user_id`.
     #[must_use]
     pub fn set_user_id(mut self, value: Option<String>) -> Self {
         self.user_id = value;
@@ -181,6 +188,7 @@ impl PeopleDeleteDTO {
 ///
 /// See: <https://api.immich.app/models/PeopleResponseDto>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct PeopleResponseDTO {
     /// Whether there are more pages
     #[serde(
@@ -189,53 +197,51 @@ pub struct PeopleResponseDTO {
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub has_next_page: Option<bool>,
+    /// Number of hidden people (required)
     pub hidden: i64,
+    /// (required)
     pub people: Vec<PersonResponseDTO>,
+    /// Total number of people (required)
     pub total: i64,
 }
 
 impl PeopleResponseDTO {
-    ///Creates a new [`PeopleResponseDTO`].
+    /// Creates a new [`PeopleResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(hidden: i64, people: Vec<PersonResponseDTO>, total: i64) -> Self {
+    pub fn new(hidden: i64, people: impl IntoIterator<Item = PersonResponseDTO>, total: i64) -> Self {
         Self {
             has_next_page: None,
             hidden,
-            people,
+            people: people.into_iter().collect(),
             total,
         }
     }
-
-    ///Sets `has_next_page`.
+    /// Sets `has_next_page`.
     #[must_use]
     pub fn has_next_page(mut self, value: bool) -> Self {
         self.has_next_page = Some(value);
         self
     }
-
-    ///Sets or clears `has_next_page`.
+    /// Sets or clears `has_next_page`.
     #[must_use]
     pub fn set_has_next_page(mut self, value: Option<bool>) -> Self {
         self.has_next_page = value;
         self
     }
-
-    ///Sets `hidden`.
+    /// Sets `hidden`.
     #[must_use]
     pub fn hidden(mut self, value: i64) -> Self {
         self.hidden = value;
         self
     }
-
-    ///Sets `people`.
+    /// Sets `people`.
     #[must_use]
-    pub fn people(mut self, value: Vec<PersonResponseDTO>) -> Self {
-        self.people = value;
+    pub fn people(mut self, value: impl IntoIterator<Item = PersonResponseDTO>) -> Self {
+        self.people = value.into_iter().collect();
         self
     }
-
-    ///Sets `total`.
+    /// Sets `total`.
     #[must_use]
     pub fn total(mut self, value: i64) -> Self {
         self.total = value;
@@ -251,22 +257,25 @@ impl PeopleResponseDTO {
 ///
 /// See: <https://api.immich.app/models/PeopleUpdateDto>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct PeopleUpdateDTO {
+    /// People to update (required)
     pub people: Vec<PeopleUpdateItem>,
 }
 
 impl PeopleUpdateDTO {
-    ///Creates a new [`PeopleUpdateDTO`].
+    /// Creates a new [`PeopleUpdateDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(people: Vec<PeopleUpdateItem>) -> Self {
-        Self { people }
+    pub fn new(people: impl IntoIterator<Item = PeopleUpdateItem>) -> Self {
+        Self {
+            people: people.into_iter().collect(),
+        }
     }
-
-    ///Sets `people`.
+    /// Sets `people`.
     #[must_use]
-    pub fn people(mut self, value: Vec<PeopleUpdateItem>) -> Self {
-        self.people = value;
+    pub fn people(mut self, value: impl IntoIterator<Item = PeopleUpdateItem>) -> Self {
+        self.people = value.into_iter().collect();
         self
     }
 }
@@ -276,16 +285,17 @@ impl PeopleUpdateDTO {
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
 /// | `birth_date` | [`String`] |  | Person date of birth |
-/// | `color` | [`String`] |  | Person color (hex) |
-/// | `feature_face_asset_id` | [`Uuid`](::uuid::Uuid) |  | Asset ID used for feature face thumbnail |
-/// | `id` | [`Uuid`](::uuid::Uuid) | ✓ | Person ID |
+/// | `color` | [`String`] |  | Person color (hex) (pattern: `^#?([0-9A-Fa-f]{3}\|[0-9A-Fa-f]{4}\|[0-9A-Fa-f]{6}\|[0-9A-Fa-f]{8})$`) |
+/// | `feature_face_asset_id` | [`AssetId`](crate::id::AssetId) |  | Asset ID used for feature face thumbnail (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
+/// | `id` | [`PersonId`](crate::id::PersonId) | ✓ | Person ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 /// | `is_favorite` | `bool` |  | Mark as favorite |
 /// | `is_hidden` | `bool` |  | Person visibility (hidden) |
 /// | `name` | [`String`] |  | Person name |
-/// | `user_id` | [`Uuid`](::uuid::Uuid) |  | Restrict the update to the person record of this User ID |
+/// | `user_id` | [`UserId`](crate::id::UserId) |  | Restrict the update to the person record of this User ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}\|00000000-0000-0000-0000-000000000000\|ffffffff-ffff-ffff-ffff-ffffffffffff)$`) |
 ///
 /// See: <https://api.immich.app/models/PeopleUpdateItem>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct PeopleUpdateItem {
     /// Person date of birth
     #[serde(
@@ -294,16 +304,18 @@ pub struct PeopleUpdateItem {
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub birth_date: Option<::chrono::naive::NaiveDate>,
+    /// Person color (hex) (pattern: `^#?([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$`)
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub color: Option<PeopleUpdateItemColor>,
-    /// Asset ID used for feature face thumbnail
+    pub color: Option<String>,
+    /// Asset ID used for feature face thumbnail (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
     #[serde(
         rename = "featureFaceAssetId",
         default,
         skip_serializing_if = "::std::option::Option::is_none"
     )]
-    pub feature_face_asset_id: Option<::uuid::Uuid>,
-    pub id: ::uuid::Uuid,
+    pub feature_face_asset_id: Option<AssetId>,
+    /// Person ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
+    pub id: PersonId,
     /// Mark as favorite
     #[serde(
         rename = "isFavorite",
@@ -314,253 +326,119 @@ pub struct PeopleUpdateItem {
     /// Person visibility (hidden)
     #[serde(rename = "isHidden", default, skip_serializing_if = "::std::option::Option::is_none")]
     pub is_hidden: Option<bool>,
+    /// Person name
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub name: Option<String>,
-    /// Restrict the update to the person record of this User ID
+    /// Restrict the update to the person record of this User ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$`)
     #[serde(rename = "userId", default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub user_id: Option<::uuid::Uuid>,
+    pub user_id: Option<UserId>,
 }
 
 impl PeopleUpdateItem {
-    ///Creates a new [`PeopleUpdateItem`].
+    /// Creates a new [`PeopleUpdateItem`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(id: ::uuid::Uuid) -> Self {
+    pub fn new(id: impl Into<PersonId>) -> Self {
         Self {
             birth_date: None,
             color: None,
             feature_face_asset_id: None,
-            id,
+            id: id.into(),
             is_favorite: None,
             is_hidden: None,
             name: None,
             user_id: None,
         }
     }
-
-    ///Sets `birth_date`.
+    /// Sets `birth_date`.
     #[must_use]
     pub fn birth_date(mut self, value: ::chrono::naive::NaiveDate) -> Self {
         self.birth_date = Some(value);
         self
     }
-
-    ///Sets or clears `birth_date`.
+    /// Sets or clears `birth_date`.
     #[must_use]
     pub fn set_birth_date(mut self, value: Option<::chrono::naive::NaiveDate>) -> Self {
         self.birth_date = value;
         self
     }
-
-    ///Sets `color`.
+    /// Sets `color`.
     #[must_use]
-    pub fn color(mut self, value: PeopleUpdateItemColor) -> Self {
-        self.color = Some(value);
+    pub fn color(mut self, value: impl Into<String>) -> Self {
+        self.color = Some(value.into());
         self
     }
-
-    ///Sets or clears `color`.
+    /// Sets or clears `color`.
     #[must_use]
-    pub fn set_color(mut self, value: Option<PeopleUpdateItemColor>) -> Self {
+    pub fn set_color(mut self, value: Option<String>) -> Self {
         self.color = value;
         self
     }
-
-    ///Sets `feature_face_asset_id`.
+    /// Sets `feature_face_asset_id`.
     #[must_use]
-    pub fn feature_face_asset_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.feature_face_asset_id = Some(value);
+    pub fn feature_face_asset_id(mut self, value: impl Into<AssetId>) -> Self {
+        self.feature_face_asset_id = Some(value.into());
         self
     }
-
-    ///Sets or clears `feature_face_asset_id`.
+    /// Sets or clears `feature_face_asset_id`.
     #[must_use]
-    pub fn set_feature_face_asset_id(mut self, value: Option<::uuid::Uuid>) -> Self {
+    pub fn set_feature_face_asset_id(mut self, value: Option<AssetId>) -> Self {
         self.feature_face_asset_id = value;
         self
     }
-
-    ///Sets `id`.
+    /// Sets `id`.
     #[must_use]
-    pub fn id(mut self, value: ::uuid::Uuid) -> Self {
-        self.id = value;
+    pub fn id(mut self, value: impl Into<PersonId>) -> Self {
+        self.id = value.into();
         self
     }
-
-    ///Sets `is_favorite`.
+    /// Sets `is_favorite`.
     #[must_use]
     pub fn is_favorite(mut self, value: bool) -> Self {
         self.is_favorite = Some(value);
         self
     }
-
-    ///Sets or clears `is_favorite`.
+    /// Sets or clears `is_favorite`.
     #[must_use]
     pub fn set_is_favorite(mut self, value: Option<bool>) -> Self {
         self.is_favorite = value;
         self
     }
-
-    ///Sets `is_hidden`.
+    /// Sets `is_hidden`.
     #[must_use]
     pub fn is_hidden(mut self, value: bool) -> Self {
         self.is_hidden = Some(value);
         self
     }
-
-    ///Sets or clears `is_hidden`.
+    /// Sets or clears `is_hidden`.
     #[must_use]
     pub fn set_is_hidden(mut self, value: Option<bool>) -> Self {
         self.is_hidden = value;
         self
     }
-
-    ///Sets `name`.
+    /// Sets `name`.
     #[must_use]
     pub fn name(mut self, value: impl Into<String>) -> Self {
         self.name = Some(value.into());
         self
     }
-
-    ///Sets or clears `name`.
+    /// Sets or clears `name`.
     #[must_use]
     pub fn set_name(mut self, value: Option<String>) -> Self {
         self.name = value;
         self
     }
-
-    ///Sets `user_id`.
+    /// Sets `user_id`.
     #[must_use]
-    pub fn user_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.user_id = Some(value);
+    pub fn user_id(mut self, value: impl Into<UserId>) -> Self {
+        self.user_id = Some(value.into());
         self
     }
-
-    ///Sets or clears `user_id`.
+    /// Sets or clears `user_id`.
     #[must_use]
-    pub fn set_user_id(mut self, value: Option<::uuid::Uuid>) -> Self {
+    pub fn set_user_id(mut self, value: Option<UserId>) -> Self {
         self.user_id = value;
         self
-    }
-}
-
-#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-#[serde(transparent)]
-pub struct PeopleUpdateItemColor(pub String);
-
-impl ::std::ops::Deref for PeopleUpdateItemColor {
-    type Target = String;
-    fn deref(&self) -> &String {
-        &self.0
-    }
-}
-
-impl ::std::str::FromStr for PeopleUpdateItemColor {
-    type Err = crate::common::error::ConversionError;
-    fn from_str(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        static PATTERN: ::std::sync::LazyLock<::regex::Regex> = ::std::sync::LazyLock::new(|| {
-            ::regex::Regex::new("^#?([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$").unwrap()
-        });
-        if PATTERN.find(value).is_none() {
-            return Err(
-                "doesn't match pattern \"^#?([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$\"".into(),
-            );
-        }
-        Ok(Self(value.to_string()))
-    }
-}
-
-impl TryFrom<&str> for PeopleUpdateItemColor {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<&String> for PeopleUpdateItemColor {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<String> for PeopleUpdateItemColor {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl<'de> ::serde::Deserialize<'de> for PeopleUpdateItemColor {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: ::serde::Deserializer<'de>,
-    {
-        String::deserialize(deserializer)?
-            .parse()
-            .map_err(|e: crate::common::error::ConversionError| <D::Error as ::serde::de::Error>::custom(e.to_string()))
-    }
-}
-
-#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-#[serde(transparent)]
-pub struct PeopleUserResponseEmail(pub String);
-
-impl ::std::ops::Deref for PeopleUserResponseEmail {
-    type Target = String;
-    fn deref(&self) -> &String {
-        &self.0
-    }
-}
-
-impl ::std::str::FromStr for PeopleUserResponseEmail {
-    type Err = crate::common::error::ConversionError;
-    fn from_str(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        static PATTERN: ::std::sync::LazyLock<::regex::Regex> = ::std::sync::LazyLock::new(|| {
-            ::regex::Regex::new(
-                    "^[\\p{L}\\p{M}\\p{N}.!#$%&'*+/=?^_`{|}~-]+@[\\p{L}\\p{N}](?:[\\p{L}\\p{M}\\p{N}-]{0,61}[\\p{L}\\p{M}\\p{N}])?(?:\\.[\\p{L}\\p{N}](?:[\\p{L}\\p{M}\\p{N}-]{0,61}[\\p{L}\\p{M}\\p{N}])?)*$",
-                )
-                .unwrap()
-        });
-        if PATTERN.find(value).is_none() {
-            return Err(
-                "doesn't match pattern \"^[\\p{L}\\p{M}\\p{N}.!#$%&'*+/=?^_`{|}~-]+@[\\p{L}\\p{N}](?:[\\p{L}\\p{M}\\p{N}-]{0,61}[\\p{L}\\p{M}\\p{N}])?(?:\\.[\\p{L}\\p{N}](?:[\\p{L}\\p{M}\\p{N}-]{0,61}[\\p{L}\\p{M}\\p{N}])?)*$\""
-                    .into(),
-            );
-        }
-        Ok(Self(value.to_string()))
-    }
-}
-
-impl TryFrom<&str> for PeopleUserResponseEmail {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<&String> for PeopleUserResponseEmail {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<String> for PeopleUserResponseEmail {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl<'de> ::serde::Deserialize<'de> for PeopleUserResponseEmail {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: ::serde::Deserializer<'de>,
-    {
-        String::deserialize(deserializer)?
-            .parse()
-            .map_err(|e: crate::common::error::ConversionError| <D::Error as ::serde::de::Error>::custom(e.to_string()))
     }
 }
 
@@ -568,67 +446,64 @@ impl<'de> ::serde::Deserialize<'de> for PeopleUserResponseEmail {
 ///
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
-/// | `person_ids` | [`Vec<Uuid>`](::uuid::Uuid) |  | Person IDs, required when type is omitted |
+/// | `person_ids` | [`Vec<PersonId>`](crate::id::PersonId) |  | Person IDs, required when type is omitted |
 /// | `role` | [`PersonUserRole`] | ✓ | Role that should be applied |
-/// | `shared_with_ids` | [`Vec<Uuid>`](::uuid::Uuid) | ✓ | User IDs that should be given access to the person |
-/// | `type` | [`PeopleUsersUpsertType`] |  |  |
+/// | `shared_with_ids` | [`Vec<UserId>`](crate::id::UserId) | ✓ | User IDs that should be given access to the person |
+/// | `type_` | [`PeopleUsersUpsertType`] |  |  |
 ///
 /// See: <https://api.immich.app/models/PeopleUsersUpsertDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct PeopleUsersUpsertDTO {
     /// Person IDs, required when type is omitted
     #[serde(rename = "personIds", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
-    pub person_ids: Vec<::uuid::Uuid>,
+    pub person_ids: Vec<PersonId>,
+    /// Role that should be applied (required)
     pub role: PersonUserRole,
     /// User IDs that should be given access to the person (required)
     #[serde(rename = "sharedWithIds")]
-    pub shared_with_ids: Vec<::uuid::Uuid>,
+    pub shared_with_ids: Vec<UserId>,
     #[serde(rename = "type", default, skip_serializing_if = "::std::option::Option::is_none")]
     pub type_: Option<PeopleUsersUpsertType>,
 }
 
 impl PeopleUsersUpsertDTO {
-    ///Creates a new [`PeopleUsersUpsertDTO`].
+    /// Creates a new [`PeopleUsersUpsertDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(role: PersonUserRole, shared_with_ids: Vec<::uuid::Uuid>) -> Self {
+    pub fn new(role: PersonUserRole, shared_with_ids: impl IntoIterator<Item = impl Into<UserId>>) -> Self {
         Self {
             person_ids: Vec::new(),
             role,
-            shared_with_ids,
+            shared_with_ids: shared_with_ids.into_iter().map(Into::into).collect(),
             type_: None,
         }
     }
-
-    ///Sets `person_ids`.
+    /// Sets `person_ids`.
     #[must_use]
-    pub fn person_ids(mut self, value: Vec<::uuid::Uuid>) -> Self {
-        self.person_ids = value;
+    pub fn person_ids(mut self, value: impl IntoIterator<Item = impl Into<PersonId>>) -> Self {
+        self.person_ids = value.into_iter().map(Into::into).collect();
         self
     }
-
-    ///Sets `role`.
+    /// Sets `role`.
     #[must_use]
     pub fn role(mut self, value: PersonUserRole) -> Self {
         self.role = value;
         self
     }
-
-    ///Sets `shared_with_ids`.
+    /// Sets `shared_with_ids`.
     #[must_use]
-    pub fn shared_with_ids(mut self, value: Vec<::uuid::Uuid>) -> Self {
-        self.shared_with_ids = value;
+    pub fn shared_with_ids(mut self, value: impl IntoIterator<Item = impl Into<UserId>>) -> Self {
+        self.shared_with_ids = value.into_iter().map(Into::into).collect();
         self
     }
-
-    ///Sets `type_`.
+    /// Sets `type_`.
     #[must_use]
     pub fn type_(mut self, value: PeopleUsersUpsertType) -> Self {
         self.type_ = Some(value);
         self
     }
-
-    ///Sets or clears `type_`.
+    /// Sets or clears `type_`.
     #[must_use]
     pub fn set_type_(mut self, value: Option<PeopleUsersUpsertType>) -> Self {
         self.type_ = value;
@@ -639,54 +514,96 @@ impl PeopleUsersUpsertDTO {
 /// Which people to update when personIds is omitted
 ///
 /// See: <https://api.immich.app/models/PeopleUsersUpsertType>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[non_exhaustive]
 pub enum PeopleUsersUpsertType {
-    #[serde(rename = "everyone")]
     Everyone,
-    ///Unknown value returned by a newer version of the Immich server.
-    #[serde(other)]
-    UnknownValue,
+    /// Unknown value returned by a newer version of the Immich server.
+    Unknown(String),
 }
 
-#[allow(clippy::match_same_arms)]
+impl PeopleUsersUpsertType {
+    /// Returns the wire string representation of this enum value.
+    #[must_use]
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::Everyone => "everyone",
+            Self::Unknown(s) => s.as_str(),
+        }
+    }
+}
+
 impl ::std::fmt::Display for PeopleUsersUpsertType {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        match *self {
-            Self::Everyone => f.write_str("everyone"),
-            Self::UnknownValue => f.write_str("unknown"),
+        f.write_str(self.as_str())
+    }
+}
+
+impl From<&str> for PeopleUsersUpsertType {
+    fn from(value: &str) -> Self {
+        match value {
+            "everyone" => Self::Everyone,
+            other => Self::Unknown(other.to_owned()),
         }
+    }
+}
+
+impl From<String> for PeopleUsersUpsertType {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "everyone" => Self::Everyone,
+            _ => Self::Unknown(value),
+        }
+    }
+}
+
+impl From<&String> for PeopleUsersUpsertType {
+    fn from(value: &String) -> Self {
+        Self::from(value.as_str())
     }
 }
 
 impl ::std::str::FromStr for PeopleUsersUpsertType {
-    type Err = crate::common::error::ConversionError;
-    fn from_str(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        match value {
-            "everyone" => Ok(Self::Everyone),
-            _ => Err(format!("invalid value for {}: {}", "PeopleUsersUpsertType", value).into()),
+    type Err = ::std::convert::Infallible;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        Ok(Self::from(value))
+    }
+}
+
+impl ::serde::Serialize for PeopleUsersUpsertType {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: ::serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+
+impl<'de> ::serde::Deserialize<'de> for PeopleUsersUpsertType {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        struct EnumVisitor;
+        impl ::serde::de::Visitor<'_> for EnumVisitor {
+            type Value = PeopleUsersUpsertType;
+            fn expecting(&self, formatter: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                formatter.write_str("a string")
+            }
+            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(PeopleUsersUpsertType::from(value))
+            }
+            fn visit_string<E>(self, value: String) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(PeopleUsersUpsertType::from(value))
+            }
         }
-    }
-}
-
-impl TryFrom<&str> for PeopleUsersUpsertType {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<&String> for PeopleUsersUpsertType {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<String> for PeopleUsersUpsertType {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
+        deserializer.deserialize_str(EnumVisitor)
     }
 }
 
@@ -695,13 +612,14 @@ impl TryFrom<String> for PeopleUsersUpsertType {
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
 /// | `birth_date` | [`String`] |  | Person date of birth |
-/// | `color` | [`String`] |  | Person color (hex) |
+/// | `color` | [`String`] |  | Person color (hex) (pattern: `^#?([0-9A-Fa-f]{3}\|[0-9A-Fa-f]{4}\|[0-9A-Fa-f]{6}\|[0-9A-Fa-f]{8})$`) |
 /// | `is_favorite` | `bool` |  | Mark as favorite |
 /// | `is_hidden` | `bool` |  | Person visibility (hidden) |
 /// | `name` | [`String`] |  | Person name |
 ///
 /// See: <https://api.immich.app/models/PersonCreateDto>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Default)]
+#[non_exhaustive]
 pub struct PersonCreateDTO {
     /// Person date of birth
     #[serde(
@@ -710,8 +628,9 @@ pub struct PersonCreateDTO {
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub birth_date: Option<::chrono::naive::NaiveDate>,
+    /// Person color (hex) (pattern: `^#?([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$`)
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub color: Option<PersonCreateColor>,
+    pub color: Option<String>,
     /// Mark as favorite
     #[serde(
         rename = "isFavorite",
@@ -722,12 +641,13 @@ pub struct PersonCreateDTO {
     /// Person visibility (hidden)
     #[serde(rename = "isHidden", default, skip_serializing_if = "::std::option::Option::is_none")]
     pub is_hidden: Option<bool>,
+    /// Person name
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub name: Option<String>,
 }
 
 impl PersonCreateDTO {
-    ///Creates a new [`PersonCreateDTO`].
+    /// Creates a new [`PersonCreateDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new() -> Self {
@@ -739,71 +659,61 @@ impl PersonCreateDTO {
             name: None,
         }
     }
-
-    ///Sets `birth_date`.
+    /// Sets `birth_date`.
     #[must_use]
     pub fn birth_date(mut self, value: ::chrono::naive::NaiveDate) -> Self {
         self.birth_date = Some(value);
         self
     }
-
-    ///Sets or clears `birth_date`.
+    /// Sets or clears `birth_date`.
     #[must_use]
     pub fn set_birth_date(mut self, value: Option<::chrono::naive::NaiveDate>) -> Self {
         self.birth_date = value;
         self
     }
-
-    ///Sets `color`.
+    /// Sets `color`.
     #[must_use]
-    pub fn color(mut self, value: PersonCreateColor) -> Self {
-        self.color = Some(value);
+    pub fn color(mut self, value: impl Into<String>) -> Self {
+        self.color = Some(value.into());
         self
     }
-
-    ///Sets or clears `color`.
+    /// Sets or clears `color`.
     #[must_use]
-    pub fn set_color(mut self, value: Option<PersonCreateColor>) -> Self {
+    pub fn set_color(mut self, value: Option<String>) -> Self {
         self.color = value;
         self
     }
-
-    ///Sets `is_favorite`.
+    /// Sets `is_favorite`.
     #[must_use]
     pub fn is_favorite(mut self, value: bool) -> Self {
         self.is_favorite = Some(value);
         self
     }
-
-    ///Sets or clears `is_favorite`.
+    /// Sets or clears `is_favorite`.
     #[must_use]
     pub fn set_is_favorite(mut self, value: Option<bool>) -> Self {
         self.is_favorite = value;
         self
     }
-
-    ///Sets `is_hidden`.
+    /// Sets `is_hidden`.
     #[must_use]
     pub fn is_hidden(mut self, value: bool) -> Self {
         self.is_hidden = Some(value);
         self
     }
-
-    ///Sets or clears `is_hidden`.
+    /// Sets or clears `is_hidden`.
     #[must_use]
     pub fn set_is_hidden(mut self, value: Option<bool>) -> Self {
         self.is_hidden = value;
         self
     }
-
-    ///Sets `name`.
+    /// Sets `name`.
     #[must_use]
     pub fn name(mut self, value: impl Into<String>) -> Self {
         self.name = Some(value.into());
         self
     }
-
-    ///Sets or clears `name`.
+    /// Sets or clears `name`.
     #[must_use]
     pub fn set_name(mut self, value: Option<String>) -> Self {
         self.name = value;
@@ -811,93 +721,34 @@ impl PersonCreateDTO {
     }
 }
 
-#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-#[serde(transparent)]
-pub struct PersonCreateColor(pub String);
-
-impl ::std::ops::Deref for PersonCreateColor {
-    type Target = String;
-    fn deref(&self) -> &String {
-        &self.0
-    }
-}
-
-impl ::std::str::FromStr for PersonCreateColor {
-    type Err = crate::common::error::ConversionError;
-    fn from_str(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        static PATTERN: ::std::sync::LazyLock<::regex::Regex> = ::std::sync::LazyLock::new(|| {
-            ::regex::Regex::new("^#?([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$").unwrap()
-        });
-        if PATTERN.find(value).is_none() {
-            return Err(
-                "doesn't match pattern \"^#?([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$\"".into(),
-            );
-        }
-        Ok(Self(value.to_string()))
-    }
-}
-
-impl TryFrom<&str> for PersonCreateColor {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<&String> for PersonCreateColor {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<String> for PersonCreateColor {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl<'de> ::serde::Deserialize<'de> for PersonCreateColor {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: ::serde::Deserializer<'de>,
-    {
-        String::deserialize(deserializer)?
-            .parse()
-            .map_err(|e: crate::common::error::ConversionError| <D::Error as ::serde::de::Error>::custom(e.to_string()))
-    }
-}
-
 /// `PersonDeleteDTO`
 ///
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
-/// | `user_id` | [`String`] |  |  |
+/// | `user_id` | [`UserId`](crate::id::UserId) |  |  |
 ///
 /// See: <https://api.immich.app/models/PersonDeleteDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[non_exhaustive]
 pub struct PersonDeleteDTO {
     #[serde(rename = "userId", default, skip_serializing_if = "::std::option::Option::is_none")]
     pub user_id: Option<String>,
 }
 
 impl PersonDeleteDTO {
-    ///Creates a new [`PersonDeleteDTO`].
+    /// Creates a new [`PersonDeleteDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new() -> Self {
         Self { user_id: None }
     }
-
-    ///Sets `user_id`.
+    /// Sets `user_id`.
     #[must_use]
     pub fn user_id(mut self, value: impl Into<String>) -> Self {
         self.user_id = Some(value.into());
         self
     }
-
-    ///Sets or clears `user_id`.
+    /// Sets or clears `user_id`.
     #[must_use]
     pub fn set_user_id(mut self, value: Option<String>) -> Self {
         self.user_id = value;
@@ -912,20 +763,21 @@ impl PersonDeleteDTO {
 /// | `assets` | `i64` | ✓ | Number of assets |
 ///
 /// See: <https://api.immich.app/models/PersonStatisticsResponseDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct PersonStatisticsResponseDTO {
+    /// Number of assets (required)
     pub assets: i64,
 }
 
 impl PersonStatisticsResponseDTO {
-    ///Creates a new [`PersonStatisticsResponseDTO`].
+    /// Creates a new [`PersonStatisticsResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(assets: i64) -> Self {
         Self { assets }
     }
-
-    ///Sets `assets`.
+    /// Sets `assets`.
     #[must_use]
     pub fn assets(mut self, value: i64) -> Self {
         self.assets = value;
@@ -938,15 +790,16 @@ impl PersonStatisticsResponseDTO {
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
 /// | `birth_date` | [`String`] |  | Person date of birth |
-/// | `color` | [`String`] |  | Person color (hex) |
-/// | `feature_face_asset_id` | [`Uuid`](::uuid::Uuid) |  | Asset ID used for feature face thumbnail |
+/// | `color` | [`String`] |  | Person color (hex) (pattern: `^#?([0-9A-Fa-f]{3}\|[0-9A-Fa-f]{4}\|[0-9A-Fa-f]{6}\|[0-9A-Fa-f]{8})$`) |
+/// | `feature_face_asset_id` | [`AssetId`](crate::id::AssetId) |  | Asset ID used for feature face thumbnail (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 /// | `is_favorite` | `bool` |  | Mark as favorite |
 /// | `is_hidden` | `bool` |  | Person visibility (hidden) |
 /// | `name` | [`String`] |  | Person name |
-/// | `user_id` | [`Uuid`](::uuid::Uuid) |  | Restrict the update to the person record of this User ID |
+/// | `user_id` | [`UserId`](crate::id::UserId) |  | Restrict the update to the person record of this User ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}\|00000000-0000-0000-0000-000000000000\|ffffffff-ffff-ffff-ffff-ffffffffffff)$`) |
 ///
 /// See: <https://api.immich.app/models/PersonUpdateDto>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Default)]
+#[non_exhaustive]
 pub struct PersonUpdateDTO {
     /// Person date of birth
     #[serde(
@@ -955,15 +808,16 @@ pub struct PersonUpdateDTO {
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub birth_date: Option<::chrono::naive::NaiveDate>,
+    /// Person color (hex) (pattern: `^#?([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$`)
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub color: Option<PersonUpdateColor>,
-    /// Asset ID used for feature face thumbnail
+    pub color: Option<String>,
+    /// Asset ID used for feature face thumbnail (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
     #[serde(
         rename = "featureFaceAssetId",
         default,
         skip_serializing_if = "::std::option::Option::is_none"
     )]
-    pub feature_face_asset_id: Option<::uuid::Uuid>,
+    pub feature_face_asset_id: Option<AssetId>,
     /// Mark as favorite
     #[serde(
         rename = "isFavorite",
@@ -974,15 +828,16 @@ pub struct PersonUpdateDTO {
     /// Person visibility (hidden)
     #[serde(rename = "isHidden", default, skip_serializing_if = "::std::option::Option::is_none")]
     pub is_hidden: Option<bool>,
+    /// Person name
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub name: Option<String>,
-    /// Restrict the update to the person record of this User ID
+    /// Restrict the update to the person record of this User ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$`)
     #[serde(rename = "userId", default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub user_id: Option<::uuid::Uuid>,
+    pub user_id: Option<UserId>,
 }
 
 impl PersonUpdateDTO {
-    ///Creates a new [`PersonUpdateDTO`].
+    /// Creates a new [`PersonUpdateDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new() -> Self {
@@ -996,168 +851,96 @@ impl PersonUpdateDTO {
             user_id: None,
         }
     }
-
-    ///Sets `birth_date`.
+    /// Sets `birth_date`.
     #[must_use]
     pub fn birth_date(mut self, value: ::chrono::naive::NaiveDate) -> Self {
         self.birth_date = Some(value);
         self
     }
-
-    ///Sets or clears `birth_date`.
+    /// Sets or clears `birth_date`.
     #[must_use]
     pub fn set_birth_date(mut self, value: Option<::chrono::naive::NaiveDate>) -> Self {
         self.birth_date = value;
         self
     }
-
-    ///Sets `color`.
+    /// Sets `color`.
     #[must_use]
-    pub fn color(mut self, value: PersonUpdateColor) -> Self {
-        self.color = Some(value);
+    pub fn color(mut self, value: impl Into<String>) -> Self {
+        self.color = Some(value.into());
         self
     }
-
-    ///Sets or clears `color`.
+    /// Sets or clears `color`.
     #[must_use]
-    pub fn set_color(mut self, value: Option<PersonUpdateColor>) -> Self {
+    pub fn set_color(mut self, value: Option<String>) -> Self {
         self.color = value;
         self
     }
-
-    ///Sets `feature_face_asset_id`.
+    /// Sets `feature_face_asset_id`.
     #[must_use]
-    pub fn feature_face_asset_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.feature_face_asset_id = Some(value);
+    pub fn feature_face_asset_id(mut self, value: impl Into<AssetId>) -> Self {
+        self.feature_face_asset_id = Some(value.into());
         self
     }
-
-    ///Sets or clears `feature_face_asset_id`.
+    /// Sets or clears `feature_face_asset_id`.
     #[must_use]
-    pub fn set_feature_face_asset_id(mut self, value: Option<::uuid::Uuid>) -> Self {
+    pub fn set_feature_face_asset_id(mut self, value: Option<AssetId>) -> Self {
         self.feature_face_asset_id = value;
         self
     }
-
-    ///Sets `is_favorite`.
+    /// Sets `is_favorite`.
     #[must_use]
     pub fn is_favorite(mut self, value: bool) -> Self {
         self.is_favorite = Some(value);
         self
     }
-
-    ///Sets or clears `is_favorite`.
+    /// Sets or clears `is_favorite`.
     #[must_use]
     pub fn set_is_favorite(mut self, value: Option<bool>) -> Self {
         self.is_favorite = value;
         self
     }
-
-    ///Sets `is_hidden`.
+    /// Sets `is_hidden`.
     #[must_use]
     pub fn is_hidden(mut self, value: bool) -> Self {
         self.is_hidden = Some(value);
         self
     }
-
-    ///Sets or clears `is_hidden`.
+    /// Sets or clears `is_hidden`.
     #[must_use]
     pub fn set_is_hidden(mut self, value: Option<bool>) -> Self {
         self.is_hidden = value;
         self
     }
-
-    ///Sets `name`.
+    /// Sets `name`.
     #[must_use]
     pub fn name(mut self, value: impl Into<String>) -> Self {
         self.name = Some(value.into());
         self
     }
-
-    ///Sets or clears `name`.
+    /// Sets or clears `name`.
     #[must_use]
     pub fn set_name(mut self, value: Option<String>) -> Self {
         self.name = value;
         self
     }
-
-    ///Sets `user_id`.
+    /// Sets `user_id`.
     #[must_use]
-    pub fn user_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.user_id = Some(value);
+    pub fn user_id(mut self, value: impl Into<UserId>) -> Self {
+        self.user_id = Some(value.into());
         self
     }
-
-    ///Sets or clears `user_id`.
+    /// Sets or clears `user_id`.
     #[must_use]
-    pub fn set_user_id(mut self, value: Option<::uuid::Uuid>) -> Self {
+    pub fn set_user_id(mut self, value: Option<UserId>) -> Self {
         self.user_id = value;
         self
-    }
-}
-
-#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-#[serde(transparent)]
-pub struct PersonUpdateColor(pub String);
-
-impl ::std::ops::Deref for PersonUpdateColor {
-    type Target = String;
-    fn deref(&self) -> &String {
-        &self.0
-    }
-}
-
-impl ::std::str::FromStr for PersonUpdateColor {
-    type Err = crate::common::error::ConversionError;
-    fn from_str(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        static PATTERN: ::std::sync::LazyLock<::regex::Regex> = ::std::sync::LazyLock::new(|| {
-            ::regex::Regex::new("^#?([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$").unwrap()
-        });
-        if PATTERN.find(value).is_none() {
-            return Err(
-                "doesn't match pattern \"^#?([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$\"".into(),
-            );
-        }
-        Ok(Self(value.to_string()))
-    }
-}
-
-impl TryFrom<&str> for PersonUpdateColor {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<&String> for PersonUpdateColor {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<String> for PersonUpdateColor {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl<'de> ::serde::Deserialize<'de> for PersonUpdateColor {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: ::serde::Deserializer<'de>,
-    {
-        String::deserialize(deserializer)?
-            .parse()
-            .map_err(|e: crate::common::error::ConversionError| <D::Error as ::serde::de::Error>::custom(e.to_string()))
     }
 }
 
 /// `PersonUsersDeleteDTO`
 ///
 /// See: <https://api.immich.app/models/PersonUsersDeleteDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
 #[serde(transparent)]
 pub struct PersonUsersDeleteDTO(pub Vec<PersonUsersDeleteItem>);
 
@@ -1174,60 +957,58 @@ impl From<Vec<PersonUsersDeleteItem>> for PersonUsersDeleteDTO {
     }
 }
 
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+/// `PersonUsersDeleteDtoItem`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct PersonUsersDeleteItem {
-    ///Person ID
+    /// Person ID
     #[serde(rename = "personId")]
-    pub person_id: ::uuid::Uuid,
-    ///User ID of the user that gave access to the person
+    pub person_id: PersonId,
+    /// User ID of the user that gave access to the person
     #[serde(
         rename = "sharedById",
         default,
         skip_serializing_if = "::std::option::Option::is_none"
     )]
-    pub shared_by_id: Option<::uuid::Uuid>,
-    ///User ID of the user that was given access to the person
+    pub shared_by_id: Option<UserId>,
+    /// User ID of the user that was given access to the person
     #[serde(rename = "sharedWithId")]
-    pub shared_with_id: ::uuid::Uuid,
+    pub shared_with_id: UserId,
 }
 
 impl PersonUsersDeleteItem {
-    ///Creates a new [`PersonUsersDeleteItem`].
+    /// Creates a new [`PersonUsersDeleteItem`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(person_id: ::uuid::Uuid, shared_with_id: ::uuid::Uuid) -> Self {
+    pub fn new(person_id: impl Into<PersonId>, shared_with_id: impl Into<UserId>) -> Self {
         Self {
-            person_id,
+            person_id: person_id.into(),
             shared_by_id: None,
-            shared_with_id,
+            shared_with_id: shared_with_id.into(),
         }
     }
-
-    ///Sets `person_id`.
+    /// Sets `person_id`.
     #[must_use]
-    pub fn person_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.person_id = value;
+    pub fn person_id(mut self, value: impl Into<PersonId>) -> Self {
+        self.person_id = value.into();
         self
     }
-
-    ///Sets `shared_by_id`.
+    /// Sets `shared_by_id`.
     #[must_use]
-    pub fn shared_by_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.shared_by_id = Some(value);
+    pub fn shared_by_id(mut self, value: impl Into<UserId>) -> Self {
+        self.shared_by_id = Some(value.into());
         self
     }
-
-    ///Sets or clears `shared_by_id`.
+    /// Sets or clears `shared_by_id`.
     #[must_use]
-    pub fn set_shared_by_id(mut self, value: Option<::uuid::Uuid>) -> Self {
+    pub fn set_shared_by_id(mut self, value: Option<UserId>) -> Self {
         self.shared_by_id = value;
         self
     }
-
-    ///Sets `shared_with_id`.
+    /// Sets `shared_with_id`.
     #[must_use]
-    pub fn shared_with_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.shared_with_id = value;
+    pub fn shared_with_id(mut self, value: impl Into<UserId>) -> Self {
+        self.shared_with_id = value.into();
         self
     }
 }
@@ -1235,7 +1016,7 @@ impl PersonUsersDeleteItem {
 /// `PersonUsersResponseDTO`
 ///
 /// See: <https://api.immich.app/models/PersonUsersResponseDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
 #[serde(transparent)]
 pub struct PersonUsersResponseDTO(pub Vec<PersonUsersResponseItem>);
 
@@ -1252,88 +1033,84 @@ impl From<Vec<PersonUsersResponseItem>> for PersonUsersResponseDTO {
     }
 }
 
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+/// `PersonUsersResponseDtoItem`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct PersonUsersResponseItem {
-    ///Person ID
+    /// Person ID
     #[serde(rename = "personId")]
-    pub person_id: ::uuid::Uuid,
-    ///Access role
+    pub person_id: PersonId,
+    /// Access role
     pub role: PersonUserRole,
-    ///The user that gave access to this person
+    /// The user that gave access to this person
     #[serde(rename = "sharedBy")]
     pub shared_by: UserResponseDTO,
-    ///User ID of the user that gave access to this person
+    /// User ID of the user that gave access to this person
     #[serde(rename = "sharedById")]
-    pub shared_by_id: ::uuid::Uuid,
-    ///The user that was given access to this person
+    pub shared_by_id: UserId,
+    /// The user that was given access to this person
     #[serde(rename = "sharedWith")]
     pub shared_with: UserResponseDTO,
-    ///User ID of the user that was given access to this person
+    /// User ID of the user that was given access to this person
     #[serde(rename = "sharedWithId")]
-    pub shared_with_id: ::uuid::Uuid,
+    pub shared_with_id: UserId,
 }
 
 impl PersonUsersResponseItem {
-    ///Creates a new [`PersonUsersResponseItem`].
+    /// Creates a new [`PersonUsersResponseItem`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(
-        person_id: ::uuid::Uuid,
+        person_id: impl Into<PersonId>,
         role: PersonUserRole,
         shared_by: UserResponseDTO,
-        shared_by_id: ::uuid::Uuid,
+        shared_by_id: impl Into<UserId>,
         shared_with: UserResponseDTO,
-        shared_with_id: ::uuid::Uuid,
+        shared_with_id: impl Into<UserId>,
     ) -> Self {
         Self {
-            person_id,
+            person_id: person_id.into(),
             role,
             shared_by,
-            shared_by_id,
+            shared_by_id: shared_by_id.into(),
             shared_with,
-            shared_with_id,
+            shared_with_id: shared_with_id.into(),
         }
     }
-
-    ///Sets `person_id`.
+    /// Sets `person_id`.
     #[must_use]
-    pub fn person_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.person_id = value;
+    pub fn person_id(mut self, value: impl Into<PersonId>) -> Self {
+        self.person_id = value.into();
         self
     }
-
-    ///Sets `role`.
+    /// Sets `role`.
     #[must_use]
     pub fn role(mut self, value: PersonUserRole) -> Self {
         self.role = value;
         self
     }
-
-    ///Sets `shared_by`.
+    /// Sets `shared_by`.
     #[must_use]
     pub fn shared_by(mut self, value: UserResponseDTO) -> Self {
         self.shared_by = value;
         self
     }
-
-    ///Sets `shared_by_id`.
+    /// Sets `shared_by_id`.
     #[must_use]
-    pub fn shared_by_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.shared_by_id = value;
+    pub fn shared_by_id(mut self, value: impl Into<UserId>) -> Self {
+        self.shared_by_id = value.into();
         self
     }
-
-    ///Sets `shared_with`.
+    /// Sets `shared_with`.
     #[must_use]
     pub fn shared_with(mut self, value: UserResponseDTO) -> Self {
         self.shared_with = value;
         self
     }
-
-    ///Sets `shared_with_id`.
+    /// Sets `shared_with_id`.
     #[must_use]
-    pub fn shared_with_id(mut self, value: ::uuid::Uuid) -> Self {
-        self.shared_with_id = value;
+    pub fn shared_with_id(mut self, value: impl Into<UserId>) -> Self {
+        self.shared_with_id = value.into();
         self
     }
 }
@@ -1341,57 +1118,99 @@ impl PersonUsersResponseItem {
 /// Sharing direction
 ///
 /// See: <https://api.immich.app/models/SharingDirection>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[non_exhaustive]
 pub enum SharingDirection {
-    #[serde(rename = "shared-by")]
     SharedBy,
-    #[serde(rename = "shared-with")]
     SharedWith,
-    ///Unknown value returned by a newer version of the Immich server.
-    #[serde(other)]
-    UnknownValue,
+    /// Unknown value returned by a newer version of the Immich server.
+    Unknown(String),
 }
 
-#[allow(clippy::match_same_arms)]
+impl SharingDirection {
+    /// Returns the wire string representation of this enum value.
+    #[must_use]
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::SharedBy => "shared-by",
+            Self::SharedWith => "shared-with",
+            Self::Unknown(s) => s.as_str(),
+        }
+    }
+}
+
 impl ::std::fmt::Display for SharingDirection {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        match *self {
-            Self::SharedBy => f.write_str("shared-by"),
-            Self::SharedWith => f.write_str("shared-with"),
-            Self::UnknownValue => f.write_str("unknown"),
+        f.write_str(self.as_str())
+    }
+}
+
+impl From<&str> for SharingDirection {
+    fn from(value: &str) -> Self {
+        match value {
+            "shared-by" => Self::SharedBy,
+            "shared-with" => Self::SharedWith,
+            other => Self::Unknown(other.to_owned()),
         }
+    }
+}
+
+impl From<String> for SharingDirection {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "shared-by" => Self::SharedBy,
+            "shared-with" => Self::SharedWith,
+            _ => Self::Unknown(value),
+        }
+    }
+}
+
+impl From<&String> for SharingDirection {
+    fn from(value: &String) -> Self {
+        Self::from(value.as_str())
     }
 }
 
 impl ::std::str::FromStr for SharingDirection {
-    type Err = crate::common::error::ConversionError;
-    fn from_str(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        match value {
-            "shared-by" => Ok(Self::SharedBy),
-            "shared-with" => Ok(Self::SharedWith),
-            _ => Err(format!("invalid value for {}: {}", "SharingDirection", value).into()),
+    type Err = ::std::convert::Infallible;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        Ok(Self::from(value))
+    }
+}
+
+impl ::serde::Serialize for SharingDirection {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: ::serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+
+impl<'de> ::serde::Deserialize<'de> for SharingDirection {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        struct EnumVisitor;
+        impl ::serde::de::Visitor<'_> for EnumVisitor {
+            type Value = SharingDirection;
+            fn expecting(&self, formatter: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                formatter.write_str("a string")
+            }
+            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(SharingDirection::from(value))
+            }
+            fn visit_string<E>(self, value: String) -> Result<Self::Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                Ok(SharingDirection::from(value))
+            }
         }
-    }
-}
-
-impl TryFrom<&str> for SharingDirection {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &str) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<&String> for SharingDirection {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: &String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
-    }
-}
-
-impl TryFrom<String> for SharingDirection {
-    type Error = crate::common::error::ConversionError;
-    fn try_from(value: String) -> Result<Self, crate::common::error::ConversionError> {
-        value.parse()
+        deserializer.deserialize_str(EnumVisitor)
     }
 }
