@@ -16,6 +16,7 @@ on:
         type: choice
         options:
           - none
+          - all
           - immich-rs
           - immich-models
         default: 'none'
@@ -134,7 +135,7 @@ jobs:
           if [ "$STATUS" = "404" ]; then
             echo "📦 immich-rs not yet on crates.io — initial release at current version"
             echo "resolved_type=" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.event.inputs.force_major }}" == "immich-rs" ]]; then
+          elif [[ "${{ github.event.inputs.force_major }}" == "immich-rs" || "${{ github.event.inputs.force_major }}" == "all" ]]; then
             echo "📌 Forced major release for immich-rs"
             echo "resolved_type=major" >> $GITHUB_OUTPUT
           elif [[ "${{ steps.semver.outcome }}" == "success" ]]; then
@@ -153,7 +154,7 @@ jobs:
           if [ "$STATUS" = "404" ]; then
             echo "📦 immich-models not yet on crates.io — initial release at current version"
             echo "resolved_type=" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.event.inputs.force_major }}" == "immich-models" ]]; then
+          elif [[ "${{ github.event.inputs.force_major }}" == "immich-models" || "${{ github.event.inputs.force_major }}" == "all" ]]; then
             echo "📌 Forced major release for immich-models"
             echo "resolved_type=major" >> $GITHUB_OUTPUT
           elif [[ "${{ steps.semver_models.outcome }}" == "success" ]]; then

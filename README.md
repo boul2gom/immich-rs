@@ -31,7 +31,7 @@
     <img src="https://img.shields.io/crates/v/immich-rs?label=Release&logo=rust" alt="Release"/>
   </a>
   <a href="https://docs.rs/immich-rs">
-    <img src="https://img.shields.io/docsrs/immich-rs?logo=docs.rs" alt="Documentation"/>
+    <img src="https://img.shields.io/docsrs/immich-rs?label=docs.rs&logo=docs.rs" alt="Documentation"/>
   </a>
   <a href="https://crates.io/crates/immich-rs">
     <img src="https://img.shields.io/crates/d/immich-rs?label=Downloads&logo=rust" alt="Downloads"/>
