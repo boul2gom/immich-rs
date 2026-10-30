@@ -39,6 +39,8 @@ rustls-tls = ["reqwest/rustls-tls"]
 native-tls = ["reqwest/default-tls"]
 socketio = ["dep:rust_socketio"]
 opentelemetry = ["dep:opentelemetry"]
+cli-config = ["dep:toml", "dep:serde-saphyr"]
+test-util = []
 
 [dependencies]
 # Workspace crates
@@ -53,6 +55,8 @@ tower-layer.workspace = true
 futures-core.workspace = true
 futures-util.workspace = true
 async-stream.workspace = true
+arc-swap.workspace = true
+bytes.workspace = true
 
 # Serialization
 serde.workspace = true
@@ -81,6 +85,10 @@ hex.workspace = true
 rand.workspace = true
 scopeguard.workspace = true
 
+# CLI Configuration parsers (optional)
+toml = { workspace = true, optional = true }
+serde-saphyr = { workspace = true, optional = true }
+
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 tokio = { workspace = true, features = ["rt", "time", "fs"] }
 tokio-util = { workspace = true, features = ["io"], optional = true }
@@ -102,6 +110,7 @@ tempfile.workspace = true
 wasm-bindgen-test.workspace = true
 
 [dev-dependencies]
+http.workspace = true
 uuid = { workspace = true, features = ["v4"] }
 tracing-subscriber.workspace = true
 anyhow.workspace = true

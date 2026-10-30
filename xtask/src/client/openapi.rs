@@ -204,11 +204,11 @@ pub fn extract_endpoints(spec: &Value) -> Result<Vec<EndpointDef>> {
 
                             paginator = crate::client::detect_pagination::detect_paginator(op, schema, spec);
                         } else if !content.is_empty() {
-                            response_type = Some("reqwest::Response".to_string());
+                            response_type = Some("crate::ByteStream".to_string());
                             is_raw_response = true;
                         }
                     } else if operation_id == "getSyncStream" || path.ends_with("/stream") {
-                        response_type = Some("reqwest::Response".to_string());
+                        response_type = Some("crate::ByteStream".to_string());
                         is_raw_response = true;
                     }
                 }

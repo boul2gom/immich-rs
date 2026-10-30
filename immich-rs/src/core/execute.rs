@@ -10,8 +10,8 @@ use crate::error::{Error, Result};
 /// A single URL path segment used to construct endpoint URLs safely without path traversal.
 #[derive(Debug, Clone, Copy)]
 pub(crate) enum PathSegment<'a> {
-    /// Static literal segment from the `OpenAPI` route template.
-    Static(&'static str),
+    /// Static literal segment from the `OpenAPI` route template or a custom route.
+    Static(&'a str),
     /// Dynamic user-provided path parameter segment.
     Param(&'a str),
 }
@@ -45,7 +45,8 @@ pub(crate) fn build_endpoint_url(base_url: &Url, segments: &[PathSegment<'_>]) -
 
 impl ImmichClient {
     fn attach_auth(&self, mut req: RequestBuilder) -> RequestBuilder {
-        match &self.inner.auth {
+        let auth = self.inner.auth.load();
+        match auth.as_ref() {
             crate::client::Auth::ApiKey(k) => req = req.header("x-api-key", k.clone()),
             crate::client::Auth::Bearer(t) => {
                 req = req.header(reqwest::header::AUTHORIZATION, t.clone());
@@ -55,8 +56,8 @@ impl ImmichClient {
         req
     }
 
-    /// Prepares a new HTTP request from a static `OpenAPI` path.
-    pub(crate) fn prepare_request(&self, method: Method, path: &'static str) -> Result<RequestBuilder> {
+    /// Prepares a new HTTP request from a path.
+    pub(crate) fn prepare_request(&self, method: Method, path: &str) -> Result<RequestBuilder> {
         let url = build_endpoint_url(&self.inner.base_url, &[PathSegment::Static(path)])?;
         Ok(self.attach_auth(self.inner.raw_http.request(method, url)))
     }

@@ -431,29 +431,33 @@ pub struct SearchAssetsPaginator<'a> {
 }
 
 impl<'a> SearchAssetsPaginator<'a> {
-    /// Returns an asynchronous [`Stream`](futures_core::Stream) yielding pages of items.
-    #[must_use = "streams do nothing unless polled"]
-    pub fn pages(self) -> impl futures_core::Stream<Item = Result<Vec<AssetResponseDTO>, crate::Error>> + 'a {
-        let mut builder = self.builder;
-        async_stream::try_stream! {
-            loop { let res = builder.clone().send(). await ?; let assets = res.assets;
-            let is_empty = assets.items.is_empty(); let next_cursor = assets.next_cursor
-            .filter(| c | ! c.is_empty()); let next_page = assets.next_page.as_deref()
-            .and_then(| p | p.parse:: < u64 > ().ok())
-            .and_then(std::num::NonZeroU64::new); yield assets.items; if is_empty {
-            break; } else if let Some(cursor) = next_cursor { builder.body.cursor =
-            Some(cursor); builder.body.page = None; } else if let Some(page) = next_page
-            { builder.body.page = Some(page); } else { break; } }
-        }
+    /// Returns an asynchronous paginated stream yielding pages of items.
+    #[must_use = "streams do nothing unless polled or awaited"]
+    pub fn pages(self) -> crate::client::PaginationStream<'a, Vec<AssetResponseDTO>> {
+        let stream = {
+            let mut builder = self.builder;
+            async_stream::try_stream! {
+                loop { let res = builder.clone().send(). await ?; let assets = res
+                .assets; let is_empty = assets.items.is_empty(); let next_cursor = assets
+                .next_cursor.filter(| c | ! c.is_empty()); let next_page = assets
+                .next_page.as_deref().and_then(| p | p.parse:: < u64 > ().ok())
+                .and_then(std::num::NonZeroU64::new); yield assets.items; if is_empty {
+                break; } else if let Some(cursor) = next_cursor { builder.body.cursor =
+                Some(cursor); builder.body.page = None; } else if let Some(page) =
+                next_page { builder.body.page = Some(page); } else { break; } }
+            }
+        };
+        crate::client::PaginationStream::new(stream)
     }
-    /// Returns an asynchronous [`Stream`](futures_core::Stream) yielding individual items, flattened across pages.
-    #[must_use = "streams do nothing unless polled"]
-    pub fn items(self) -> impl futures_core::Stream<Item = Result<AssetResponseDTO, crate::Error>> + 'a {
+    /// Returns an asynchronous paginated stream yielding individual items, flattened across pages.
+    #[must_use = "streams do nothing unless polled or awaited"]
+    pub fn items(self) -> crate::client::PaginationStream<'a, AssetResponseDTO> {
         use futures_util::StreamExt;
-        self.pages().flat_map(|page_res| match page_res {
+        let stream = self.pages().flat_map(|page_res| match page_res {
             Ok(items) => futures_util::stream::iter(items.into_iter().map(Ok)).left_stream(),
             Err(err) => futures_util::stream::once(async move { Err(err) }).right_stream(),
-        })
+        });
+        crate::client::PaginationStream::new(stream)
     }
 }
 
@@ -1219,26 +1223,31 @@ pub struct SearchSmartPaginator<'a> {
 }
 
 impl<'a> SearchSmartPaginator<'a> {
-    /// Returns an asynchronous [`Stream`](futures_core::Stream) yielding pages of items.
-    #[must_use = "streams do nothing unless polled"]
-    pub fn pages(self) -> impl futures_core::Stream<Item = Result<Vec<AssetResponseDTO>, crate::Error>> + 'a {
-        let mut builder = self.builder;
-        async_stream::try_stream! {
-            loop { let res = builder.clone().send(). await ?; let assets = res.assets;
-            let is_empty = assets.items.is_empty(); let next_page = assets.next_page
-            .as_deref().and_then(| p | p.parse:: < u64 > ().ok())
-            .and_then(std::num::NonZeroU64::new); yield assets.items; match next_page {
-            Some(page) if ! is_empty => builder.body.page = Some(page), _ => break, } }
-        }
+    /// Returns an asynchronous paginated stream yielding pages of items.
+    #[must_use = "streams do nothing unless polled or awaited"]
+    pub fn pages(self) -> crate::client::PaginationStream<'a, Vec<AssetResponseDTO>> {
+        let stream = {
+            let mut builder = self.builder;
+            async_stream::try_stream! {
+                loop { let res = builder.clone().send(). await ?; let assets = res
+                .assets; let is_empty = assets.items.is_empty(); let next_page = assets
+                .next_page.as_deref().and_then(| p | p.parse:: < u64 > ().ok())
+                .and_then(std::num::NonZeroU64::new); yield assets.items; match next_page
+                { Some(page) if ! is_empty => builder.body.page = Some(page), _ => break,
+                } }
+            }
+        };
+        crate::client::PaginationStream::new(stream)
     }
-    /// Returns an asynchronous [`Stream`](futures_core::Stream) yielding individual items, flattened across pages.
-    #[must_use = "streams do nothing unless polled"]
-    pub fn items(self) -> impl futures_core::Stream<Item = Result<AssetResponseDTO, crate::Error>> + 'a {
+    /// Returns an asynchronous paginated stream yielding individual items, flattened across pages.
+    #[must_use = "streams do nothing unless polled or awaited"]
+    pub fn items(self) -> crate::client::PaginationStream<'a, AssetResponseDTO> {
         use futures_util::StreamExt;
-        self.pages().flat_map(|page_res| match page_res {
+        let stream = self.pages().flat_map(|page_res| match page_res {
             Ok(items) => futures_util::stream::iter(items.into_iter().map(Ok)).left_stream(),
             Err(err) => futures_util::stream::once(async move { Err(err) }).right_stream(),
-        })
+        });
+        crate::client::PaginationStream::new(stream)
     }
 }
 

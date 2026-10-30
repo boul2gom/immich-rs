@@ -5,12 +5,15 @@ pub mod api;
 /// Client builder, authentication configuration, and HTTP transport setup.
 pub mod client;
 pub mod compatibility;
+pub mod config;
 /// Structured API, transport, validation, and real-time error types.
 pub mod error;
 #[cfg(all(feature = "socketio", not(target_arch = "wasm32")))]
 pub mod events;
 pub mod middleware;
 pub mod progress;
+#[cfg(feature = "test-util")]
+pub mod test_util;
 
 #[cfg(all(feature = "fs", not(target_arch = "wasm32")))]
 mod bulk;
@@ -19,11 +22,11 @@ mod download;
 mod upload;
 mod utils;
 
-pub use core::{BoxCloneSyncService, RequestConfig};
+pub use core::{BoxCloneSyncService, ByteStream, RequestConfig};
 
 #[cfg(all(feature = "fs", not(target_arch = "wasm32")))]
 pub use bulk::{BulkUploadBuilder, BulkUploadItem, BulkUploadResult};
-pub use client::{BoxService, ImmichClient, ImmichClientBuilder};
+pub use client::{BoxService, ImmichClient, ImmichClientBuilder, PaginationStream, RawRequestBuilder};
 pub use compatibility::Compatibility;
 pub use error::{ApiErrorDetails, Error, ErrorKind, ImmichErrorCode, Result};
 #[cfg(all(feature = "socketio", not(target_arch = "wasm32")))]
@@ -36,6 +39,14 @@ pub type BoxFuture<'a, T> = std::pin::Pin<Box<dyn std::future::Future<Output = T
 /// A boxed pinned future that is `Send` on native targets and single-threaded on WebAssembly targets.
 #[cfg(target_arch = "wasm32")]
 pub type BoxFuture<'a, T> = std::pin::Pin<Box<dyn std::future::Future<Output = T> + 'a>>;
+
+/// A boxed pinned stream that is `Send` on native targets and single-threaded on WebAssembly targets.
+#[cfg(not(target_arch = "wasm32"))]
+pub type BoxStream<'a, T> = std::pin::Pin<Box<dyn futures_core::Stream<Item = T> + Send + 'a>>;
+
+/// A boxed pinned stream that is `Send` on native targets and single-threaded on WebAssembly targets.
+#[cfg(target_arch = "wasm32")]
+pub type BoxStream<'a, T> = std::pin::Pin<Box<dyn futures_core::Stream<Item = T> + 'a>>;
 
 /// Marker trait representing `Send` on multi-threaded targets and an unconstrained marker on single-threaded WebAssembly targets.
 #[cfg(not(target_arch = "wasm32"))]

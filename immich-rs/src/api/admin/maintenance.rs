@@ -240,29 +240,29 @@ pub struct GetIntegrityReportPaginator<'a> {
 }
 
 impl<'a> GetIntegrityReportPaginator<'a> {
-    /// Returns an asynchronous [`Stream`](futures_core::Stream) yielding pages of items.
-    #[must_use = "streams do nothing unless polled"]
-    pub fn pages(
-        self,
-    ) -> impl futures_core::Stream<Item = Result<Vec<IntegrityReportResponseItemsItem>, crate::Error>> + 'a {
-        let mut builder = self.builder;
-        async_stream::try_stream! {
-            loop { let res = builder.clone().send(). await ?; let items = res.items; let
-            is_empty = items.is_empty(); let next = res.next_cursor; yield items; if
-            is_empty { break; } match next { Some(c) if ! c.is_empty() => builder =
-            builder.cursor(c), _ => break, } }
-        }
+    /// Returns an asynchronous paginated stream yielding pages of items.
+    #[must_use = "streams do nothing unless polled or awaited"]
+    pub fn pages(self) -> crate::client::PaginationStream<'a, Vec<IntegrityReportResponseItemsItem>> {
+        let stream = {
+            let mut builder = self.builder;
+            async_stream::try_stream! {
+                loop { let res = builder.clone().send(). await ?; let items = res.items;
+                let is_empty = items.is_empty(); let next = res.next_cursor; yield items;
+                if is_empty { break; } match next { Some(c) if ! c.is_empty() => builder
+                = builder.cursor(c), _ => break, } }
+            }
+        };
+        crate::client::PaginationStream::new(stream)
     }
-    /// Returns an asynchronous [`Stream`](futures_core::Stream) yielding individual items, flattened across pages.
-    #[must_use = "streams do nothing unless polled"]
-    pub fn items(
-        self,
-    ) -> impl futures_core::Stream<Item = Result<IntegrityReportResponseItemsItem, crate::Error>> + 'a {
+    /// Returns an asynchronous paginated stream yielding individual items, flattened across pages.
+    #[must_use = "streams do nothing unless polled or awaited"]
+    pub fn items(self) -> crate::client::PaginationStream<'a, IntegrityReportResponseItemsItem> {
         use futures_util::StreamExt;
-        self.pages().flat_map(|page_res| match page_res {
+        let stream = self.pages().flat_map(|page_res| match page_res {
             Ok(items) => futures_util::stream::iter(items.into_iter().map(Ok)).left_stream(),
             Err(err) => futures_util::stream::once(async move { Err(err) }).right_stream(),
-        })
+        });
+        crate::client::PaginationStream::new(stream)
     }
 }
 
@@ -298,7 +298,7 @@ impl GetIntegrityReportCsvBuilder<'_> {
     /// # Errors
     ///
     /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
-    pub async fn send(self) -> Result<reqwest::Response, crate::Error> {
+    pub async fn send(self) -> Result<crate::ByteStream, crate::Error> {
         tracing::trace!(
             module = "admin/maintenance",
             method = "GET",
@@ -318,12 +318,12 @@ impl GetIntegrityReportCsvBuilder<'_> {
         )?;
         request = self.request_config.apply(request)?;
         let raw_response = self.client.execute_stream("admin/maintenance", request).await?;
-        Ok(raw_response)
+        Ok(crate::ByteStream::new(raw_response))
     }
 }
 
 impl<'a> std::future::IntoFuture for GetIntegrityReportCsvBuilder<'a> {
-    type Output = Result<reqwest::Response, crate::Error>;
+    type Output = Result<crate::ByteStream, crate::Error>;
     type IntoFuture = crate::BoxFuture<'a, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         Box::pin(self.send())
@@ -362,7 +362,7 @@ impl GetIntegrityReportFileBuilder<'_> {
     /// # Errors
     ///
     /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
-    pub async fn send(self) -> Result<reqwest::Response, crate::Error> {
+    pub async fn send(self) -> Result<crate::ByteStream, crate::Error> {
         tracing::trace!(
             module = "admin/maintenance",
             method = "GET",
@@ -382,12 +382,12 @@ impl GetIntegrityReportFileBuilder<'_> {
         )?;
         request = self.request_config.apply(request)?;
         let raw_response = self.client.execute_stream("admin/maintenance", request).await?;
-        Ok(raw_response)
+        Ok(crate::ByteStream::new(raw_response))
     }
 }
 
 impl<'a> std::future::IntoFuture for GetIntegrityReportFileBuilder<'a> {
-    type Output = Result<reqwest::Response, crate::Error>;
+    type Output = Result<crate::ByteStream, crate::Error>;
     type IntoFuture = crate::BoxFuture<'a, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         Box::pin(self.send())
@@ -730,7 +730,7 @@ impl<'a> Maintenance<'a> {
     /// |------|-------------|
     /// | `200` |  |
     ///
-    /// **Returns:** `reqwest::Response`
+    /// **Returns:** `crate::ByteStream`
     ///
     /// # Errors
     /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
@@ -757,7 +757,7 @@ impl<'a> Maintenance<'a> {
     /// |------|-------------|
     /// | `200` |  |
     ///
-    /// **Returns:** `reqwest::Response`
+    /// **Returns:** `crate::ByteStream`
     ///
     /// # Errors
     /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.

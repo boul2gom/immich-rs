@@ -364,7 +364,7 @@ impl DownloadAssetBuilder<'_> {
     /// # Errors
     ///
     /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
-    pub async fn send(self) -> Result<reqwest::Response, crate::Error> {
+    pub async fn send(self) -> Result<crate::ByteStream, crate::Error> {
         #[derive(serde::Serialize)]
         struct QueryParams<'b> {
             #[serde(rename = "edited", skip_serializing_if = "Option::is_none")]
@@ -397,12 +397,12 @@ impl DownloadAssetBuilder<'_> {
         };
         request = request.query(&query);
         let raw_response = self.client.execute_stream("assets", request).await?;
-        Ok(raw_response)
+        Ok(crate::ByteStream::new(raw_response))
     }
 }
 
 impl<'a> std::future::IntoFuture for DownloadAssetBuilder<'a> {
-    type Output = Result<reqwest::Response, crate::Error>;
+    type Output = Result<crate::ByteStream, crate::Error>;
     type IntoFuture = crate::BoxFuture<'a, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         Box::pin(self.send())
@@ -1079,7 +1079,7 @@ impl GetMainPlaylistBuilder<'_> {
     /// # Errors
     ///
     /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
-    pub async fn send(self) -> Result<reqwest::Response, crate::Error> {
+    pub async fn send(self) -> Result<crate::ByteStream, crate::Error> {
         #[derive(serde::Serialize)]
         struct QueryParams<'b> {
             #[serde(rename = "key", skip_serializing_if = "Option::is_none")]
@@ -1111,12 +1111,12 @@ impl GetMainPlaylistBuilder<'_> {
         };
         request = request.query(&query);
         let raw_response = self.client.execute_stream("assets", request).await?;
-        Ok(raw_response)
+        Ok(crate::ByteStream::new(raw_response))
     }
 }
 
 impl<'a> std::future::IntoFuture for GetMainPlaylistBuilder<'a> {
-    type Output = Result<reqwest::Response, crate::Error>;
+    type Output = Result<crate::ByteStream, crate::Error>;
     type IntoFuture = crate::BoxFuture<'a, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         Box::pin(self.send())
@@ -1190,7 +1190,7 @@ impl GetMediaPlaylistBuilder<'_> {
     /// # Errors
     ///
     /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
-    pub async fn send(self) -> Result<reqwest::Response, crate::Error> {
+    pub async fn send(self) -> Result<crate::ByteStream, crate::Error> {
         #[derive(serde::Serialize)]
         struct QueryParams<'b> {
             #[serde(rename = "key", skip_serializing_if = "Option::is_none")]
@@ -1229,12 +1229,12 @@ impl GetMediaPlaylistBuilder<'_> {
         };
         request = request.query(&query);
         let raw_response = self.client.execute_stream("assets", request).await?;
-        Ok(raw_response)
+        Ok(crate::ByteStream::new(raw_response))
     }
 }
 
 impl<'a> std::future::IntoFuture for GetMediaPlaylistBuilder<'a> {
-    type Output = Result<reqwest::Response, crate::Error>;
+    type Output = Result<crate::ByteStream, crate::Error>;
     type IntoFuture = crate::BoxFuture<'a, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         Box::pin(self.send())
@@ -1309,7 +1309,7 @@ impl GetSegmentBuilder<'_> {
     /// # Errors
     ///
     /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
-    pub async fn send(self) -> Result<reqwest::Response, crate::Error> {
+    pub async fn send(self) -> Result<crate::ByteStream, crate::Error> {
         #[derive(serde::Serialize)]
         struct QueryParams<'b> {
             #[serde(rename = "key", skip_serializing_if = "Option::is_none")]
@@ -1348,12 +1348,12 @@ impl GetSegmentBuilder<'_> {
         };
         request = request.query(&query);
         let raw_response = self.client.execute_stream("assets", request).await?;
-        Ok(raw_response)
+        Ok(crate::ByteStream::new(raw_response))
     }
 }
 
 impl<'a> std::future::IntoFuture for GetSegmentBuilder<'a> {
-    type Output = Result<reqwest::Response, crate::Error>;
+    type Output = Result<crate::ByteStream, crate::Error>;
     type IntoFuture = crate::BoxFuture<'a, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         Box::pin(self.send())
@@ -1414,7 +1414,7 @@ impl PlayAssetVideoBuilder<'_> {
     /// # Errors
     ///
     /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
-    pub async fn send(self) -> Result<reqwest::Response, crate::Error> {
+    pub async fn send(self) -> Result<crate::ByteStream, crate::Error> {
         #[derive(serde::Serialize)]
         struct QueryParams<'b> {
             #[serde(rename = "key", skip_serializing_if = "Option::is_none")]
@@ -1445,12 +1445,12 @@ impl PlayAssetVideoBuilder<'_> {
         };
         request = request.query(&query);
         let raw_response = self.client.execute_stream("assets", request).await?;
-        Ok(raw_response)
+        Ok(crate::ByteStream::new(raw_response))
     }
 }
 
 impl<'a> std::future::IntoFuture for PlayAssetVideoBuilder<'a> {
-    type Output = Result<reqwest::Response, crate::Error>;
+    type Output = Result<crate::ByteStream, crate::Error>;
     type IntoFuture = crate::BoxFuture<'a, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         Box::pin(self.send())
@@ -1981,7 +1981,7 @@ impl ViewAssetBuilder<'_> {
     /// # Errors
     ///
     /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
-    pub async fn send(self) -> Result<reqwest::Response, crate::Error> {
+    pub async fn send(self) -> Result<crate::ByteStream, crate::Error> {
         #[derive(serde::Serialize)]
         struct QueryParams<'b> {
             #[serde(rename = "edited", skip_serializing_if = "Option::is_none")]
@@ -2017,12 +2017,12 @@ impl ViewAssetBuilder<'_> {
         };
         request = request.query(&query);
         let raw_response = self.client.execute_stream("assets", request).await?;
-        Ok(raw_response)
+        Ok(crate::ByteStream::new(raw_response))
     }
 }
 
 impl<'a> std::future::IntoFuture for ViewAssetBuilder<'a> {
-    type Output = Result<reqwest::Response, crate::Error>;
+    type Output = Result<crate::ByteStream, crate::Error>;
     type IntoFuture = crate::BoxFuture<'a, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         Box::pin(self.send())
@@ -2215,7 +2215,7 @@ impl<'a> Assets<'a> {
     /// |------|-------------|
     /// | `200` |  |
     ///
-    /// **Returns:** `reqwest::Response`
+    /// **Returns:** `crate::ByteStream`
     ///
     /// # Errors
     /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
@@ -2483,7 +2483,7 @@ impl<'a> Assets<'a> {
     /// |------|-------------|
     /// | `200` |  |
     ///
-    /// **Returns:** `reqwest::Response`
+    /// **Returns:** `crate::ByteStream`
     ///
     /// # Errors
     /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
@@ -2517,7 +2517,7 @@ impl<'a> Assets<'a> {
     /// |------|-------------|
     /// | `200` |  |
     ///
-    /// **Returns:** `reqwest::Response`
+    /// **Returns:** `crate::ByteStream`
     ///
     /// # Errors
     /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
@@ -2560,7 +2560,7 @@ impl<'a> Assets<'a> {
     /// |------|-------------|
     /// | `200` |  |
     ///
-    /// **Returns:** `reqwest::Response`
+    /// **Returns:** `crate::ByteStream`
     ///
     /// # Errors
     /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
@@ -2601,7 +2601,7 @@ impl<'a> Assets<'a> {
     /// |------|-------------|
     /// | `200` |  |
     ///
-    /// **Returns:** `reqwest::Response`
+    /// **Returns:** `crate::ByteStream`
     ///
     /// # Errors
     /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
@@ -2837,7 +2837,7 @@ impl<'a> Assets<'a> {
     /// |------|-------------|
     /// | `200` |  |
     ///
-    /// **Returns:** `reqwest::Response`
+    /// **Returns:** `crate::ByteStream`
     ///
     /// # Errors
     /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.

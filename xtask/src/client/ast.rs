@@ -306,7 +306,7 @@ pub(crate) fn emit_endpoint<S: std::hash::BuildHasher>(
         if endpoint.is_raw_response {
             quote! {
                 let raw_response = self.client.execute_stream(#trace_module, request).await?;
-                Ok(raw_response)
+                Ok(crate::ByteStream::new(raw_response))
             }
         } else {
             quote! {

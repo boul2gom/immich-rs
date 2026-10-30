@@ -144,7 +144,7 @@ pub(crate) fn map_socket_event(event: Event, payload: Payload) -> Option<ServerE
 pub(crate) fn build_opening_headers(client: &ImmichClient) -> Vec<(&'static str, String)> {
     let mut headers = Vec::new();
     if let Some(key) = client.api_key() {
-        headers.push(("x-api-key", key.to_string()));
+        headers.push(("x-api-key", key));
     } else if let Some(token) = client.bearer_token() {
         headers.push(("Authorization", format!("Bearer {token}")));
     }

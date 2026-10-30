@@ -5,14 +5,13 @@
 #[cfg(all(feature = "fs", not(target_arch = "wasm32")))]
 use std::path::Path;
 
-use futures_util::StreamExt;
 use immich_models::id::AssetId;
 #[cfg(all(feature = "fs", not(target_arch = "wasm32")))]
 use tokio::fs::File;
 use tokio::io::AsyncWriteExt;
 
 use crate::client::ImmichClient;
-use crate::error::{Error, Result};
+use crate::error::Result;
 use crate::progress::ProgressSender;
 
 impl ImmichClient {
@@ -48,8 +47,8 @@ impl ImmichClient {
 
     #[cfg(all(feature = "fs", not(target_arch = "wasm32")))]
     async fn download_internal(&self, asset_id: AssetId, dest: &Path, progress: Option<ProgressSender>) -> Result<()> {
-        let resp = self.assets().download_asset(asset_id).await?;
-        let total = resp.content_length();
+        let mut stream = self.assets().download_asset(asset_id).await?;
+        let total = stream.content_length();
 
         let mut tmp_os = dest.as_os_str().to_os_string();
         tmp_os.push(format!(".{asset_id}.tmp"));
@@ -61,7 +60,6 @@ impl ImmichClient {
 
         let file = File::create(&tmp_dest).await?;
         let mut writer = tokio::io::BufWriter::with_capacity(64 * 1024, file);
-        let mut stream = resp.bytes_stream();
         let mut transferred = 0u64;
 
         if let Some(ref p) = progress {
@@ -69,7 +67,7 @@ impl ImmichClient {
         }
 
         while let Some(chunk_result) = stream.next().await {
-            let chunk = chunk_result.map_err(Error::Transport)?;
+            let chunk = chunk_result?;
             writer.write_all(&chunk).await?;
             transferred += chunk.len() as u64;
             if let Some(ref p) = progress {
@@ -130,9 +128,8 @@ impl ImmichClient {
     where
         W: tokio::io::AsyncWrite + Unpin,
     {
-        let resp = self.assets().download_asset(asset_id).await?;
-        let total = resp.content_length();
-        let mut stream = resp.bytes_stream();
+        let mut stream = self.assets().download_asset(asset_id).await?;
+        let total = stream.content_length();
         let mut total_bytes = 0u64;
 
         if let Some(ref p) = progress {
@@ -140,7 +137,7 @@ impl ImmichClient {
         }
 
         while let Some(chunk_result) = stream.next().await {
-            let chunk = chunk_result.map_err(Error::Transport)?;
+            let chunk = chunk_result?;
             writer.write_all(&chunk).await?;
             total_bytes += chunk.len() as u64;
             if let Some(ref p) = progress {

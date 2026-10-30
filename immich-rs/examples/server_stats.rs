@@ -55,8 +55,8 @@ async fn main() -> Result<()> {
         Compatibility::ServerNewer { .. } => {
             println!("   Status:              ⚠️ Server is newer than SDK target; deprecated fields may differ");
         }
-        Compatibility::Unparseable { server, target } => {
-            println!("   Status:              ❓ Unparseable version format: server={server}, target={target}");
+        Compatibility::Unparsable { server, target } => {
+            println!("   Status:              ❓ Unparsable version format: server={server}, target={target}");
         }
         _ => {
             println!("   Status:              Unknown compatibility state");

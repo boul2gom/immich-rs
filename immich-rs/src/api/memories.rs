@@ -707,27 +707,31 @@ impl<'a> SearchMemoriesPaginator<'a> {
         self.builder = self.builder.size(size);
         self
     }
-    /// Returns an asynchronous [`Stream`](futures_core::Stream) yielding pages of items.
-    #[must_use = "streams do nothing unless polled"]
-    pub fn pages(self) -> impl futures_core::Stream<Item = Result<Vec<MemoryResponseDTO>, crate::Error>> + 'a {
-        let builder = self.builder;
-        let mut current_page = builder.page.unwrap_or(1);
-        async_stream::try_stream! {
-            loop { let items = builder.clone().page(current_page).send(). await ?; let
-            count = items.len(); yield items; if count == 0 { break; } else if let
-            Some(expected) = builder.size { let count_i64 = i64::try_from(count)
-            .unwrap_or(i64::MAX); if count_i64 < expected { break; } } current_page += 1;
+    /// Returns an asynchronous paginated stream yielding pages of items.
+    #[must_use = "streams do nothing unless polled or awaited"]
+    pub fn pages(self) -> crate::client::PaginationStream<'a, Vec<MemoryResponseDTO>> {
+        let stream = {
+            let builder = self.builder;
+            let mut current_page = builder.page.unwrap_or(1);
+            async_stream::try_stream! {
+                loop { let items = builder.clone().page(current_page).send(). await ?;
+                let count = items.len(); yield items; if count == 0 { break; } else if
+                let Some(expected) = builder.size { let count_i64 = i64::try_from(count)
+                .unwrap_or(i64::MAX); if count_i64 < expected { break; } } current_page
+                += 1; }
             }
-        }
+        };
+        crate::client::PaginationStream::new(stream)
     }
-    /// Returns an asynchronous [`Stream`](futures_core::Stream) yielding individual items, flattened across pages.
-    #[must_use = "streams do nothing unless polled"]
-    pub fn items(self) -> impl futures_core::Stream<Item = Result<MemoryResponseDTO, crate::Error>> + 'a {
+    /// Returns an asynchronous paginated stream yielding individual items, flattened across pages.
+    #[must_use = "streams do nothing unless polled or awaited"]
+    pub fn items(self) -> crate::client::PaginationStream<'a, MemoryResponseDTO> {
         use futures_util::StreamExt;
-        self.pages().flat_map(|page_res| match page_res {
+        let stream = self.pages().flat_map(|page_res| match page_res {
             Ok(items) => futures_util::stream::iter(items.into_iter().map(Ok)).left_stream(),
             Err(err) => futures_util::stream::once(async move { Err(err) }).right_stream(),
-        })
+        });
+        crate::client::PaginationStream::new(stream)
     }
 }
 

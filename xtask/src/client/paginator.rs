@@ -195,20 +195,24 @@ pub fn generate_paginator<S: std::hash::BuildHasher>(
         impl<'a> #paginator_ident<'a> {
             #extra_methods
 
-            /// Returns an asynchronous [`Stream`](futures_core::Stream) yielding pages of items.
-            #[must_use = "streams do nothing unless polled"]
-            pub fn pages(self) -> impl futures_core::Stream<Item = Result<Vec<#inner_type_tokens>, crate::Error>> + 'a {
-                #pages_stream_impl
+            /// Returns an asynchronous paginated stream yielding pages of items.
+            #[must_use = "streams do nothing unless polled or awaited"]
+            pub fn pages(self) -> crate::client::PaginationStream<'a, Vec<#inner_type_tokens>> {
+                let stream = {
+                    #pages_stream_impl
+                };
+                crate::client::PaginationStream::new(stream)
             }
 
-            /// Returns an asynchronous [`Stream`](futures_core::Stream) yielding individual items, flattened across pages.
-            #[must_use = "streams do nothing unless polled"]
-            pub fn items(self) -> impl futures_core::Stream<Item = Result<#inner_type_tokens, crate::Error>> + 'a {
+            /// Returns an asynchronous paginated stream yielding individual items, flattened across pages.
+            #[must_use = "streams do nothing unless polled or awaited"]
+            pub fn items(self) -> crate::client::PaginationStream<'a, #inner_type_tokens> {
                 use futures_util::StreamExt;
-                self.pages().flat_map(|page_res| match page_res {
+                let stream = self.pages().flat_map(|page_res| match page_res {
                     Ok(items) => futures_util::stream::iter(items.into_iter().map(Ok)).left_stream(),
                     Err(err) => futures_util::stream::once(async move { Err(err) }).right_stream(),
-                })
+                });
+                crate::client::PaginationStream::new(stream)
             }
         }
     };
@@ -297,20 +301,24 @@ pub fn generate_search_body_paginator(
         }
 
         impl<'a> #paginator_ident<'a> {
-            /// Returns an asynchronous [`Stream`](futures_core::Stream) yielding pages of items.
-            #[must_use = "streams do nothing unless polled"]
-            pub fn pages(self) -> impl futures_core::Stream<Item = Result<Vec<immich_models::assets::AssetResponseDTO>, crate::Error>> + 'a {
-                #pages_stream_impl
+            /// Returns an asynchronous paginated stream yielding pages of items.
+            #[must_use = "streams do nothing unless polled or awaited"]
+            pub fn pages(self) -> crate::client::PaginationStream<'a, Vec<immich_models::assets::AssetResponseDTO>> {
+                let stream = {
+                    #pages_stream_impl
+                };
+                crate::client::PaginationStream::new(stream)
             }
 
-            /// Returns an asynchronous [`Stream`](futures_core::Stream) yielding individual items, flattened across pages.
-            #[must_use = "streams do nothing unless polled"]
-            pub fn items(self) -> impl futures_core::Stream<Item = Result<immich_models::assets::AssetResponseDTO, crate::Error>> + 'a {
+            /// Returns an asynchronous paginated stream yielding individual items, flattened across pages.
+            #[must_use = "streams do nothing unless polled or awaited"]
+            pub fn items(self) -> crate::client::PaginationStream<'a, immich_models::assets::AssetResponseDTO> {
                 use futures_util::StreamExt;
-                self.pages().flat_map(|page_res| match page_res {
+                let stream = self.pages().flat_map(|page_res| match page_res {
                     Ok(items) => futures_util::stream::iter(items.into_iter().map(Ok)).left_stream(),
                     Err(err) => futures_util::stream::once(async move { Err(err) }).right_stream(),
-                })
+                });
+                crate::client::PaginationStream::new(stream)
             }
         }
     };

@@ -65,12 +65,12 @@ fn evaluate_compatibility_handles_prerelease_and_build_metadata() {
 }
 
 #[test]
-fn evaluate_compatibility_flags_invalid_semver_as_unparseable() {
+fn evaluate_compatibility_flags_invalid_semver_as_unparsable() {
     for invalid in ["", "unknown", "v3", "3.3.x", "1.2.3.4"] {
         let res = evaluate_compatibility(invalid, "v3.3.5");
         assert_eq!(
             res,
-            Compatibility::Unparseable {
+            Compatibility::Unparsable {
                 server: invalid.into(),
                 target: "v3.3.5",
             }

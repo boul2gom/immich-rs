@@ -100,7 +100,7 @@ impl DownloadAssetFileBuilder<'_> {
     /// # Errors
     ///
     /// Returns an [`Error`](crate::Error) if request validation fails, the API returns an HTTP 4xx/5xx status, or deserialization fails.
-    pub async fn send(self) -> Result<reqwest::Response, crate::Error> {
+    pub async fn send(self) -> Result<crate::ByteStream, crate::Error> {
         tracing::trace!(
             module = "assets/files",
             method = "GET",
@@ -118,12 +118,12 @@ impl DownloadAssetFileBuilder<'_> {
         )?;
         request = self.request_config.apply(request)?;
         let raw_response = self.client.execute_stream("assets/files", request).await?;
-        Ok(raw_response)
+        Ok(crate::ByteStream::new(raw_response))
     }
 }
 
 impl<'a> std::future::IntoFuture for DownloadAssetFileBuilder<'a> {
-    type Output = Result<reqwest::Response, crate::Error>;
+    type Output = Result<crate::ByteStream, crate::Error>;
     type IntoFuture = crate::BoxFuture<'a, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         Box::pin(self.send())
@@ -368,7 +368,7 @@ impl<'a> Files<'a> {
     /// |------|-------------|
     /// | `200` |  |
     ///
-    /// **Returns:** `reqwest::Response`
+    /// **Returns:** `crate::ByteStream`
     ///
     /// # Errors
     /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.

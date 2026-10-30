@@ -36,8 +36,8 @@ pub enum Compatibility {
         target: &'static str,
     },
     /// Either the server version or SDK target version could not be parsed as `SemVer`.
-    Unparseable {
-        /// The unparseable server version string.
+    Unparsable {
+        /// The unparsable server version string.
         server: String,
         /// The SDK target version.
         target: &'static str,
@@ -75,7 +75,7 @@ pub fn evaluate_compatibility(server_version: &str, target_version: &'static str
     let parsed_target = parse_semver(target_version);
 
     let (Some((s_maj, s_min, s_patch)), Some((t_maj, t_min, t_patch))) = (parsed_server, parsed_target) else {
-        return Compatibility::Unparseable {
+        return Compatibility::Unparsable {
             server: server_version.to_string(),
             target: target_version,
         };
@@ -112,7 +112,7 @@ impl ImmichClient {
     /// Checks the remote Immich server version and compares it with this SDK's target version.
     ///
     /// This is an advisory check. It never returns an error on version mismatch, but logs
-    /// a [`tracing::warn!`] if the server is older, newer, or unparseable compared to this SDK's target `OpenAPI` version.
+    /// a [`tracing::warn!`] if the server is older, newer, or unparsable compared to this SDK's target `OpenAPI` version.
     ///
     /// # Errors
     ///
@@ -151,7 +151,7 @@ impl ImmichClient {
                     "Immich server is newer than this SDK target version; some new features may be absent"
                 );
             }
-            Compatibility::Unparseable { server, target } => {
+            Compatibility::Unparsable { server, target } => {
                 tracing::warn!(
                     server = %server,
                     target = *target,

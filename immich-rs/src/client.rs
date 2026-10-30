@@ -7,6 +7,12 @@ use tower_layer::Layer;
 use crate::core::RetryPolicy;
 use crate::error::{Error, Result};
 
+pub mod pagination_stream;
+pub mod raw_request;
+
+pub use pagination_stream::PaginationStream;
+pub use raw_request::RawRequestBuilder;
+
 #[derive(Clone, Default)]
 pub(crate) enum Auth {
     ApiKey(HeaderValue),
@@ -67,7 +73,7 @@ pub(crate) struct ClientState {
     pub(crate) http: BoxService,
     pub(crate) raw_http: reqwest::Client,
     pub(crate) base_url: Url,
-    pub(crate) auth: Auth,
+    pub(crate) auth: std::sync::Arc<arc_swap::ArcSwap<Auth>>,
     pub(crate) retry_policy: RetryPolicy,
 }
 
@@ -76,7 +82,7 @@ impl std::fmt::Debug for ClientState {
         f.debug_struct("ClientState")
             .field("raw_http", &self.raw_http)
             .field("base_url", &self.base_url)
-            .field("auth", &self.auth)
+            .field("auth", &**self.auth.load())
             .field("retry_policy", &self.retry_policy)
             .finish_non_exhaustive()
     }
@@ -138,20 +144,162 @@ impl ImmichClient {
 
     /// Returns the configured API key, if present.
     #[must_use]
-    pub fn api_key(&self) -> Option<&str> {
-        match &self.inner.auth {
-            Auth::ApiKey(val) => val.to_str().ok(),
+    pub fn api_key(&self) -> Option<String> {
+        let auth = self.inner.auth.load();
+        match auth.as_ref() {
+            Auth::ApiKey(val) => val.to_str().ok().map(ToOwned::to_owned),
             Auth::Bearer(_) | Auth::None => None,
         }
     }
 
     /// Returns the configured raw Bearer token (without the `"Bearer "` prefix), if present.
     #[must_use]
-    pub fn bearer_token(&self) -> Option<&str> {
-        match &self.inner.auth {
-            Auth::Bearer(val) => val.to_str().ok().map(|s| s.strip_prefix("Bearer ").unwrap_or(s)),
+    pub fn bearer_token(&self) -> Option<String> {
+        let auth = self.inner.auth.load();
+        match auth.as_ref() {
+            Auth::Bearer(val) => val
+                .to_str()
+                .ok()
+                .map(|s| s.strip_prefix("Bearer ").unwrap_or(s).to_string()),
             Auth::ApiKey(_) | Auth::None => None,
         }
+    }
+
+    /// Dynamically updates the Bearer token used for all subsequent requests on this client.
+    ///
+    /// Reads and swaps are atomic and lock-free across all threads.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the token is empty or contains invalid header characters.
+    pub fn set_bearer_token(&self, token: impl AsRef<str>) -> Result<()> {
+        let auth = Auth::from_bearer_token(token.as_ref()).map_err(Error::Validation)?;
+        self.inner.auth.store(std::sync::Arc::new(auth));
+        Ok(())
+    }
+
+    /// Dynamically updates the API key used for all subsequent requests on this client.
+    ///
+    /// Reads and swaps are atomic and lock-free across all threads.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the key is empty or contains invalid header characters.
+    pub fn set_api_key(&self, key: impl AsRef<str>) -> Result<()> {
+        let auth = Auth::from_api_key(key.as_ref()).map_err(Error::Validation)?;
+        self.inner.auth.store(std::sync::Arc::new(auth));
+        Ok(())
+    }
+
+    /// Authenticates with the Immich server using email and password, setting the resulting
+    /// Bearer access token on this client instance in-place.
+    ///
+    /// Returns the server's [`LoginResponseDTO`](immich_models::authentication::LoginResponseDTO)
+    /// containing user account information and session details.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the login request fails (e.g. invalid credentials) or updating the token fails.
+    pub async fn login(
+        &self,
+        email: impl Into<String>,
+        password: impl Into<String>,
+    ) -> Result<immich_models::authentication::LoginResponseDTO> {
+        let creds = immich_models::authentication::LoginCredentialDTO::new(email, password);
+        let resp = self.authentication().login(creds).send().await?;
+        self.set_bearer_token(&resp.access_token)?;
+        Ok(resp)
+    }
+
+    /// Creates and authenticates a new `ImmichClient` instance using email and password.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if client construction fails or authentication fails.
+    pub async fn login_to(
+        base_url: impl Into<String>,
+        email: impl Into<String>,
+        password: impl Into<String>,
+    ) -> Result<Self> {
+        let client = Self::builder().base_url(base_url).build()?;
+        client.login(email, password).await?;
+        Ok(client)
+    }
+
+    /// Creates a new `ImmichClient` by loading configuration from the official `@immich/cli` auth file.
+    ///
+    /// Reads `$IMMICH_CONFIG_DIR/auth.yml` or `~/.config/immich/auth.yml`.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the configuration file is missing, invalid YAML, or contains empty credentials.
+    #[cfg(all(feature = "cli-config", not(target_arch = "wasm32")))]
+    pub fn from_immich_cli() -> Result<Self> {
+        let (url, key) = crate::config::cli::resolve_from_immich_cli()?;
+        Self::new(url, key)
+    }
+
+    /// Creates a new `ImmichClient` by loading configuration from `immich-go` files.
+    ///
+    /// Checks `./immich-go.toml`, `./immich-go.yaml`, `./immich-go.json`, and `~/.config/immich-go/`.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if no `immich-go` configuration file is found or if parsing fails.
+    #[cfg(all(feature = "cli-config", not(target_arch = "wasm32")))]
+    pub fn from_immich_go() -> Result<Self> {
+        let (url, key) = crate::config::cli::resolve_from_immich_go()?;
+        Self::new(url, key)
+    }
+
+    /// Creates a new `ImmichClient` by cascading through environment variables and CLI configurations.
+    ///
+    /// Discovery priority:
+    /// 1. Environment variables (`IMMICH_INSTANCE_URL` / `IMMICH_API_KEY`)
+    /// 2. Local `immich-go` file in current working directory (`./immich-go.toml`, etc.)
+    /// 3. Global `@immich/cli` configuration (`~/.config/immich/auth.yml`)
+    /// 4. Global `immich-go` configuration (`~/.config/immich-go/`)
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if no valid Immich instance URL and API key could be discovered from any source.
+    #[cfg(all(feature = "cli-config", not(target_arch = "wasm32")))]
+    pub fn from_env_or_config() -> Result<Self> {
+        let (url, key) = crate::config::cli::resolve_env_or_config()?;
+        Self::new(url, key)
+    }
+
+    /// Starts a low-level HTTP request against the Immich instance at the specified path.
+    ///
+    /// Dispatched requests traverse the client's full Tower middleware stack
+    /// (authentication, tracing, retries, rate limiting).
+    pub fn request(&self, method: reqwest::Method, path: impl Into<String>) -> RawRequestBuilder<'_> {
+        RawRequestBuilder::new(self, method, path)
+    }
+
+    /// Shortcut to execute a low-level HTTP `GET` request.
+    pub fn get(&self, path: impl Into<String>) -> RawRequestBuilder<'_> {
+        self.request(reqwest::Method::GET, path)
+    }
+
+    /// Shortcut to execute a low-level HTTP `POST` request.
+    pub fn post(&self, path: impl Into<String>) -> RawRequestBuilder<'_> {
+        self.request(reqwest::Method::POST, path)
+    }
+
+    /// Shortcut to execute a low-level HTTP `PUT` request.
+    pub fn put(&self, path: impl Into<String>) -> RawRequestBuilder<'_> {
+        self.request(reqwest::Method::PUT, path)
+    }
+
+    /// Shortcut to execute a low-level HTTP `PATCH` request.
+    pub fn patch(&self, path: impl Into<String>) -> RawRequestBuilder<'_> {
+        self.request(reqwest::Method::PATCH, path)
+    }
+
+    /// Shortcut to execute a low-level HTTP `DELETE` request.
+    pub fn delete(&self, path: impl Into<String>) -> RawRequestBuilder<'_> {
+        self.request(reqwest::Method::DELETE, path)
     }
 }
 
@@ -175,6 +323,7 @@ pub struct ImmichClientBuilder {
     default_headers: Option<reqwest::header::HeaderMap>,
     layers: Vec<LayerFn>,
     rate_limit_per_second: Option<u32>,
+    connector: Option<BoxService>,
 }
 
 impl std::fmt::Debug for ImmichClientBuilder {
@@ -343,6 +492,22 @@ impl ImmichClientBuilder {
         self
     }
 
+    /// Sets a custom underlying transport service, replacing the default [`reqwest::Client`] network transport.
+    ///
+    /// This enables running in-memory mock tests or custom protocol bridges without binding network ports.
+    pub fn connector<S>(mut self, service: S) -> Self
+    where
+        S: tower_service::Service<reqwest::Request, Response = reqwest::Response, Error = Error>
+            + Clone
+            + Send
+            + Sync
+            + 'static,
+        S::Future: crate::MaybeSend + 'static,
+    {
+        self.connector = Some(crate::core::BoxCloneSyncService::new(service));
+        self
+    }
+
     /// Builds the [`ImmichClient`] synchronously without performing any implicit network I/O.
     ///
     /// To immediately verify server version compatibility upon startup, use [`Self::build_checked`].
@@ -402,7 +567,11 @@ impl ImmichClientBuilder {
 
         let raw_http = cb.build()?;
         let retry_policy = RetryPolicy::default_with_max(self.max_retries.unwrap_or(3));
-        let base_transport = crate::core::ReqwestTransport::new(raw_http.clone());
+        let base_transport: BoxService = if let Some(custom) = self.connector {
+            custom
+        } else {
+            crate::core::BoxCloneSyncService::new(crate::core::ReqwestTransport::new(raw_http.clone()))
+        };
 
         let service = if self.layers.is_empty() {
             match (self.rate_limit_per_second, retry_policy.max_attempts > 0) {
@@ -447,7 +616,7 @@ impl ImmichClientBuilder {
                 http: service,
                 raw_http,
                 base_url: parsed_url,
-                auth: self.auth,
+                auth: std::sync::Arc::new(arc_swap::ArcSwap::from_pointee(self.auth)),
                 retry_policy,
             }),
         })

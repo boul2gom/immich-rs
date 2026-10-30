@@ -1,3 +1,4 @@
+pub(crate) mod byte_stream;
 pub(crate) mod execute;
 pub(crate) mod metrics;
 pub(crate) mod request_config;
@@ -5,6 +6,7 @@ pub(crate) mod retry;
 pub(crate) mod time;
 pub(crate) mod transport;
 
+pub use byte_stream::ByteStream;
 pub(crate) use execute::PathSegment;
 pub use request_config::RequestConfig;
 pub(crate) use retry::{RetryLayer, RetryPolicy};
