@@ -137,7 +137,7 @@ If you only need the `OpenAPI` data models and DTOs without network or HTTP depe
 
 ```toml
 [dependencies]
-immich-models = "0.1.0"
+immich-models = "1.0.0"
 ```
 
 ---

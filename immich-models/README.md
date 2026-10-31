@@ -63,7 +63,7 @@ Add `immich-models` to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-immich-models = "0.1.0"
+immich-models = "1.0.0"
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.154"
 ```

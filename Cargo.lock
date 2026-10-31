@@ -1252,7 +1252,7 @@ dependencies = [
 
 [[package]]
 name = "immich-models"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "chrono",
  "pretty_assertions",
@@ -1263,7 +1263,7 @@ dependencies = [
 
 [[package]]
 name = "immich-rs"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -3665,7 +3665,7 @@ dependencies = [
 
 [[package]]
 name = "xtask"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "anyhow",
  "heck",
