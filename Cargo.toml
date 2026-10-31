@@ -7,6 +7,8 @@ consolidate-commits = false
 shared-version = false
 sign-commit = true
 sign-tag = true
+pre-release-commit-message = "chore: release v{{version}}"
+tag-message = "chore: release v{{version}}"
 
 [workspace.package]
 version = "1.0.0"

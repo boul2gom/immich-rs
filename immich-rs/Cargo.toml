@@ -7,7 +7,7 @@ authors.workspace = true
 description = "Async, type-safe Rust SDK for the Immich self-hosted photo and video management platform."
 
 license.workspace = true
-readme = "../README.md"
+readme = "README.md"
 documentation = "https://docs.rs/immich-rs"
 homepage = "https://github.com/boul2gom/immich-rs"
 repository = "https://github.com/boul2gom/immich-rs"
@@ -24,8 +24,8 @@ targets = ["x86_64-unknown-linux-gnu", "x86_64-pc-windows-msvc", "aarch64-apple-
 
 [package.metadata.release]
 tag-name = "v{{version}}"
-tag-message = "🔖 v{{version}}"
-pre-release-commit-message = "🔖 v{{version}}"
+tag-message = "chore: release v{{version}}"
+pre-release-commit-message = "chore: release v{{version}}"
 pre-release-replacements = [
   {file="../README.md", search='immich-rs = "[\d.]+"', replace='immich-rs = "{{version}}"', min=1},
   {file="../README.md", search='(immich-rs = \{ version = )"[\d.]+"', replace='$1"{{version}}"', min=1},

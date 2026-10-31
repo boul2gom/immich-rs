@@ -24,8 +24,8 @@ targets = ["x86_64-unknown-linux-gnu", "x86_64-pc-windows-msvc", "aarch64-apple-
 
 [package.metadata.release]
 tag-name = "models-v{{version}}"
-tag-message = "🔖 immich-models v{{version}}"
-pre-release-commit-message = "🔖 immich-models v{{version}}"
+tag-message = "chore: release models-v{{version}}"
+pre-release-commit-message = "chore: release models-v{{version}}"
 pre-release-replacements = [
   {file="../README.md", search='immich-models = "[\d.]+"', replace='immich-models = "{{version}}"', min=1},
   {file="README.md", search='immich-models = "[\d.]+"', replace='immich-models = "{{version}}"', min=1},

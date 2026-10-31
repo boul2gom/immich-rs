@@ -130,7 +130,7 @@ Add `immich-rs` to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-immich-rs = "0.1.0"
+immich-rs = "1.0.0"
 ```
 
 If you only need the `OpenAPI` data models and DTOs without network or HTTP dependencies (e.g. for event workers, webhooks, or custom clients):
