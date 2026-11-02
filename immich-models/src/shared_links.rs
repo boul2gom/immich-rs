@@ -159,7 +159,7 @@ pub struct AssetIdsResponseDTO {
     /// Asset ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
     #[serde(rename = "assetId")]
     pub asset_id: AssetId,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub error: Option<AssetIdErrorReason>,
     /// Whether operation succeeded (required)
     pub success: bool,
@@ -222,39 +222,31 @@ impl AssetIdsResponseDTO {
 #[non_exhaustive]
 pub struct SharedLinkCreateDTO {
     /// Album ID (for album sharing) (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
-    #[serde(rename = "albumId", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "albumId", skip_serializing_if = "::std::option::Option::is_none")]
     pub album_id: Option<AlbumId>,
     /// Allow downloads
     #[serde(rename = "allowDownload", default = "crate::common::defaults::default_bool::<true>")]
     pub allow_download: bool,
     /// Allow uploads
-    #[serde(
-        rename = "allowUpload",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "allowUpload", skip_serializing_if = "::std::option::Option::is_none")]
     pub allow_upload: Option<bool>,
     /// Asset IDs (for individual assets)
     #[serde(rename = "assetIds", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub asset_ids: Vec<AssetId>,
     /// Link description
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub description: Option<String>,
     /// Expiration date (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "expiresAt",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "expiresAt", skip_serializing_if = "::std::option::Option::is_none")]
     pub expires_at: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Link password
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub password: Option<String>,
     /// Show metadata
     #[serde(rename = "showMetadata", default = "crate::common::defaults::default_bool::<true>")]
     pub show_metadata: bool,
     /// Custom URL slug
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub slug: Option<String>,
     /// (required)
     #[serde(rename = "type")]
@@ -390,45 +382,29 @@ impl SharedLinkCreateDTO {
 /// | `slug` | [`String`] |  | Custom URL slug |
 ///
 /// See: <https://api.immich.app/models/SharedLinkEditDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct SharedLinkEditDTO {
     /// Allow downloads
-    #[serde(
-        rename = "allowDownload",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "allowDownload", skip_serializing_if = "::std::option::Option::is_none")]
     pub allow_download: Option<bool>,
     /// Allow uploads
-    #[serde(
-        rename = "allowUpload",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "allowUpload", skip_serializing_if = "::std::option::Option::is_none")]
     pub allow_upload: Option<bool>,
     /// Link description
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub description: Option<String>,
     /// Expiration date (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "expiresAt",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "expiresAt", skip_serializing_if = "::std::option::Option::is_none")]
     pub expires_at: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Link password
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub password: Option<String>,
     /// Show metadata
-    #[serde(
-        rename = "showMetadata",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "showMetadata", skip_serializing_if = "::std::option::Option::is_none")]
     pub show_metadata: Option<bool>,
     /// Custom URL slug
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub slug: Option<String>,
 }
 
@@ -587,7 +563,7 @@ impl SharedLinkLoginDTO {
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 #[non_exhaustive]
 pub struct SharedLinkResponseDTO {
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub album: Option<AlbumResponseDTO>,
     /// Allow downloads (required)
     #[serde(rename = "allowDownload")]

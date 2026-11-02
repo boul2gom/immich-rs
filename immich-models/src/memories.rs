@@ -30,19 +30,19 @@ pub struct MemoryCreateDTO {
     /// (required)
     pub data: MemoryDataDTO,
     /// Date when memory should be hidden (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(rename = "hideAt", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "hideAt", skip_serializing_if = "::std::option::Option::is_none")]
     pub hide_at: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Is memory saved
-    #[serde(rename = "isSaved", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "isSaved", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_saved: Option<bool>,
     /// Memory date (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`) (required)
     #[serde(rename = "memoryAt")]
     pub memory_at: ::chrono::DateTime<::chrono::offset::Utc>,
     /// Date when memory was seen (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(rename = "seenAt", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "seenAt", skip_serializing_if = "::std::option::Option::is_none")]
     pub seen_at: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Date when memory should be shown (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(rename = "showAt", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "showAt", skip_serializing_if = "::std::option::Option::is_none")]
     pub show_at: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// (required)
     #[serde(rename = "type")]
@@ -152,14 +152,10 @@ impl MemoryCreateDTO {
 #[non_exhaustive]
 pub struct MemoryDataDTO {
     /// Person ID (birthday memories) (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
-    #[serde(rename = "personId", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "personId", skip_serializing_if = "::std::option::Option::is_none")]
     pub person_id: Option<PersonId>,
     /// Name of the person when the memory was created (birthday memories)
-    #[serde(
-        rename = "personName",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "personName", skip_serializing_if = "::std::option::Option::is_none")]
     pub person_name: Option<String>,
     /// Year of the memory (required)
     pub year: i64,
@@ -238,14 +234,10 @@ pub struct MemoryResponseDTO {
     /// (required)
     pub data: MemoryDataDTO,
     /// Deletion date (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "deletedAt",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "deletedAt", skip_serializing_if = "::std::option::Option::is_none")]
     pub deleted_at: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Date when memory should be hidden (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(rename = "hideAt", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "hideAt", skip_serializing_if = "::std::option::Option::is_none")]
     pub hide_at: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Memory ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
     pub id: MemoryId,
@@ -259,10 +251,10 @@ pub struct MemoryResponseDTO {
     #[serde(rename = "ownerId")]
     pub owner_id: UserId,
     /// Date when memory was seen (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(rename = "seenAt", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "seenAt", skip_serializing_if = "::std::option::Option::is_none")]
     pub seen_at: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Date when memory should be shown (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(rename = "showAt", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "showAt", skip_serializing_if = "::std::option::Option::is_none")]
     pub show_at: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// (required)
     #[serde(rename = "type")]
@@ -745,17 +737,17 @@ impl<'de> ::serde::Deserialize<'de> for MemoryTypeV1 {
 /// | `seen_at` | [`DateTime`](::chrono::DateTime) |  | Date when memory was seen (pattern: `^(?:(?:\d\d[2468][048]\|\d\d[13579][26]\|\d\d0[48]\|[02468][048]00\|[13579][26]00)-02-29\|\d{4}-(?:(?:0[13578]\|1[02])-(?:0[1-9]\|[12]\d\|3[01])\|(?:0[469]\|11)-(?:0[1-9]\|[12]\d\|30)\|(?:02)-(?:0[1-9]\|1\d\|2[0-8])))T(?:(?:[01]\d\|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z\|([+-](?:[01]\d\|2[0-3]):[0-5]\d)))$`) |
 ///
 /// See: <https://api.immich.app/models/MemoryUpdateDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct MemoryUpdateDTO {
     /// Is memory saved
-    #[serde(rename = "isSaved", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "isSaved", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_saved: Option<bool>,
     /// Memory date (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(rename = "memoryAt", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "memoryAt", skip_serializing_if = "::std::option::Option::is_none")]
     pub memory_at: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Date when memory was seen (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(rename = "seenAt", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "seenAt", skip_serializing_if = "::std::option::Option::is_none")]
     pub seen_at: Option<::chrono::DateTime<::chrono::offset::Utc>>,
 }
 

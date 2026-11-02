@@ -23,11 +23,7 @@ pub use crate::server::LicenseResponseDTO;
 #[non_exhaustive]
 pub struct AuthStatusResponseDTO {
     /// Session expiration date
-    #[serde(
-        rename = "expiresAt",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "expiresAt", skip_serializing_if = "::std::option::Option::is_none")]
     pub expires_at: Option<String>,
     /// Is elevated session (required)
     #[serde(rename = "isElevated")]
@@ -38,11 +34,7 @@ pub struct AuthStatusResponseDTO {
     #[serde(rename = "pinCode")]
     pub pin_code: bool,
     /// PIN expiration date
-    #[serde(
-        rename = "pinExpiresAt",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "pinExpiresAt", skip_serializing_if = "::std::option::Option::is_none")]
     pub pin_expires_at: Option<String>,
 }
 
@@ -435,14 +427,10 @@ impl OAuthBackchannelLogoutDTO {
 #[non_exhaustive]
 pub struct OAuthCallbackDTO {
     /// `OAuth` code verifier (PKCE)
-    #[serde(
-        rename = "codeVerifier",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "codeVerifier", skip_serializing_if = "::std::option::Option::is_none")]
     pub code_verifier: Option<String>,
     /// `OAuth` state parameter
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub state: Option<String>,
     /// `OAuth` callback URL (required)
     pub url: String,
@@ -504,17 +492,13 @@ impl OAuthCallbackDTO {
 #[non_exhaustive]
 pub struct OAuthConfigDTO {
     /// `OAuth` code challenge (PKCE)
-    #[serde(
-        rename = "codeChallenge",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "codeChallenge", skip_serializing_if = "::std::option::Option::is_none")]
     pub code_challenge: Option<String>,
     /// `OAuth` redirect URI (required)
     #[serde(rename = "redirectUri")]
     pub redirect_uri: String,
     /// `OAuth` state parameter
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub state: Option<String>,
 }
 
@@ -577,10 +561,10 @@ pub struct PinCodeChangeDTO {
     #[serde(rename = "newPinCode")]
     pub new_pin_code: String,
     /// User password (required if PIN code is not provided)
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub password: Option<String>,
     /// New PIN code (4-6 digits) (pattern: `^\d{6}$`)
-    #[serde(rename = "pinCode", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "pinCode", skip_serializing_if = "::std::option::Option::is_none")]
     pub pin_code: Option<String>,
 }
 
@@ -635,14 +619,14 @@ impl PinCodeChangeDTO {
 /// | `pin_code` | [`String`] |  | New PIN code (4-6 digits) (pattern: `^\d{6}$`) |
 ///
 /// See: <https://api.immich.app/models/PinCodeResetDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct PinCodeResetDTO {
     /// User password (required if PIN code is not provided)
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub password: Option<String>,
     /// New PIN code (4-6 digits) (pattern: `^\d{6}$`)
-    #[serde(rename = "pinCode", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "pinCode", skip_serializing_if = "::std::option::Option::is_none")]
     pub pin_code: Option<String>,
 }
 
@@ -722,14 +706,14 @@ impl PinCodeSetupDTO {
 /// | `pin_code` | [`String`] |  | New PIN code (4-6 digits) (pattern: `^\d{6}$`) |
 ///
 /// See: <https://api.immich.app/models/SessionUnlockDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct SessionUnlockDTO {
     /// User password (required if PIN code is not provided)
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub password: Option<String>,
     /// New PIN code (4-6 digits) (pattern: `^\d{6}$`)
-    #[serde(rename = "pinCode", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "pinCode", skip_serializing_if = "::std::option::Option::is_none")]
     pub pin_code: Option<String>,
 }
 

@@ -1331,6 +1331,37 @@ pub fn transform_binary_types(file: &mut syn::File) {
 pub struct PathCleaner;
 
 impl syn::visit_mut::VisitMut for PathCleaner {
+    fn visit_field_mut(&mut self, field: &mut syn::Field) {
+        field.attrs.retain_mut(|attr| {
+            if attr.path().is_ident("serde")
+                && let syn::Meta::List(ref list) = attr.meta
+                && let Ok(metas) =
+                    list.parse_args_with(syn::punctuated::Punctuated::<syn::Meta, syn::Token![,]>::parse_terminated)
+            {
+                let mut remaining: syn::punctuated::Punctuated<syn::Meta, syn::Token![,]> =
+                    syn::punctuated::Punctuated::new();
+                let mut stripped = false;
+                for meta in metas {
+                    if let syn::Meta::NameValue(ref nv) = meta
+                        && nv.path.is_ident("deserialize_with")
+                    {
+                        stripped = true;
+                        continue;
+                    }
+                    remaining.push(meta);
+                }
+                if stripped {
+                    if remaining.is_empty() {
+                        return false;
+                    }
+                    *attr = syn::parse_quote!(#[serde(#remaining)]);
+                }
+            }
+            true
+        });
+        syn::visit_mut::visit_field_mut(self, field);
+    }
+
     fn visit_attribute_mut(&mut self, attr: &mut syn::Attribute) {
         if attr.path().is_ident("serde")
             && let syn::Meta::List(ref list) = attr.meta

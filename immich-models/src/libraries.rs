@@ -30,7 +30,7 @@ pub struct CreateLibraryDTO {
     #[serde(rename = "importPaths", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub import_paths: Vec<String>,
     /// Library name
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub name: Option<String>,
     /// Owner user ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
     #[serde(rename = "ownerId")]
@@ -284,7 +284,7 @@ impl LibraryStatsResponseDTO {
 /// | `name` | [`String`] |  | Library name |
 ///
 /// See: <https://api.immich.app/models/UpdateLibraryDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct UpdateLibraryDTO {
     /// Exclusion patterns (max 128)
@@ -298,7 +298,7 @@ pub struct UpdateLibraryDTO {
     #[serde(rename = "importPaths", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub import_paths: Vec<String>,
     /// Library name
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub name: Option<String>,
 }
 
@@ -347,7 +347,7 @@ impl UpdateLibraryDTO {
 /// | `import_paths` | [`Vec<String>`](::std::vec::Vec) |  | Import paths to validate (max 128) |
 ///
 /// See: <https://api.immich.app/models/ValidateLibraryDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct ValidateLibraryDTO {
     /// Exclusion patterns (max 128)
@@ -405,7 +405,7 @@ pub struct ValidateLibraryImportPathResponseDTO {
     #[serde(rename = "isValid")]
     pub is_valid: bool,
     /// Validation message
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub message: Option<String>,
 }
 
@@ -453,7 +453,7 @@ impl ValidateLibraryImportPathResponseDTO {
 /// | `import_paths` | [`Vec<ValidateLibraryImportPathResponseDTO>`](crate::libraries::ValidateLibraryImportPathResponseDTO) |  | Validation results for import paths |
 ///
 /// See: <https://api.immich.app/models/ValidateLibraryResponseDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct ValidateLibraryResponseDTO {
     /// Validation results for import paths

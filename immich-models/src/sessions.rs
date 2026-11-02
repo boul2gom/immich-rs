@@ -15,21 +15,17 @@ pub use crate::id::SessionId;
 /// | `duration` | `i64` |  | Session duration in seconds |
 ///
 /// See: <https://api.immich.app/models/SessionCreateDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct SessionCreateDTO {
     /// Device OS
-    #[serde(rename = "deviceOS", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "deviceOS", skip_serializing_if = "::std::option::Option::is_none")]
     pub device_os: Option<String>,
     /// Device type
-    #[serde(
-        rename = "deviceType",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "deviceType", skip_serializing_if = "::std::option::Option::is_none")]
     pub device_type: Option<String>,
     /// Session duration in seconds
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub duration: Option<::std::num::NonZeroU64>,
 }
 
@@ -116,11 +112,7 @@ pub struct SessionCreateResponseDTO {
     #[serde(rename = "deviceType")]
     pub device_type: String,
     /// Expiration date
-    #[serde(
-        rename = "expiresAt",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "expiresAt", skip_serializing_if = "::std::option::Option::is_none")]
     pub expires_at: Option<String>,
     /// Session ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
     pub id: SessionId,
@@ -268,11 +260,7 @@ pub struct SessionResponseDTO {
     #[serde(rename = "deviceType")]
     pub device_type: String,
     /// Expiration date
-    #[serde(
-        rename = "expiresAt",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "expiresAt", skip_serializing_if = "::std::option::Option::is_none")]
     pub expires_at: Option<String>,
     /// Session ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
     pub id: SessionId,
@@ -384,13 +372,12 @@ impl SessionResponseDTO {
 /// | `is_pending_sync_reset` | `bool` |  | Reset pending sync state |
 ///
 /// See: <https://api.immich.app/models/SessionUpdateDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct SessionUpdateDTO {
     /// Reset pending sync state
     #[serde(
         rename = "isPendingSyncReset",
-        default,
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub is_pending_sync_reset: Option<bool>,

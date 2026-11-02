@@ -40,7 +40,7 @@ pub struct AssetFaceCreateDTO {
     #[serde(rename = "personId")]
     pub person_id: PersonId,
     /// User ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
-    #[serde(rename = "userId", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "userId", skip_serializing_if = "::std::option::Option::is_none")]
     pub user_id: Option<UserId>,
     /// Face bounding box width (required)
     pub width: i64,
@@ -207,11 +207,7 @@ pub struct AssetFaceResponseDTO {
     pub image_width: i64,
     /// (required)
     pub person: Option<PersonResponseDTO>,
-    #[serde(
-        rename = "sourceType",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "sourceType", skip_serializing_if = "::std::option::Option::is_none")]
     pub source_type: Option<SourceType>,
 }
 

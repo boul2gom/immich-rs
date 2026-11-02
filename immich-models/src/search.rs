@@ -49,26 +49,26 @@ impl BoolFilter {
 /// | `ne` | [`DateTime`](::chrono::DateTime) |  | Pattern: `^(?:(?:\d\d[2468][048]\|\d\d[13579][26]\|\d\d0[48]\|[02468][048]00\|[13579][26]00)-02-29\|\d{4}-(?:(?:0[13578]\|1[02])-(?:0[1-9]\|[12]\d\|3[01])\|(?:0[469]\|11)-(?:0[1-9]\|[12]\d\|30)\|(?:02)-(?:0[1-9]\|1\d\|2[0-8])))T(?:(?:[01]\d\|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z\|([+-](?:[01]\d\|2[0-3]):[0-5]\d)))$` |
 ///
 /// See: <https://api.immich.app/models/DateFilter>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct DateFilter {
     /// Pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub eq: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub gt: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub gte: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub lt: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub lte: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub ne: Option<::chrono::DateTime<::chrono::offset::Utc>>,
 }
 
@@ -172,26 +172,26 @@ impl DateFilter {
 /// | `ne` | [`DateTime`](::chrono::DateTime) |  | Pattern: `^(?:(?:\d\d[2468][048]\|\d\d[13579][26]\|\d\d0[48]\|[02468][048]00\|[13579][26]00)-02-29\|\d{4}-(?:(?:0[13578]\|1[02])-(?:0[1-9]\|[12]\d\|3[01])\|(?:0[469]\|11)-(?:0[1-9]\|[12]\d\|30)\|(?:02)-(?:0[1-9]\|1\d\|2[0-8])))T(?:(?:[01]\d\|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z\|([+-](?:[01]\d\|2[0-3]):[0-5]\d)))$` |
 ///
 /// See: <https://api.immich.app/models/DateFilterNullable>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct DateFilterNullable {
     /// Pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub eq: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub gt: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub gte: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub lt: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub lte: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub ne: Option<::chrono::DateTime<::chrono::offset::Utc>>,
 }
 
@@ -293,14 +293,14 @@ impl DateFilterNullable {
 /// | `not_in` | [`Vec<AssetTypeEnum>`](crate::assets::AssetTypeEnum) |  |  |
 ///
 /// See: <https://api.immich.app/models/EnumFilterAssetType>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct EnumFilterAssetType {
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub eq: Option<AssetTypeEnum>,
     #[serde(rename = "in", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub in_: Vec<AssetTypeEnum>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub ne: Option<AssetTypeEnum>,
     #[serde(rename = "notIn", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub not_in: Vec<AssetTypeEnum>,
@@ -366,14 +366,14 @@ impl EnumFilterAssetType {
 /// | `not_in` | [`Vec<AssetVisibility>`](crate::assets::AssetVisibility) |  |  |
 ///
 /// See: <https://api.immich.app/models/EnumFilterAssetVisibility>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct EnumFilterAssetVisibility {
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub eq: Option<AssetVisibility>,
     #[serde(rename = "in", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub in_: Vec<AssetVisibility>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub ne: Option<AssetVisibility>,
     #[serde(rename = "notIn", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub not_in: Vec<AssetVisibility>,
@@ -437,14 +437,14 @@ impl EnumFilterAssetVisibility {
 /// | `ne` | [`Uuid`](::uuid::Uuid) |  | Pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$` |
 ///
 /// See: <https://api.immich.app/models/IdFilter>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct IdFilter {
     /// Pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub eq: Option<::uuid::Uuid>,
     /// Pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub ne: Option<::uuid::Uuid>,
 }
 
@@ -489,14 +489,14 @@ impl IdFilter {
 /// | `ne` | [`Uuid`](::uuid::Uuid) |  | Pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$` |
 ///
 /// See: <https://api.immich.app/models/IdFilterNullable>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct IdFilterNullable {
     /// Pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub eq: Option<::uuid::Uuid>,
     /// Pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub ne: Option<::uuid::Uuid>,
 }
 
@@ -542,7 +542,7 @@ impl IdFilterNullable {
 /// | `none` | [`Vec<Uuid>`](::uuid::Uuid) |  |  |
 ///
 /// See: <https://api.immich.app/models/IdsFilter>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct IdsFilter {
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
@@ -642,220 +642,132 @@ pub struct MetadataSearchDTO {
     #[serde(rename = "albumIds", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub album_ids: Vec<AlbumId>,
     /// Filter by file checksum
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub checksum: Option<String>,
     /// Filter by city name
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub city: Option<String>,
     /// Filter by country name
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub country: Option<String>,
     /// Filter by creation date (after) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "createdAfter",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "createdAfter", skip_serializing_if = "::std::option::Option::is_none")]
     pub created_after: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Filter by creation date (before) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "createdBefore",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "createdBefore", skip_serializing_if = "::std::option::Option::is_none")]
     pub created_before: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Cursor for the next page of results
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub cursor: Option<String>,
     /// Filter by description text
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub description: Option<String>,
     /// Filter by encoded video file path
-    #[serde(
-        rename = "encodedVideoPath",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "encodedVideoPath", skip_serializing_if = "::std::option::Option::is_none")]
     pub encoded_video_path: Option<String>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub filter: Option<SearchFilter>,
     /// Filter by asset ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub id: Option<AssetId>,
     /// Filter by encoded status
-    #[serde(
-        rename = "isEncoded",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isEncoded", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_encoded: Option<bool>,
     /// Filter by favorite status
-    #[serde(
-        rename = "isFavorite",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isFavorite", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_favorite: Option<bool>,
     /// Filter by motion photo status
-    #[serde(rename = "isMotion", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "isMotion", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_motion: Option<bool>,
     /// Filter assets not in any album
-    #[serde(
-        rename = "isNotInAlbum",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isNotInAlbum", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_not_in_album: Option<bool>,
     /// Filter by offline status
-    #[serde(
-        rename = "isOffline",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isOffline", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_offline: Option<bool>,
     /// Filter by lens model
-    #[serde(
-        rename = "lensModel",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "lensModel", skip_serializing_if = "::std::option::Option::is_none")]
     pub lens_model: Option<String>,
     /// Library ID to filter by (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
-    #[serde(
-        rename = "libraryId",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "libraryId", skip_serializing_if = "::std::option::Option::is_none")]
     pub library_id: Option<LibraryId>,
     /// Filter by camera make
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub make: Option<String>,
     /// Filter by camera model
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub model: Option<String>,
     /// Filter by OCR text content
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub ocr: Option<String>,
     /// Sort order
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub order: Option<AssetOrder>,
-    #[serde(rename = "orderBy", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "orderBy", skip_serializing_if = "::std::option::Option::is_none")]
     pub order_by: Option<SearchOrder>,
     /// Filter by original file name
-    #[serde(
-        rename = "originalFileName",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "originalFileName", skip_serializing_if = "::std::option::Option::is_none")]
     pub original_file_name: Option<String>,
     /// Filter by original file path
-    #[serde(
-        rename = "originalPath",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "originalPath", skip_serializing_if = "::std::option::Option::is_none")]
     pub original_path: Option<String>,
     /// Page number
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub page: Option<::std::num::NonZeroU64>,
     /// Filter by person IDs
     #[serde(rename = "personIds", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub person_ids: Vec<PersonId>,
     /// Filter by preview file path
-    #[serde(
-        rename = "previewPath",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "previewPath", skip_serializing_if = "::std::option::Option::is_none")]
     pub preview_path: Option<String>,
     /// Filter by rating \[1-5\], or null for unrated
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub rating: Option<::std::num::NonZeroU64>,
     /// Number of results to return
     #[serde(default = "crate::common::defaults::default_nzu64::<::std::num::NonZeroU64, 250>")]
     pub size: ::std::num::NonZeroU64,
     /// Filter by state/province name
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub state: Option<String>,
     /// Filter by tag IDs
-    #[serde(rename = "tagIds", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "tagIds", skip_serializing_if = "::std::option::Option::is_none")]
     pub tag_ids: Option<Vec<TagId>>,
     /// Filter by taken date (after) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "takenAfter",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "takenAfter", skip_serializing_if = "::std::option::Option::is_none")]
     pub taken_after: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Filter by taken date (before) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "takenBefore",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "takenBefore", skip_serializing_if = "::std::option::Option::is_none")]
     pub taken_before: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Filter by thumbnail file path
-    #[serde(
-        rename = "thumbnailPath",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "thumbnailPath", skip_serializing_if = "::std::option::Option::is_none")]
     pub thumbnail_path: Option<String>,
     /// Filter by trash date (after) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "trashedAfter",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "trashedAfter", skip_serializing_if = "::std::option::Option::is_none")]
     pub trashed_after: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Filter by trash date (before) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "trashedBefore",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "trashedBefore", skip_serializing_if = "::std::option::Option::is_none")]
     pub trashed_before: Option<::chrono::DateTime<::chrono::offset::Utc>>,
-    #[serde(rename = "type", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "type", skip_serializing_if = "::std::option::Option::is_none")]
     pub type_: Option<AssetTypeEnum>,
     /// Filter by update date (after) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "updatedAfter",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "updatedAfter", skip_serializing_if = "::std::option::Option::is_none")]
     pub updated_after: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Filter by update date (before) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "updatedBefore",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "updatedBefore", skip_serializing_if = "::std::option::Option::is_none")]
     pub updated_before: Option<::chrono::DateTime<::chrono::offset::Utc>>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub visibility: Option<AssetVisibility>,
     /// Include deleted assets
-    #[serde(
-        rename = "withDeleted",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "withDeleted", skip_serializing_if = "::std::option::Option::is_none")]
     pub with_deleted: Option<bool>,
     /// Include EXIF data in response
-    #[serde(rename = "withExif", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "withExif", skip_serializing_if = "::std::option::Option::is_none")]
     pub with_exif: Option<bool>,
     /// Include people data in response
-    #[serde(
-        rename = "withPeople",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "withPeople", skip_serializing_if = "::std::option::Option::is_none")]
     pub with_people: Option<bool>,
     /// Include stacked assets
-    #[serde(
-        rename = "withStacked",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "withStacked", skip_serializing_if = "::std::option::Option::is_none")]
     pub with_stacked: Option<bool>,
 }
 
@@ -1502,22 +1414,22 @@ impl ::std::default::Default for MetadataSearchDTO {
 /// | `not_in` | `Vec<f64>` |  |  |
 ///
 /// See: <https://api.immich.app/models/NumberFilter>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 #[non_exhaustive]
 pub struct NumberFilter {
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub eq: Option<f64>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub gt: Option<f64>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub gte: Option<f64>,
     #[serde(rename = "in", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub in_: Vec<f64>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub lt: Option<f64>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub lte: Option<f64>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub ne: Option<f64>,
     #[serde(rename = "notIn", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub not_in: Vec<f64>,
@@ -1639,22 +1551,22 @@ impl NumberFilter {
 /// | `not_in` | `Vec<f64>` |  |  |
 ///
 /// See: <https://api.immich.app/models/NumberFilterNullable>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 #[non_exhaustive]
 pub struct NumberFilterNullable {
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub eq: Option<f64>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub gt: Option<f64>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub gte: Option<f64>,
     #[serde(rename = "in", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub in_: Vec<f64>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub lt: Option<f64>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub lte: Option<f64>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub ne: Option<f64>,
     #[serde(rename = "notIn", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub not_in: Vec<f64>,
@@ -1777,10 +1689,10 @@ impl NumberFilterNullable {
 #[non_exhaustive]
 pub struct PlacesResponseDTO {
     /// Administrative level 1 name (state/province)
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub admin1name: Option<String>,
     /// Administrative level 2 name (county/district)
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub admin2name: Option<String>,
     /// Latitude coordinate (required)
     pub latitude: f64,
@@ -1893,165 +1805,97 @@ pub struct RandomSearchDTO {
     #[serde(rename = "albumIds", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub album_ids: Vec<AlbumId>,
     /// Filter by city name
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub city: Option<String>,
     /// Filter by country name
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub country: Option<String>,
     /// Filter by creation date (after) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "createdAfter",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "createdAfter", skip_serializing_if = "::std::option::Option::is_none")]
     pub created_after: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Filter by creation date (before) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "createdBefore",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "createdBefore", skip_serializing_if = "::std::option::Option::is_none")]
     pub created_before: Option<::chrono::DateTime<::chrono::offset::Utc>>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub filter: Option<SearchFilter>,
     /// Filter by encoded status
-    #[serde(
-        rename = "isEncoded",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isEncoded", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_encoded: Option<bool>,
     /// Filter by favorite status
-    #[serde(
-        rename = "isFavorite",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isFavorite", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_favorite: Option<bool>,
     /// Filter by motion photo status
-    #[serde(rename = "isMotion", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "isMotion", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_motion: Option<bool>,
     /// Filter assets not in any album
-    #[serde(
-        rename = "isNotInAlbum",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isNotInAlbum", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_not_in_album: Option<bool>,
     /// Filter by offline status
-    #[serde(
-        rename = "isOffline",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isOffline", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_offline: Option<bool>,
     /// Filter by lens model
-    #[serde(
-        rename = "lensModel",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "lensModel", skip_serializing_if = "::std::option::Option::is_none")]
     pub lens_model: Option<String>,
     /// Library ID to filter by (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
-    #[serde(
-        rename = "libraryId",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "libraryId", skip_serializing_if = "::std::option::Option::is_none")]
     pub library_id: Option<LibraryId>,
     /// Filter by camera make
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub make: Option<String>,
     /// Filter by camera model
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub model: Option<String>,
     /// Filter by OCR text content
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub ocr: Option<String>,
     /// Filter by person IDs
     #[serde(rename = "personIds", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub person_ids: Vec<PersonId>,
     /// Filter by rating \[1-5\], or null for unrated
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub rating: Option<::std::num::NonZeroU64>,
     /// Number of results to return
     #[serde(default = "crate::common::defaults::default_nzu64::<::std::num::NonZeroU64, 250>")]
     pub size: ::std::num::NonZeroU64,
     /// Filter by state/province name
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub state: Option<String>,
     /// Filter by tag IDs
-    #[serde(rename = "tagIds", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "tagIds", skip_serializing_if = "::std::option::Option::is_none")]
     pub tag_ids: Option<Vec<TagId>>,
     /// Filter by taken date (after) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "takenAfter",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "takenAfter", skip_serializing_if = "::std::option::Option::is_none")]
     pub taken_after: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Filter by taken date (before) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "takenBefore",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "takenBefore", skip_serializing_if = "::std::option::Option::is_none")]
     pub taken_before: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Filter by trash date (after) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "trashedAfter",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "trashedAfter", skip_serializing_if = "::std::option::Option::is_none")]
     pub trashed_after: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Filter by trash date (before) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "trashedBefore",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "trashedBefore", skip_serializing_if = "::std::option::Option::is_none")]
     pub trashed_before: Option<::chrono::DateTime<::chrono::offset::Utc>>,
-    #[serde(rename = "type", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "type", skip_serializing_if = "::std::option::Option::is_none")]
     pub type_: Option<AssetTypeEnum>,
     /// Filter by update date (after) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "updatedAfter",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "updatedAfter", skip_serializing_if = "::std::option::Option::is_none")]
     pub updated_after: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Filter by update date (before) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "updatedBefore",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "updatedBefore", skip_serializing_if = "::std::option::Option::is_none")]
     pub updated_before: Option<::chrono::DateTime<::chrono::offset::Utc>>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub visibility: Option<AssetVisibility>,
     /// Include deleted assets
-    #[serde(
-        rename = "withDeleted",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "withDeleted", skip_serializing_if = "::std::option::Option::is_none")]
     pub with_deleted: Option<bool>,
     /// Include EXIF data in response
-    #[serde(rename = "withExif", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "withExif", skip_serializing_if = "::std::option::Option::is_none")]
     pub with_exif: Option<bool>,
     /// Include people data in response
-    #[serde(
-        rename = "withPeople",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "withPeople", skip_serializing_if = "::std::option::Option::is_none")]
     pub with_people: Option<bool>,
     /// Include stacked assets
-    #[serde(
-        rename = "withStacked",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "withStacked", skip_serializing_if = "::std::option::Option::is_none")]
     pub with_stacked: Option<bool>,
 }
 
@@ -2887,135 +2731,75 @@ impl SearchFacetResponseDTO {
 /// | `visibility` | [`EnumFilterAssetVisibility`] |  |  |
 ///
 /// See: <https://api.immich.app/models/SearchFilter>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 #[serde(deny_unknown_fields)]
 #[non_exhaustive]
 pub struct SearchFilter {
-    #[serde(rename = "albumIds", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "albumIds", skip_serializing_if = "::std::option::Option::is_none")]
     pub album_ids: Option<IdsFilter>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub checksum: Option<StringFilter>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub city: Option<StringFilterNullable>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub country: Option<StringFilterNullable>,
-    #[serde(
-        rename = "createdAt",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "createdAt", skip_serializing_if = "::std::option::Option::is_none")]
     pub created_at: Option<DateFilter>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub description: Option<StringPatternFilter>,
-    #[serde(
-        rename = "encodedVideoPath",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "encodedVideoPath", skip_serializing_if = "::std::option::Option::is_none")]
     pub encoded_video_path: Option<StringFilter>,
-    #[serde(
-        rename = "fileSizeInBytes",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "fileSizeInBytes", skip_serializing_if = "::std::option::Option::is_none")]
     pub file_size_in_bytes: Option<NumberFilter>,
-    #[serde(
-        rename = "hasAlbums",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "hasAlbums", skip_serializing_if = "::std::option::Option::is_none")]
     pub has_albums: Option<BoolFilter>,
-    #[serde(
-        rename = "hasPeople",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "hasPeople", skip_serializing_if = "::std::option::Option::is_none")]
     pub has_people: Option<BoolFilter>,
-    #[serde(rename = "hasTags", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "hasTags", skip_serializing_if = "::std::option::Option::is_none")]
     pub has_tags: Option<BoolFilter>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub id: Option<IdFilter>,
-    #[serde(
-        rename = "isEncoded",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isEncoded", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_encoded: Option<BoolFilter>,
-    #[serde(
-        rename = "isFavorite",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isFavorite", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_favorite: Option<BoolFilter>,
-    #[serde(rename = "isMotion", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "isMotion", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_motion: Option<BoolFilter>,
-    #[serde(
-        rename = "isOffline",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isOffline", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_offline: Option<BoolFilter>,
-    #[serde(
-        rename = "lensModel",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "lensModel", skip_serializing_if = "::std::option::Option::is_none")]
     pub lens_model: Option<StringFilterNullable>,
-    #[serde(
-        rename = "libraryId",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "libraryId", skip_serializing_if = "::std::option::Option::is_none")]
     pub library_id: Option<IdFilterNullable>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub make: Option<StringFilterNullable>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub model: Option<StringFilterNullable>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub ocr: Option<StringSimilarityFilter>,
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub or: Vec<SearchFilterBranch>,
-    #[serde(
-        rename = "originalFileName",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "originalFileName", skip_serializing_if = "::std::option::Option::is_none")]
     pub original_file_name: Option<StringPatternFilter>,
-    #[serde(
-        rename = "originalPath",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "originalPath", skip_serializing_if = "::std::option::Option::is_none")]
     pub original_path: Option<StringPatternFilter>,
-    #[serde(
-        rename = "personIds",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "personIds", skip_serializing_if = "::std::option::Option::is_none")]
     pub person_ids: Option<IdsFilter>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub rating: Option<NumberFilterNullable>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub state: Option<StringFilterNullable>,
-    #[serde(rename = "tagIds", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "tagIds", skip_serializing_if = "::std::option::Option::is_none")]
     pub tag_ids: Option<IdsFilter>,
-    #[serde(rename = "takenAt", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "takenAt", skip_serializing_if = "::std::option::Option::is_none")]
     pub taken_at: Option<DateFilter>,
-    #[serde(
-        rename = "trashedAt",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "trashedAt", skip_serializing_if = "::std::option::Option::is_none")]
     pub trashed_at: Option<DateFilterNullable>,
-    #[serde(rename = "type", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "type", skip_serializing_if = "::std::option::Option::is_none")]
     pub type_: Option<EnumFilterAssetType>,
-    #[serde(
-        rename = "updatedAt",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "updatedAt", skip_serializing_if = "::std::option::Option::is_none")]
     pub updated_at: Option<DateFilter>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub visibility: Option<EnumFilterAssetVisibility>,
 }
 
@@ -3490,133 +3274,73 @@ impl SearchFilter {
 /// | `visibility` | [`EnumFilterAssetVisibility`] |  |  |
 ///
 /// See: <https://api.immich.app/models/SearchFilterBranch>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 #[serde(deny_unknown_fields)]
 #[non_exhaustive]
 pub struct SearchFilterBranch {
-    #[serde(rename = "albumIds", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "albumIds", skip_serializing_if = "::std::option::Option::is_none")]
     pub album_ids: Option<IdsFilter>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub checksum: Option<StringFilter>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub city: Option<StringFilterNullable>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub country: Option<StringFilterNullable>,
-    #[serde(
-        rename = "createdAt",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "createdAt", skip_serializing_if = "::std::option::Option::is_none")]
     pub created_at: Option<DateFilter>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub description: Option<StringPatternFilter>,
-    #[serde(
-        rename = "encodedVideoPath",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "encodedVideoPath", skip_serializing_if = "::std::option::Option::is_none")]
     pub encoded_video_path: Option<StringFilter>,
-    #[serde(
-        rename = "fileSizeInBytes",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "fileSizeInBytes", skip_serializing_if = "::std::option::Option::is_none")]
     pub file_size_in_bytes: Option<NumberFilter>,
-    #[serde(
-        rename = "hasAlbums",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "hasAlbums", skip_serializing_if = "::std::option::Option::is_none")]
     pub has_albums: Option<BoolFilter>,
-    #[serde(
-        rename = "hasPeople",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "hasPeople", skip_serializing_if = "::std::option::Option::is_none")]
     pub has_people: Option<BoolFilter>,
-    #[serde(rename = "hasTags", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "hasTags", skip_serializing_if = "::std::option::Option::is_none")]
     pub has_tags: Option<BoolFilter>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub id: Option<IdFilter>,
-    #[serde(
-        rename = "isEncoded",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isEncoded", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_encoded: Option<BoolFilter>,
-    #[serde(
-        rename = "isFavorite",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isFavorite", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_favorite: Option<BoolFilter>,
-    #[serde(rename = "isMotion", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "isMotion", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_motion: Option<BoolFilter>,
-    #[serde(
-        rename = "isOffline",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isOffline", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_offline: Option<BoolFilter>,
-    #[serde(
-        rename = "lensModel",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "lensModel", skip_serializing_if = "::std::option::Option::is_none")]
     pub lens_model: Option<StringFilterNullable>,
-    #[serde(
-        rename = "libraryId",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "libraryId", skip_serializing_if = "::std::option::Option::is_none")]
     pub library_id: Option<IdFilterNullable>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub make: Option<StringFilterNullable>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub model: Option<StringFilterNullable>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub ocr: Option<StringSimilarityFilter>,
-    #[serde(
-        rename = "originalFileName",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "originalFileName", skip_serializing_if = "::std::option::Option::is_none")]
     pub original_file_name: Option<StringPatternFilter>,
-    #[serde(
-        rename = "originalPath",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "originalPath", skip_serializing_if = "::std::option::Option::is_none")]
     pub original_path: Option<StringPatternFilter>,
-    #[serde(
-        rename = "personIds",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "personIds", skip_serializing_if = "::std::option::Option::is_none")]
     pub person_ids: Option<IdsFilter>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub rating: Option<NumberFilterNullable>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub state: Option<StringFilterNullable>,
-    #[serde(rename = "tagIds", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "tagIds", skip_serializing_if = "::std::option::Option::is_none")]
     pub tag_ids: Option<IdsFilter>,
-    #[serde(rename = "takenAt", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "takenAt", skip_serializing_if = "::std::option::Option::is_none")]
     pub taken_at: Option<DateFilter>,
-    #[serde(
-        rename = "trashedAt",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "trashedAt", skip_serializing_if = "::std::option::Option::is_none")]
     pub trashed_at: Option<DateFilterNullable>,
-    #[serde(rename = "type", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "type", skip_serializing_if = "::std::option::Option::is_none")]
     pub type_: Option<EnumFilterAssetType>,
-    #[serde(
-        rename = "updatedAt",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "updatedAt", skip_serializing_if = "::std::option::Option::is_none")]
     pub updated_at: Option<DateFilter>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub visibility: Option<EnumFilterAssetVisibility>,
 }
 
@@ -4435,167 +4159,103 @@ pub struct SmartSearchDTO {
     #[serde(rename = "albumIds", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub album_ids: Vec<AlbumId>,
     /// Filter by city name
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub city: Option<String>,
     /// Filter by country name
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub country: Option<String>,
     /// Filter by creation date (after) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "createdAfter",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "createdAfter", skip_serializing_if = "::std::option::Option::is_none")]
     pub created_after: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Filter by creation date (before) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "createdBefore",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "createdBefore", skip_serializing_if = "::std::option::Option::is_none")]
     pub created_before: Option<::chrono::DateTime<::chrono::offset::Utc>>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub filter: Option<SearchFilter>,
     /// Filter by encoded status
-    #[serde(
-        rename = "isEncoded",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isEncoded", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_encoded: Option<bool>,
     /// Filter by favorite status
-    #[serde(
-        rename = "isFavorite",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isFavorite", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_favorite: Option<bool>,
     /// Filter by motion photo status
-    #[serde(rename = "isMotion", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "isMotion", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_motion: Option<bool>,
     /// Filter assets not in any album
-    #[serde(
-        rename = "isNotInAlbum",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isNotInAlbum", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_not_in_album: Option<bool>,
     /// Filter by offline status
-    #[serde(
-        rename = "isOffline",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isOffline", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_offline: Option<bool>,
     /// Search language code
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub language: Option<String>,
     /// Filter by lens model
-    #[serde(
-        rename = "lensModel",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "lensModel", skip_serializing_if = "::std::option::Option::is_none")]
     pub lens_model: Option<String>,
     /// Library ID to filter by (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
-    #[serde(
-        rename = "libraryId",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "libraryId", skip_serializing_if = "::std::option::Option::is_none")]
     pub library_id: Option<LibraryId>,
     /// Filter by camera make
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub make: Option<String>,
     /// Filter by camera model
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub model: Option<String>,
     /// Filter by OCR text content
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub ocr: Option<String>,
     /// Page number
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub page: Option<::std::num::NonZeroU64>,
     /// Filter by person IDs
     #[serde(rename = "personIds", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub person_ids: Vec<PersonId>,
     /// Natural language search query
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub query: Option<String>,
     /// Asset ID to use as search reference (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
-    #[serde(
-        rename = "queryAssetId",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "queryAssetId", skip_serializing_if = "::std::option::Option::is_none")]
     pub query_asset_id: Option<AssetId>,
     /// Filter by rating \[1-5\], or null for unrated
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub rating: Option<::std::num::NonZeroU64>,
     /// Number of results to return
     #[serde(default = "crate::common::defaults::default_nzu64::<::std::num::NonZeroU64, 100>")]
     pub size: ::std::num::NonZeroU64,
     /// Filter by state/province name
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub state: Option<String>,
     /// Filter by tag IDs
-    #[serde(rename = "tagIds", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "tagIds", skip_serializing_if = "::std::option::Option::is_none")]
     pub tag_ids: Option<Vec<TagId>>,
     /// Filter by taken date (after) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "takenAfter",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "takenAfter", skip_serializing_if = "::std::option::Option::is_none")]
     pub taken_after: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Filter by taken date (before) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "takenBefore",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "takenBefore", skip_serializing_if = "::std::option::Option::is_none")]
     pub taken_before: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Filter by trash date (after) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "trashedAfter",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "trashedAfter", skip_serializing_if = "::std::option::Option::is_none")]
     pub trashed_after: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Filter by trash date (before) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "trashedBefore",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "trashedBefore", skip_serializing_if = "::std::option::Option::is_none")]
     pub trashed_before: Option<::chrono::DateTime<::chrono::offset::Utc>>,
-    #[serde(rename = "type", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "type", skip_serializing_if = "::std::option::Option::is_none")]
     pub type_: Option<AssetTypeEnum>,
     /// Filter by update date (after) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "updatedAfter",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "updatedAfter", skip_serializing_if = "::std::option::Option::is_none")]
     pub updated_after: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Filter by update date (before) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "updatedBefore",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "updatedBefore", skip_serializing_if = "::std::option::Option::is_none")]
     pub updated_before: Option<::chrono::DateTime<::chrono::offset::Utc>>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub visibility: Option<AssetVisibility>,
     /// Include deleted assets
-    #[serde(
-        rename = "withDeleted",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "withDeleted", skip_serializing_if = "::std::option::Option::is_none")]
     pub with_deleted: Option<bool>,
     /// Include EXIF data in response
-    #[serde(rename = "withExif", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "withExif", skip_serializing_if = "::std::option::Option::is_none")]
     pub with_exif: Option<bool>,
 }
 
@@ -5123,148 +4783,92 @@ impl ::std::default::Default for SmartSearchDTO {
 /// | `visibility` | [`AssetVisibility`] |  |  |
 ///
 /// See: <https://api.immich.app/models/StatisticsSearchDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 #[non_exhaustive]
 pub struct StatisticsSearchDTO {
     /// Filter by album IDs
     #[serde(rename = "albumIds", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub album_ids: Vec<AlbumId>,
     /// Filter by city name
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub city: Option<String>,
     /// Filter by country name
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub country: Option<String>,
     /// Filter by creation date (after) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "createdAfter",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "createdAfter", skip_serializing_if = "::std::option::Option::is_none")]
     pub created_after: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Filter by creation date (before) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "createdBefore",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "createdBefore", skip_serializing_if = "::std::option::Option::is_none")]
     pub created_before: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Filter by description text
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub description: Option<String>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub filter: Option<SearchFilter>,
     /// Filter by encoded status
-    #[serde(
-        rename = "isEncoded",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isEncoded", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_encoded: Option<bool>,
     /// Filter by favorite status
-    #[serde(
-        rename = "isFavorite",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isFavorite", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_favorite: Option<bool>,
     /// Filter by motion photo status
-    #[serde(rename = "isMotion", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "isMotion", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_motion: Option<bool>,
     /// Filter assets not in any album
-    #[serde(
-        rename = "isNotInAlbum",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isNotInAlbum", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_not_in_album: Option<bool>,
     /// Filter by offline status
-    #[serde(
-        rename = "isOffline",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isOffline", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_offline: Option<bool>,
     /// Filter by lens model
-    #[serde(
-        rename = "lensModel",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "lensModel", skip_serializing_if = "::std::option::Option::is_none")]
     pub lens_model: Option<String>,
     /// Library ID to filter by (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
-    #[serde(
-        rename = "libraryId",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "libraryId", skip_serializing_if = "::std::option::Option::is_none")]
     pub library_id: Option<LibraryId>,
     /// Filter by camera make
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub make: Option<String>,
     /// Filter by camera model
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub model: Option<String>,
     /// Filter by OCR text content
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub ocr: Option<String>,
     /// Filter by person IDs
     #[serde(rename = "personIds", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub person_ids: Vec<PersonId>,
     /// Filter by rating \[1-5\], or null for unrated
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub rating: Option<::std::num::NonZeroU64>,
     /// Filter by state/province name
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub state: Option<String>,
     /// Filter by tag IDs
-    #[serde(rename = "tagIds", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "tagIds", skip_serializing_if = "::std::option::Option::is_none")]
     pub tag_ids: Option<Vec<TagId>>,
     /// Filter by taken date (after) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "takenAfter",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "takenAfter", skip_serializing_if = "::std::option::Option::is_none")]
     pub taken_after: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Filter by taken date (before) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "takenBefore",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "takenBefore", skip_serializing_if = "::std::option::Option::is_none")]
     pub taken_before: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Filter by trash date (after) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "trashedAfter",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "trashedAfter", skip_serializing_if = "::std::option::Option::is_none")]
     pub trashed_after: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Filter by trash date (before) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "trashedBefore",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "trashedBefore", skip_serializing_if = "::std::option::Option::is_none")]
     pub trashed_before: Option<::chrono::DateTime<::chrono::offset::Utc>>,
-    #[serde(rename = "type", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "type", skip_serializing_if = "::std::option::Option::is_none")]
     pub type_: Option<AssetTypeEnum>,
     /// Filter by update date (after) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "updatedAfter",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "updatedAfter", skip_serializing_if = "::std::option::Option::is_none")]
     pub updated_after: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Filter by update date (before) (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(
-        rename = "updatedBefore",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "updatedBefore", skip_serializing_if = "::std::option::Option::is_none")]
     pub updated_before: Option<::chrono::DateTime<::chrono::offset::Utc>>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub visibility: Option<AssetVisibility>,
 }
 
@@ -5653,14 +5257,14 @@ impl StatisticsSearchDTO {
 /// | `not_in` | [`Vec<String>`](::std::vec::Vec) |  |  |
 ///
 /// See: <https://api.immich.app/models/StringFilter>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct StringFilter {
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub eq: Option<String>,
     #[serde(rename = "in", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub in_: Vec<String>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub ne: Option<String>,
     #[serde(rename = "notIn", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub not_in: Vec<String>,
@@ -5726,14 +5330,14 @@ impl StringFilter {
 /// | `not_in` | [`Vec<String>`](::std::vec::Vec) |  |  |
 ///
 /// See: <https://api.immich.app/models/StringFilterNullable>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct StringFilterNullable {
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub eq: Option<String>,
     #[serde(rename = "in", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub in_: Vec<String>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub ne: Option<String>,
     #[serde(rename = "notIn", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub not_in: Vec<String>,
@@ -5803,28 +5407,24 @@ impl StringFilterNullable {
 /// | `starts_with` | [`String`] |  |  |
 ///
 /// See: <https://api.immich.app/models/StringPatternFilter>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct StringPatternFilter {
-    #[serde(rename = "endsWith", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "endsWith", skip_serializing_if = "::std::option::Option::is_none")]
     pub ends_with: Option<String>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub eq: Option<String>,
     #[serde(rename = "in", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub in_: Vec<String>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub like: Option<String>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub ne: Option<String>,
     #[serde(rename = "notIn", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub not_in: Vec<String>,
-    #[serde(rename = "notLike", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "notLike", skip_serializing_if = "::std::option::Option::is_none")]
     pub not_like: Option<String>,
-    #[serde(
-        rename = "startsWith",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "startsWith", skip_serializing_if = "::std::option::Option::is_none")]
     pub starts_with: Option<String>,
 }
 

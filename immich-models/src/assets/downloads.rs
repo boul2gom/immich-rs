@@ -19,17 +19,13 @@ pub use crate::id::{AlbumId, AssetId, UserId};
 #[non_exhaustive]
 pub struct DownloadArchiveDTO {
     /// The name of the archive to download, without extension
-    #[serde(
-        rename = "archiveName",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "archiveName", skip_serializing_if = "::std::option::Option::is_none")]
     pub archive_name: Option<String>,
     /// Asset IDs (required)
     #[serde(rename = "assetIds")]
     pub asset_ids: Vec<AssetId>,
     /// Download edited asset if available
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub edited: Option<bool>,
 }
 
@@ -128,24 +124,20 @@ impl DownloadArchiveInfo {
 /// | `user_id` | [`UserId`](crate::id::UserId) |  | User ID to download assets from (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
 ///
 /// See: <https://api.immich.app/models/DownloadInfoDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct DownloadInfoDTO {
     /// Album ID to download (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
-    #[serde(rename = "albumId", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "albumId", skip_serializing_if = "::std::option::Option::is_none")]
     pub album_id: Option<AlbumId>,
     /// Archive size limit in bytes
-    #[serde(
-        rename = "archiveSize",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "archiveSize", skip_serializing_if = "::std::option::Option::is_none")]
     pub archive_size: Option<::std::num::NonZeroU64>,
     /// Asset IDs to download
     #[serde(rename = "assetIds", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub asset_ids: Vec<AssetId>,
     /// User ID to download assets from (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
-    #[serde(rename = "userId", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "userId", skip_serializing_if = "::std::option::Option::is_none")]
     pub user_id: Option<UserId>,
 }
 

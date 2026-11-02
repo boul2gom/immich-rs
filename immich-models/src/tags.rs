@@ -94,12 +94,12 @@ impl TagBulkAssetsResponseDTO {
 #[non_exhaustive]
 pub struct TagCreateDTO {
     /// Tag color (hex) (pattern: `^#?([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$`)
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub color: Option<String>,
     /// Tag name (pattern: `^[^/]*$`) (required)
     pub name: String,
     /// Parent tag ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
-    #[serde(rename = "parentId", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "parentId", skip_serializing_if = "::std::option::Option::is_none")]
     pub parent_id: Option<TagId>,
 }
 
@@ -154,14 +154,14 @@ impl TagCreateDTO {
 /// | `name` | [`String`] |  | Tag name (pattern: `^[^/]*$`) |
 ///
 /// See: <https://api.immich.app/models/TagUpdateDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct TagUpdateDTO {
     /// Tag color (hex) (pattern: `^#?([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$`)
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub color: Option<String>,
     /// Tag name (pattern: `^[^/]*$`)
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub name: Option<String>,
 }
 

@@ -8,34 +8,6 @@ pub use crate::albums::{AlbumUserRole, AssetOrder};
 pub use crate::people::{PersonUsersDeleteDTO, PersonUsersDeleteItem, PersonUsersResponseDTO, PersonUsersResponseItem};
 pub use crate::search::SearchOrderField;
 
-/// Error types.
-pub mod error {
-    /// Error from a `TryFrom` or `FromStr` implementation.
-    #[derive(Clone, PartialEq, Eq)]
-    pub struct ConversionError(pub ::std::borrow::Cow<'static, str>);
-    impl ::std::error::Error for ConversionError {}
-    impl ::std::fmt::Display for ConversionError {
-        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> Result<(), ::std::fmt::Error> {
-            ::std::fmt::Display::fmt(&self.0, f)
-        }
-    }
-    impl ::std::fmt::Debug for ConversionError {
-        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> Result<(), ::std::fmt::Error> {
-            ::std::fmt::Debug::fmt(&self.0, f)
-        }
-    }
-    impl From<&'static str> for ConversionError {
-        fn from(value: &'static str) -> Self {
-            Self(value.into())
-        }
-    }
-    impl From<String> for ConversionError {
-        fn from(value: String) -> Self {
-            Self(value.into())
-        }
-    }
-}
-
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 /// CQ mode
 #[non_exhaustive]
@@ -286,5 +258,33 @@ pub mod defaults {
     #[must_use]
     pub fn search_order_field() -> super::SearchOrderField {
         super::SearchOrderField::FileCreatedAt
+    }
+}
+
+/// Error types.
+pub mod error {
+    /// Error from a `TryFrom` or `FromStr` implementation.
+    #[derive(Clone, PartialEq, Eq)]
+    pub struct ConversionError(pub ::std::borrow::Cow<'static, str>);
+    impl ::std::error::Error for ConversionError {}
+    impl ::std::fmt::Display for ConversionError {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> Result<(), ::std::fmt::Error> {
+            ::std::fmt::Display::fmt(&self.0, f)
+        }
+    }
+    impl ::std::fmt::Debug for ConversionError {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> Result<(), ::std::fmt::Error> {
+            ::std::fmt::Debug::fmt(&self.0, f)
+        }
+    }
+    impl From<&'static str> for ConversionError {
+        fn from(value: &'static str) -> Self {
+            Self(value.into())
+        }
+    }
+    impl From<String> for ConversionError {
+        fn from(value: String) -> Self {
+            Self(value.into())
+        }
     }
 }

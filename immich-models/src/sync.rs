@@ -18,7 +18,7 @@ pub use crate::users::UserMetadataKey;
 /// | `types` | [`Vec<SyncEntityType>`](crate::sync::SyncEntityType) |  | Sync entity types to delete acks for |
 ///
 /// See: <https://api.immich.app/models/SyncAckDeleteDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct SyncAckDeleteDTO {
     /// Sync entity types to delete acks for
@@ -2503,11 +2503,7 @@ impl SyncAssetV2 {
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct SyncAuthUserV1 {
-    #[serde(
-        rename = "avatarColor",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "avatarColor", skip_serializing_if = "::std::option::Option::is_none")]
     pub avatar_color: Option<UserAvatarColor>,
     /// User deleted at (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`) (required)
     #[serde(rename = "deletedAt")]
@@ -2706,11 +2702,7 @@ impl SyncAuthUserV1 {
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct SyncAuthUserV2 {
-    #[serde(
-        rename = "avatarColor",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "avatarColor", skip_serializing_if = "::std::option::Option::is_none")]
     pub avatar_color: Option<UserAvatarColor>,
     /// User deleted at (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`) (required)
     #[serde(rename = "deletedAt")]
@@ -4386,7 +4378,7 @@ impl SyncStackV1 {
 #[non_exhaustive]
 pub struct SyncStreamDTO {
     /// Reset sync state
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub reset: Option<bool>,
     /// Sync request types (required)
     pub types: Vec<SyncRequestType>,
@@ -4568,11 +4560,7 @@ impl SyncUserMetadataV1 {
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct SyncUserV1 {
-    #[serde(
-        rename = "avatarColor",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "avatarColor", skip_serializing_if = "::std::option::Option::is_none")]
     pub avatar_color: Option<UserAvatarColor>,
     /// User deleted at (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`) (required)
     #[serde(rename = "deletedAt")]
