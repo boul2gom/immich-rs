@@ -83,7 +83,7 @@ heck = "0.5.0"
 
 # Dev
 wiremock = "0.6.5"
-testcontainers = "0.23.3"     # 0.28.x = breaking API, bump separately after tests stabilize
+testcontainers = "0.28.0"     # 0.28.x = breaking API, bump separately after tests stabilize
 tempfile = "3.27.0"
 tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
 pretty_assertions = "1.4.1"
