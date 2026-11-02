@@ -10,16 +10,25 @@ on:
         required: false
         type: boolean
         default: false
-      force_major:
-        description: 'Force a major version bump for the chosen crate (patch/minor are otherwise determined by semver-checks)'
+      release_type:
+        description: 'Manual release level (patch, minor, major) or auto (semver-checks)'
         required: false
         type: choice
         options:
-          - none
+          - auto
+          - patch
+          - minor
+          - major
+        default: 'auto'
+      target_crate:
+        description: 'Target crate for manual release level (applies to all by default)'
+        required: false
+        type: choice
+        options:
           - all
           - immich-rs
           - immich-models
-        default: 'none'
+        default: 'all'
 
 jobs:
   check_updates:
@@ -30,8 +39,8 @@ jobs:
       actions: read
     outputs:
       one_has:            ${{ steps.check_commits.outputs.one_has == 'true' || steps.check_published.outputs.needs_models_publish == 'true' || steps.check_published.outputs.needs_rs_publish == 'true' }}
-      has_updates:        ${{ steps.check_published.outputs.needs_rs_publish == 'true' || steps.check_commits.outputs.main_has }}
-      has_models_updates: ${{ steps.check_published.outputs.needs_models_publish == 'true' || fromJSON(steps.check_commits.outputs.sub_results)['immich-models'] }}
+      has_updates:        ${{ steps.check_commits.outputs.one_has == 'true' || steps.check_published.outputs.needs_rs_publish == 'true' }}
+      has_models_updates: ${{ steps.check_commits.outputs.one_has == 'true' || steps.check_published.outputs.needs_models_publish == 'true' }}
 
     steps:
       - name: 🛡️ Harden the runner (Audit all outbound calls)
@@ -70,7 +79,7 @@ jobs:
         uses: boul2gom/actions/unreleased-commits@aa85616fe98fc3a942de07be9d1b1fb57bbd2bdc # v1.0.12
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          force_release: ${{ inputs.force_release || false }}
+          force_release: ${{ inputs.force_release || (inputs.release_type != 'auto' && inputs.release_type != '') || false }}
           exclude_patterns: "[Github Actions],[skip ci]"
           sub_projects: |
             immich-models:immich-models/
@@ -105,8 +114,8 @@ jobs:
     permissions:
       contents: read
     outputs:
-      resolved_type: ${{ steps.resolve.outputs.resolved_type }}
-      resolved_models_type: ${{ steps.resolve_models.outputs.resolved_type }}
+      resolved_type: ${{ steps.harmonize.outputs.final_type || steps.resolve.outputs.resolved_type }}
+      resolved_models_type: ${{ steps.harmonize.outputs.final_type || steps.resolve_models.outputs.resolved_type }}
 
     steps:
       - name: 🛡️ Harden the runner (Audit all outbound calls)
@@ -152,9 +161,15 @@ jobs:
           if [ "$STATUS" = "404" ]; then
             echo "📦 immich-rs $RS_VER not yet on crates.io — release at current version without bump"
             echo "resolved_type=" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.event.inputs.force_major }}" == "immich-rs" || "${{ github.event.inputs.force_major }}" == "all" ]]; then
+          elif [[ ("${{ github.event.inputs.target_crate }}" == "all" || "${{ github.event.inputs.target_crate }}" == "immich-rs" || -z "${{ github.event.inputs.target_crate }}") && "${{ github.event.inputs.release_type }}" == "major" ]]; then
             echo "📌 Forced major release for immich-rs"
             echo "resolved_type=major" >> $GITHUB_OUTPUT
+          elif [[ ("${{ github.event.inputs.target_crate }}" == "all" || "${{ github.event.inputs.target_crate }}" == "immich-rs" || -z "${{ github.event.inputs.target_crate }}") && "${{ github.event.inputs.release_type }}" == "minor" ]]; then
+            echo "📌 Forced minor release for immich-rs"
+            echo "resolved_type=minor" >> $GITHUB_OUTPUT
+          elif [[ ("${{ github.event.inputs.target_crate }}" == "all" || "${{ github.event.inputs.target_crate }}" == "immich-rs" || -z "${{ github.event.inputs.target_crate }}") && "${{ github.event.inputs.release_type }}" == "patch" ]]; then
+            echo "📌 Forced patch release for immich-rs"
+            echo "resolved_type=patch" >> $GITHUB_OUTPUT
           elif [[ "${{ steps.semver.outcome }}" == "success" ]]; then
             echo "✅ No breaking changes detected — releasing as patch"
             echo "resolved_type=patch" >> $GITHUB_OUTPUT
@@ -172,15 +187,40 @@ jobs:
           if [ "$STATUS" = "404" ]; then
             echo "📦 immich-models $MODELS_VER not yet on crates.io — release at current version without bump"
             echo "resolved_type=" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.event.inputs.force_major }}" == "immich-models" || "${{ github.event.inputs.force_major }}" == "all" ]]; then
+          elif [[ ("${{ github.event.inputs.target_crate }}" == "all" || "${{ github.event.inputs.target_crate }}" == "immich-models" || -z "${{ github.event.inputs.target_crate }}") && "${{ github.event.inputs.release_type }}" == "major" ]]; then
             echo "📌 Forced major release for immich-models"
             echo "resolved_type=major" >> $GITHUB_OUTPUT
+          elif [[ ("${{ github.event.inputs.target_crate }}" == "all" || "${{ github.event.inputs.target_crate }}" == "immich-models" || -z "${{ github.event.inputs.target_crate }}") && "${{ github.event.inputs.release_type }}" == "minor" ]]; then
+            echo "📌 Forced minor release for immich-models"
+            echo "resolved_type=minor" >> $GITHUB_OUTPUT
+          elif [[ ("${{ github.event.inputs.target_crate }}" == "all" || "${{ github.event.inputs.target_crate }}" == "immich-models" || -z "${{ github.event.inputs.target_crate }}") && "${{ github.event.inputs.release_type }}" == "patch" ]]; then
+            echo "📌 Forced patch release for immich-models"
+            echo "resolved_type=patch" >> $GITHUB_OUTPUT
           elif [[ "${{ steps.semver_models.outcome }}" == "success" ]]; then
             echo "✅ No breaking changes detected — releasing immich-models as patch"
             echo "resolved_type=patch" >> $GITHUB_OUTPUT
           else
             echo "⚠️ Breaking changes detected — releasing immich-models as minor"
             echo "resolved_type=minor" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 🔄 Harmonize workspace release type
+        id: harmonize
+        if: ${{ needs.check_updates.outputs.has_models_updates == 'true' && needs.check_updates.outputs.has_updates == 'true' }}
+        run: |
+          RS_TYPE="${{ steps.resolve.outputs.resolved_type }}"
+          MODELS_TYPE="${{ steps.resolve_models.outputs.resolved_type }}"
+
+          if [ -n "$RS_TYPE" ] && [ -n "$MODELS_TYPE" ]; then
+            if [[ "$RS_TYPE" == "major" || "$MODELS_TYPE" == "major" ]]; then
+              FINAL_TYPE="major"
+            elif [[ "$RS_TYPE" == "minor" || "$MODELS_TYPE" == "minor" ]]; then
+              FINAL_TYPE="minor"
+            else
+              FINAL_TYPE="patch"
+            fi
+            echo "Harmonizing workspace release bump to $FINAL_TYPE"
+            echo "final_type=$FINAL_TYPE" >> $GITHUB_OUTPUT
           fi
 
   create_release:
@@ -203,7 +243,7 @@ jobs:
         id: app-token
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
-          app-id: ${{ secrets.CI_APP_ID }}
+          client-id: ${{ secrets.CI_APP_ID }}
           private-key: ${{ secrets.CI_APP_KEY }}
 
       - name: 📁 Check out the repository
@@ -258,14 +298,16 @@ jobs:
         run: |
           MODELS_VER=$(grep -m 1 "^version = " Cargo.toml | cut -d '"' -f 2)
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "User-Agent: ci" "https://crates.io/api/v1/crates/immich-models/$MODELS_VER")
-          if [ "$STATUS" = "200" ]; then
-            echo "✅ immich-models $MODELS_VER is already published on crates.io, skipping."
-          elif [ -z "${{ needs.semver_gate.outputs.resolved_models_type }}" ]; then
+          if [ "$STATUS" = "404" ]; then
+            echo "📦 immich-models $MODELS_VER not yet on crates.io — publishing at current version without bump"
             cargo release publish -p immich-models --execute --no-confirm
             cargo release tag -p immich-models --execute --no-confirm
             cargo release push -p immich-models --execute --no-confirm
-          else
+          elif [ -n "${{ needs.semver_gate.outputs.resolved_models_type }}" ]; then
+            echo "🚀 Releasing immich-models with ${{ needs.semver_gate.outputs.resolved_models_type }} bump"
             cargo release -p immich-models ${{ needs.semver_gate.outputs.resolved_models_type }} --execute --no-confirm
+          else
+            echo "✅ immich-models $MODELS_VER is already published on crates.io and no bump needed, skipping."
           fi
 
       - name: ⏳ Wait for crates.io index propagation
@@ -292,14 +334,16 @@ jobs:
         run: |
           RS_VER=$(grep -m 1 "^version = " Cargo.toml | cut -d '"' -f 2)
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "User-Agent: ci" "https://crates.io/api/v1/crates/immich-rs/$RS_VER")
-          if [ "$STATUS" = "200" ]; then
-            echo "✅ immich-rs $RS_VER is already published on crates.io, skipping."
-          elif [ -z "${{ needs.semver_gate.outputs.resolved_type }}" ]; then
+          if [ "$STATUS" = "404" ]; then
+            echo "📦 immich-rs $RS_VER not yet on crates.io — publishing at current version"
             cargo release publish -p immich-rs --execute --no-confirm
             cargo release tag -p immich-rs --execute --no-confirm
             cargo release push -p immich-rs --execute --no-confirm
-          else
+          elif [ -n "${{ needs.semver_gate.outputs.resolved_type }}" ]; then
+            echo "🚀 Releasing immich-rs with ${{ needs.semver_gate.outputs.resolved_type }} bump"
             cargo release -p immich-rs ${{ needs.semver_gate.outputs.resolved_type }} --execute --no-confirm
+          else
+            echo "✅ immich-rs $RS_VER is already published on crates.io, skipping."
           fi
 
       - name: 🔍 Get new version
