@@ -124,11 +124,11 @@ impl DatabaseBackupListResponseDTO {
 /// | `file` | `Vec<u8>` |  | Database backup file |
 ///
 /// See: <https://api.immich.app/models/DatabaseBackupUploadDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct DatabaseBackupUploadDTO {
     /// Database backup file
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub file: Option<String>,
 }
 

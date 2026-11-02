@@ -25,47 +25,34 @@ pub use crate::activities::UserAvatarColor;
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct UserAdminCreateDTO {
-    #[serde(
-        rename = "avatarColor",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "avatarColor", skip_serializing_if = "::std::option::Option::is_none")]
     pub avatar_color: Option<UserAvatarColor>,
     /// User email (pattern: `` ^[\p{L}\p{M}\p{N}.!#$%&'*+/=?^_`{|}~-]+@[\p{L}\p{N}](?:[\p{L}\p{M}\p{N}-]{0,61}[\p{L}\p{M}\p{N}])?(?:\.[\p{L}\p{N}](?:[\p{L}\p{M}\p{N}-]{0,61}[\p{L}\p{M}\p{N}])?)*$ ``) (required)
     pub email: String,
     /// Grant admin privileges
-    #[serde(rename = "isAdmin", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "isAdmin", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_admin: Option<bool>,
     /// User name (required)
     pub name: String,
     /// Send notification email
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub notify: Option<bool>,
     /// User password (required)
     pub password: String,
     /// PIN code (pattern: `^\d{6}$`)
-    #[serde(rename = "pinCode", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "pinCode", skip_serializing_if = "::std::option::Option::is_none")]
     pub pin_code: Option<String>,
     /// Storage quota in bytes
-    #[serde(
-        rename = "quotaSizeInBytes",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "quotaSizeInBytes", skip_serializing_if = "::std::option::Option::is_none")]
     pub quota_size_in_bytes: Option<i64>,
     /// Require password change on next login
     #[serde(
         rename = "shouldChangePassword",
-        default,
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub should_change_password: Option<bool>,
     /// Storage label
-    #[serde(
-        rename = "storageLabel",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "storageLabel", skip_serializing_if = "::std::option::Option::is_none")]
     pub storage_label: Option<String>,
 }
 
@@ -198,11 +185,11 @@ impl UserAdminCreateDTO {
 /// | `force` | `bool` |  | Force delete even if user has assets |
 ///
 /// See: <https://api.immich.app/models/UserAdminDeleteDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct UserAdminDeleteDTO {
     /// Force delete even if user has assets
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub force: Option<bool>,
 }
 
@@ -242,50 +229,37 @@ impl UserAdminDeleteDTO {
 /// | `storage_label` | [`String`] |  | Storage label |
 ///
 /// See: <https://api.immich.app/models/UserAdminUpdateDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct UserAdminUpdateDTO {
-    #[serde(
-        rename = "avatarColor",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "avatarColor", skip_serializing_if = "::std::option::Option::is_none")]
     pub avatar_color: Option<UserAvatarColor>,
     /// User email (pattern: `` ^[\p{L}\p{M}\p{N}.!#$%&'*+/=?^_`{|}~-]+@[\p{L}\p{N}](?:[\p{L}\p{M}\p{N}-]{0,61}[\p{L}\p{M}\p{N}])?(?:\.[\p{L}\p{N}](?:[\p{L}\p{M}\p{N}-]{0,61}[\p{L}\p{M}\p{N}])?)*$ ``)
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub email: Option<String>,
     /// Grant admin privileges
-    #[serde(rename = "isAdmin", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "isAdmin", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_admin: Option<bool>,
     /// User name
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub name: Option<String>,
     /// User password
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub password: Option<String>,
     /// PIN code (pattern: `^\d{6}$`)
-    #[serde(rename = "pinCode", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "pinCode", skip_serializing_if = "::std::option::Option::is_none")]
     pub pin_code: Option<String>,
     /// Storage quota in bytes
-    #[serde(
-        rename = "quotaSizeInBytes",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "quotaSizeInBytes", skip_serializing_if = "::std::option::Option::is_none")]
     pub quota_size_in_bytes: Option<i64>,
     /// Require password change on next login
     #[serde(
         rename = "shouldChangePassword",
-        default,
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub should_change_password: Option<bool>,
     /// Storage label
-    #[serde(
-        rename = "storageLabel",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "storageLabel", skip_serializing_if = "::std::option::Option::is_none")]
     pub storage_label: Option<String>,
 }
 

@@ -369,11 +369,11 @@ impl<'de> ::serde::Deserialize<'de> for JobName {
 /// | `failed` | `bool` |  | If true, will also remove failed jobs from the queue. |
 ///
 /// See: <https://api.immich.app/models/QueueDeleteDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct QueueDeleteDTO {
     /// If true, will also remove failed jobs from the queue.
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub failed: Option<bool>,
 }
 
@@ -414,7 +414,7 @@ pub struct QueueJobResponseDTO {
     /// Job data payload (required)
     pub data: ::serde_json::Map<String, ::serde_json::Value>,
     /// Job ID
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub id: Option<String>,
     /// (required)
     pub name: JobName,
@@ -641,11 +641,11 @@ impl QueueResponseDTO {
 /// | `is_paused` | `bool` |  | Whether to pause the queue |
 ///
 /// See: <https://api.immich.app/models/QueueUpdateDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct QueueUpdateDTO {
     /// Whether to pause the queue
-    #[serde(rename = "isPaused", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "isPaused", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_paused: Option<bool>,
 }
 

@@ -73,8 +73,8 @@ scopeguard = "1.2.0"
 
 # Code generation (xtask only)
 ureq = { version = "3.5.0", features = ["json"] }
-typify = "0.7.0"
-schemars = "=0.8.22"          # Strict pin — typify 0.7.0 requires this exact version
+typify = "0.8.0"
+schemars = "=0.8.22"          # Strict pin — typify 0.8.0 requires this exact version
 syn = { version = "3.0.9", features = ["full", "visit-mut", "extra-traits"] }
 prettyplease = "0.3.0"
 proc-macro2 = "1.0.107"

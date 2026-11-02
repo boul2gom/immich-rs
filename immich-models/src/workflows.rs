@@ -23,16 +23,16 @@ pub use crate::plugins::{WorkflowTrigger, WorkflowType};
 #[non_exhaustive]
 pub struct WorkflowCreateDTO {
     /// Workflow description
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub description: Option<String>,
     /// Workflow enabled
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub enabled: Option<bool>,
     /// Workflow logs run results
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub logging: Option<bool>,
     /// Workflow name
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub name: Option<String>,
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub steps: Vec<WorkflowStepDTO>,
@@ -135,16 +135,12 @@ pub struct WorkflowLogEntryDTO {
     /// Workflow log entry ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
     pub id: ::uuid::Uuid,
     /// Last step ran, if the workflow ended early
-    #[serde(rename = "lastStep", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "lastStep", skip_serializing_if = "::std::option::Option::is_none")]
     pub last_step: Option<WorkflowLogEntryLastStep>,
     /// (required)
     pub result: WorkflowResult,
     /// Workflow trigger data ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$`)
-    #[serde(
-        rename = "triggerDataId",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "triggerDataId", skip_serializing_if = "::std::option::Option::is_none")]
     pub trigger_data_id: Option<::uuid::Uuid>,
 }
 
@@ -564,7 +560,7 @@ pub struct WorkflowShareStepDTO {
     /// Step configuration (required)
     pub config: Option<::serde_json::Map<String, ::serde_json::Value>>,
     /// Step is enabled
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub enabled: Option<bool>,
     /// Step plugin method (required)
     pub method: String,
@@ -628,7 +624,7 @@ pub struct WorkflowStepDTO {
     /// Step configuration (required)
     pub config: Option<::serde_json::Map<String, ::serde_json::Value>>,
     /// Step is enabled
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub enabled: Option<bool>,
     /// Step plugin method (required)
     pub method: String,
@@ -730,25 +726,25 @@ impl WorkflowTriggerResponseDTO {
 /// | `trigger` | [`WorkflowTrigger`] |  | Workflow trigger type |
 ///
 /// See: <https://api.immich.app/models/WorkflowUpdateDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 #[non_exhaustive]
 pub struct WorkflowUpdateDTO {
     /// Workflow description
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub description: Option<String>,
     /// Workflow enabled
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub enabled: Option<bool>,
     /// Workflow logs run results
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub logging: Option<bool>,
     /// Workflow name
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub name: Option<String>,
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub steps: Vec<WorkflowStepDTO>,
     /// Workflow trigger type
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub trigger: Option<WorkflowTrigger>,
 }
 

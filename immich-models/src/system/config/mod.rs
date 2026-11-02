@@ -903,7 +903,7 @@ pub struct AdminConfigGeneratedFullsizeImageDTO {
     /// (required)
     pub format: ImageFormat,
     /// Progressive
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub progressive: Option<bool>,
     /// Quality (required)
     pub quality: ::std::num::NonZeroU64,
@@ -969,7 +969,7 @@ pub struct AdminConfigGeneratedImageDTO {
     /// (required)
     pub format: ImageFormat,
     /// Progressive
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub progressive: Option<bool>,
     /// Quality (required)
     pub quality: ::std::num::NonZeroU64,

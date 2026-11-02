@@ -58,7 +58,7 @@ pub struct AssetFaceUpdateItem {
     #[serde(rename = "personId")]
     pub person_id: PersonId,
     /// User ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
-    #[serde(rename = "userId", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "userId", skip_serializing_if = "::std::option::Option::is_none")]
     pub user_id: Option<UserId>,
 }
 
@@ -143,7 +143,7 @@ impl MergePersonDTO {
 pub struct PeopleDeleteDTO {
     /// IDs to process (required)
     pub ids: Vec<PersonId>,
-    #[serde(rename = "userId", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "userId", skip_serializing_if = "::std::option::Option::is_none")]
     pub user_id: Option<String>,
 }
 
@@ -191,11 +191,7 @@ impl PeopleDeleteDTO {
 #[non_exhaustive]
 pub struct PeopleResponseDTO {
     /// Whether there are more pages
-    #[serde(
-        rename = "hasNextPage",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "hasNextPage", skip_serializing_if = "::std::option::Option::is_none")]
     pub has_next_page: Option<bool>,
     /// Number of hidden people (required)
     pub hidden: i64,
@@ -298,39 +294,30 @@ impl PeopleUpdateDTO {
 #[non_exhaustive]
 pub struct PeopleUpdateItem {
     /// Person date of birth
-    #[serde(
-        rename = "birthDate",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "birthDate", skip_serializing_if = "::std::option::Option::is_none")]
     pub birth_date: Option<::chrono::naive::NaiveDate>,
     /// Person color (hex) (pattern: `^#?([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$`)
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub color: Option<String>,
     /// Asset ID used for feature face thumbnail (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
     #[serde(
         rename = "featureFaceAssetId",
-        default,
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub feature_face_asset_id: Option<AssetId>,
     /// Person ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
     pub id: PersonId,
     /// Mark as favorite
-    #[serde(
-        rename = "isFavorite",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isFavorite", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_favorite: Option<bool>,
     /// Person visibility (hidden)
-    #[serde(rename = "isHidden", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "isHidden", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_hidden: Option<bool>,
     /// Person name
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub name: Option<String>,
     /// Restrict the update to the person record of this User ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$`)
-    #[serde(rename = "userId", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "userId", skip_serializing_if = "::std::option::Option::is_none")]
     pub user_id: Option<UserId>,
 }
 
@@ -463,7 +450,7 @@ pub struct PeopleUsersUpsertDTO {
     /// User IDs that should be given access to the person (required)
     #[serde(rename = "sharedWithIds")]
     pub shared_with_ids: Vec<UserId>,
-    #[serde(rename = "type", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "type", skip_serializing_if = "::std::option::Option::is_none")]
     pub type_: Option<PeopleUsersUpsertType>,
 }
 
@@ -618,31 +605,23 @@ impl<'de> ::serde::Deserialize<'de> for PeopleUsersUpsertType {
 /// | `name` | [`String`] |  | Person name |
 ///
 /// See: <https://api.immich.app/models/PersonCreateDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 #[non_exhaustive]
 pub struct PersonCreateDTO {
     /// Person date of birth
-    #[serde(
-        rename = "birthDate",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "birthDate", skip_serializing_if = "::std::option::Option::is_none")]
     pub birth_date: Option<::chrono::naive::NaiveDate>,
     /// Person color (hex) (pattern: `^#?([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$`)
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub color: Option<String>,
     /// Mark as favorite
-    #[serde(
-        rename = "isFavorite",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isFavorite", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_favorite: Option<bool>,
     /// Person visibility (hidden)
-    #[serde(rename = "isHidden", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "isHidden", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_hidden: Option<bool>,
     /// Person name
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub name: Option<String>,
 }
 
@@ -728,10 +707,10 @@ impl PersonCreateDTO {
 /// | `user_id` | [`UserId`](crate::id::UserId) |  |  |
 ///
 /// See: <https://api.immich.app/models/PersonDeleteDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct PersonDeleteDTO {
-    #[serde(rename = "userId", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "userId", skip_serializing_if = "::std::option::Option::is_none")]
     pub user_id: Option<String>,
 }
 
@@ -798,41 +777,32 @@ impl PersonStatisticsResponseDTO {
 /// | `user_id` | [`UserId`](crate::id::UserId) |  | Restrict the update to the person record of this User ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}\|00000000-0000-0000-0000-000000000000\|ffffffff-ffff-ffff-ffff-ffffffffffff)$`) |
 ///
 /// See: <https://api.immich.app/models/PersonUpdateDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 #[non_exhaustive]
 pub struct PersonUpdateDTO {
     /// Person date of birth
-    #[serde(
-        rename = "birthDate",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "birthDate", skip_serializing_if = "::std::option::Option::is_none")]
     pub birth_date: Option<::chrono::naive::NaiveDate>,
     /// Person color (hex) (pattern: `^#?([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$`)
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub color: Option<String>,
     /// Asset ID used for feature face thumbnail (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
     #[serde(
         rename = "featureFaceAssetId",
-        default,
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub feature_face_asset_id: Option<AssetId>,
     /// Mark as favorite
-    #[serde(
-        rename = "isFavorite",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isFavorite", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_favorite: Option<bool>,
     /// Person visibility (hidden)
-    #[serde(rename = "isHidden", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "isHidden", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_hidden: Option<bool>,
     /// Person name
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub name: Option<String>,
     /// Restrict the update to the person record of this User ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$`)
-    #[serde(rename = "userId", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "userId", skip_serializing_if = "::std::option::Option::is_none")]
     pub user_id: Option<UserId>,
 }
 
@@ -965,11 +935,7 @@ pub struct PersonUsersDeleteItem {
     #[serde(rename = "personId")]
     pub person_id: PersonId,
     /// User ID of the user that gave access to the person
-    #[serde(
-        rename = "sharedById",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "sharedById", skip_serializing_if = "::std::option::Option::is_none")]
     pub shared_by_id: Option<UserId>,
     /// User ID of the user that was given access to the person
     #[serde(rename = "sharedWithId")]

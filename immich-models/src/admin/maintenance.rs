@@ -121,11 +121,7 @@ impl<'de> ::serde::Deserialize<'de> for IntegrityReport {
 pub struct IntegrityReportResponseDTO {
     /// (required)
     pub items: Vec<IntegrityReportResponseItemsItem>,
-    #[serde(
-        rename = "nextCursor",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "nextCursor", skip_serializing_if = "::std::option::Option::is_none")]
     pub next_cursor: Option<String>,
 }
 
@@ -491,11 +487,11 @@ impl MaintenanceDetectInstallStorageFolderDTO {
 /// | `token` | [`String`] |  | Maintenance token |
 ///
 /// See: <https://api.immich.app/models/MaintenanceLoginDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct MaintenanceLoginDTO {
     /// Maintenance token
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub token: Option<String>,
 }
 
@@ -538,11 +534,11 @@ pub struct MaintenanceStatusResponseDTO {
     pub action: MaintenanceAction,
     /// (required)
     pub active: bool,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub error: Option<String>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub progress: Option<i64>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub task: Option<String>,
 }
 
@@ -625,7 +621,6 @@ pub struct SetMaintenanceModeDTO {
     /// Restore backup filename
     #[serde(
         rename = "restoreBackupFilename",
-        default,
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub restore_backup_filename: Option<String>,

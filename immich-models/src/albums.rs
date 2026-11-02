@@ -88,7 +88,7 @@ pub struct AlbumResponseDTO {
     /// Album description (required)
     pub description: String,
     /// UTC representation of (local) end date (latest asset)
-    #[serde(rename = "endDate", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "endDate", skip_serializing_if = "::std::option::Option::is_none")]
     pub end_date: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Has shared link (required)
     #[serde(rename = "hasSharedLink")]
@@ -101,20 +101,15 @@ pub struct AlbumResponseDTO {
     /// Last modified asset timestamp
     #[serde(
         rename = "lastModifiedAssetTimestamp",
-        default,
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub last_modified_asset_timestamp: Option<::chrono::DateTime<::chrono::offset::Utc>>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub order: Option<AssetOrder>,
     /// Is shared album (required)
     pub shared: bool,
     /// UTC representation of (local) start date (earliest asset)
-    #[serde(
-        rename = "startDate",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "startDate", skip_serializing_if = "::std::option::Option::is_none")]
     pub start_date: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Last update date (required)
     #[serde(rename = "updatedAt")]
@@ -623,7 +618,7 @@ impl AlbumsAddAssetsDTO {
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct AlbumsAddAssetsResponseDTO {
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub error: Option<BulkIdErrorReason>,
     /// Operation success (required)
     pub success: bool,
@@ -881,13 +876,9 @@ impl<'de> ::serde::Deserialize<'de> for BulkIdErrorReason {
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct BulkIdResponseDTO {
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub error: Option<BulkIdErrorReason>,
-    #[serde(
-        rename = "errorMessage",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "errorMessage", skip_serializing_if = "::std::option::Option::is_none")]
     pub error_message: Option<String>,
     /// ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
     pub id: ::uuid::Uuid,
@@ -1042,7 +1033,7 @@ pub struct CreateAlbumDTO {
     #[serde(rename = "assetIds", default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub asset_ids: Vec<AssetId>,
     /// Album description
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub description: Option<String>,
 }
 
@@ -1200,34 +1191,25 @@ impl MapMarkerResponseDTO {
 /// | `order` | [`AssetOrder`] |  |  |
 ///
 /// See: <https://api.immich.app/models/UpdateAlbumDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct UpdateAlbumDTO {
     /// Album name
-    #[serde(
-        rename = "albumName",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "albumName", skip_serializing_if = "::std::option::Option::is_none")]
     pub album_name: Option<String>,
     /// Album thumbnail asset ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
     #[serde(
         rename = "albumThumbnailAssetId",
-        default,
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub album_thumbnail_asset_id: Option<AssetId>,
     /// Album description
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub description: Option<String>,
     /// Enable activity feed
-    #[serde(
-        rename = "isActivityEnabled",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isActivityEnabled", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_activity_enabled: Option<bool>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub order: Option<AssetOrder>,
 }
 

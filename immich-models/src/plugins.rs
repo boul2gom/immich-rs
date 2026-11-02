@@ -344,7 +344,7 @@ pub struct PluginTemplateStepResponseDTO {
     /// Step configuration (required)
     pub config: Option<::serde_json::Map<String, ::serde_json::Value>>,
     /// Whether the step is enabled
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub enabled: Option<bool>,
     /// Step plugin method (required)
     pub method: String,

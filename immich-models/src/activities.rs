@@ -23,10 +23,10 @@ pub struct ActivityCreateDTO {
     #[serde(rename = "albumId")]
     pub album_id: AlbumId,
     /// Asset ID (if activity is for an asset) (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
-    #[serde(rename = "assetId", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "assetId", skip_serializing_if = "::std::option::Option::is_none")]
     pub asset_id: Option<AssetId>,
     /// Comment text (required if type is comment)
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub comment: Option<String>,
     /// (required)
     #[serde(rename = "type")]
@@ -102,7 +102,7 @@ pub struct ActivityResponseDTO {
     #[serde(rename = "assetId")]
     pub asset_id: Option<AssetId>,
     /// Comment text (for comment activities)
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub comment: Option<String>,
     /// Creation date (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`) (required)
     #[serde(rename = "createdAt")]

@@ -48,14 +48,10 @@ impl AlbumsResponse {
 /// | `default_asset_order` | [`AssetOrder`] |  |  |
 ///
 /// See: <https://api.immich.app/models/AlbumsUpdate>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct AlbumsUpdate {
-    #[serde(
-        rename = "defaultAssetOrder",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "defaultAssetOrder", skip_serializing_if = "::std::option::Option::is_none")]
     pub default_asset_order: Option<AssetOrder>,
 }
 
@@ -89,10 +85,10 @@ impl AlbumsUpdate {
 /// | `color` | [`UserAvatarColor`] |  |  |
 ///
 /// See: <https://api.immich.app/models/AvatarUpdate>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct AvatarUpdate {
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub color: Option<UserAvatarColor>,
 }
 
@@ -321,15 +317,11 @@ impl CastResponse {
 /// | `g_cast_enabled` | `bool` |  | Whether Google Cast is enabled |
 ///
 /// See: <https://api.immich.app/models/CastUpdate>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct CastUpdate {
     /// Whether Google Cast is enabled
-    #[serde(
-        rename = "gCastEnabled",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "gCastEnabled", skip_serializing_if = "::std::option::Option::is_none")]
     pub g_cast_enabled: Option<bool>,
 }
 
@@ -492,20 +484,15 @@ impl DownloadResponse {
 /// | `include_embedded_videos` | `bool` |  | Whether to include embedded videos in downloads |
 ///
 /// See: <https://api.immich.app/models/DownloadUpdate>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct DownloadUpdate {
     /// Maximum archive size in bytes
-    #[serde(
-        rename = "archiveSize",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "archiveSize", skip_serializing_if = "::std::option::Option::is_none")]
     pub archive_size: Option<::std::num::NonZeroU64>,
     /// Whether to include embedded videos in downloads
     #[serde(
         rename = "includeEmbeddedVideos",
-        default,
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub include_embedded_videos: Option<bool>,
@@ -609,25 +596,17 @@ impl EmailNotificationsResponse {
 /// | `enabled` | `bool` |  | Whether email notifications are enabled |
 ///
 /// See: <https://api.immich.app/models/EmailNotificationsUpdate>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct EmailNotificationsUpdate {
     /// Whether to receive email notifications for album invites
-    #[serde(
-        rename = "albumInvite",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "albumInvite", skip_serializing_if = "::std::option::Option::is_none")]
     pub album_invite: Option<bool>,
     /// Whether to receive email notifications for album updates
-    #[serde(
-        rename = "albumUpdate",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "albumUpdate", skip_serializing_if = "::std::option::Option::is_none")]
     pub album_update: Option<bool>,
     /// Whether email notifications are enabled
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub enabled: Option<bool>,
 }
 
@@ -727,18 +706,14 @@ impl FoldersResponse {
 /// | `sidebar_web` | `bool` |  | Whether folders appear in web sidebar |
 ///
 /// See: <https://api.immich.app/models/FoldersUpdate>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct FoldersUpdate {
     /// Whether folders are enabled
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub enabled: Option<bool>,
     /// Whether folders appear in web sidebar
-    #[serde(
-        rename = "sidebarWeb",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "sidebarWeb", skip_serializing_if = "::std::option::Option::is_none")]
     pub sidebar_web: Option<bool>,
 }
 
@@ -839,21 +814,17 @@ impl MemoriesResponse {
 /// | `sidebar_web` | `bool` |  | Whether memories appear in web sidebar |
 ///
 /// See: <https://api.immich.app/models/MemoriesUpdate>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct MemoriesUpdate {
     /// Memory duration in seconds
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub duration: Option<::std::num::NonZeroU64>,
     /// Whether memories are enabled
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub enabled: Option<bool>,
     /// Whether memories appear in web sidebar
-    #[serde(
-        rename = "sidebarWeb",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "sidebarWeb", skip_serializing_if = "::std::option::Option::is_none")]
     pub sidebar_web: Option<bool>,
 }
 
@@ -982,11 +953,7 @@ pub struct PeopleResponse {
     /// Whether people are enabled (required)
     pub enabled: bool,
     /// People face threshold
-    #[serde(
-        rename = "minimumFaces",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "minimumFaces", skip_serializing_if = "::std::option::Option::is_none")]
     pub minimum_faces: Option<::std::num::NonZeroU64>,
     /// Whether people appear in web sidebar (required)
     #[serde(rename = "sidebarWeb")]
@@ -1050,31 +1017,19 @@ impl PeopleResponse {
 /// | `update_strategy` | [`PersonUpdateStrategy`] |  |  |
 ///
 /// See: <https://api.immich.app/models/PeopleUpdate>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct PeopleUpdate {
     /// Whether people are enabled
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub enabled: Option<bool>,
     /// People face threshold
-    #[serde(
-        rename = "minimumFaces",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "minimumFaces", skip_serializing_if = "::std::option::Option::is_none")]
     pub minimum_faces: Option<::std::num::NonZeroU64>,
     /// Whether people appear in web sidebar
-    #[serde(
-        rename = "sidebarWeb",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "sidebarWeb", skip_serializing_if = "::std::option::Option::is_none")]
     pub sidebar_web: Option<bool>,
-    #[serde(
-        rename = "updateStrategy",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "updateStrategy", skip_serializing_if = "::std::option::Option::is_none")]
     pub update_strategy: Option<PersonUpdateStrategy>,
 }
 
@@ -1291,22 +1246,17 @@ impl PurchaseResponse {
 /// | `show_support_badge` | `bool` |  | Whether to show support badge |
 ///
 /// See: <https://api.immich.app/models/PurchaseUpdate>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct PurchaseUpdate {
     /// Date until which to hide buy button
     #[serde(
         rename = "hideBuyButtonUntil",
-        default,
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub hide_buy_button_until: Option<String>,
     /// Whether to show support badge
-    #[serde(
-        rename = "showSupportBadge",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "showSupportBadge", skip_serializing_if = "::std::option::Option::is_none")]
     pub show_support_badge: Option<bool>,
 }
 
@@ -1382,11 +1332,11 @@ impl RatingsResponse {
 /// | `enabled` | `bool` |  | Whether ratings are enabled |
 ///
 /// See: <https://api.immich.app/models/RatingsUpdate>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct RatingsUpdate {
     /// Whether ratings are enabled
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub enabled: Option<bool>,
 }
 
@@ -1448,15 +1398,11 @@ impl RecentlyAddedResponse {
 /// | `sidebar_web` | `bool` |  | Whether the recently added page appears in the web sidebar |
 ///
 /// See: <https://api.immich.app/models/RecentlyAddedUpdate>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct RecentlyAddedUpdate {
     /// Whether the recently added page appears in the web sidebar
-    #[serde(
-        rename = "sidebarWeb",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "sidebarWeb", skip_serializing_if = "::std::option::Option::is_none")]
     pub sidebar_web: Option<bool>,
 }
 
@@ -1528,18 +1474,14 @@ impl SharedLinksResponse {
 /// | `sidebar_web` | `bool` |  | Whether shared links appear in web sidebar |
 ///
 /// See: <https://api.immich.app/models/SharedLinksUpdate>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct SharedLinksUpdate {
     /// Whether shared links are enabled
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub enabled: Option<bool>,
     /// Whether shared links appear in web sidebar
-    #[serde(
-        rename = "sidebarWeb",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "sidebarWeb", skip_serializing_if = "::std::option::Option::is_none")]
     pub sidebar_web: Option<bool>,
 }
 
@@ -1626,18 +1568,14 @@ impl TagsResponse {
 /// | `sidebar_web` | `bool` |  | Whether tags appear in web sidebar |
 ///
 /// See: <https://api.immich.app/models/TagsUpdate>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct TagsUpdate {
     /// Whether tags are enabled
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub enabled: Option<bool>,
     /// Whether tags appear in web sidebar
-    #[serde(
-        rename = "sidebarWeb",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "sidebarWeb", skip_serializing_if = "::std::option::Option::is_none")]
     pub sidebar_web: Option<bool>,
 }
 
@@ -1957,46 +1895,37 @@ impl UserPreferencesResponseDTO {
 /// | `tags` | [`TagsUpdate`] |  |  |
 ///
 /// See: <https://api.immich.app/models/UserPreferencesUpdateDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct UserPreferencesUpdateDTO {
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub albums: Option<AlbumsUpdate>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub avatar: Option<AvatarUpdate>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub cast: Option<CastUpdate>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub download: Option<DownloadUpdate>,
     #[serde(
         rename = "emailNotifications",
-        default,
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub email_notifications: Option<EmailNotificationsUpdate>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub folders: Option<FoldersUpdate>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub memories: Option<MemoriesUpdate>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub people: Option<PeopleUpdate>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub purchase: Option<PurchaseUpdate>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub ratings: Option<RatingsUpdate>,
-    #[serde(
-        rename = "recentlyAdded",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "recentlyAdded", skip_serializing_if = "::std::option::Option::is_none")]
     pub recently_added: Option<RecentlyAddedUpdate>,
-    #[serde(
-        rename = "sharedLinks",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "sharedLinks", skip_serializing_if = "::std::option::Option::is_none")]
     pub shared_links: Option<SharedLinksUpdate>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub tags: Option<TagsUpdate>,
 }
 
@@ -2189,23 +2118,19 @@ impl UserPreferencesUpdateDTO {
 /// | `password` | [`String`] |  | User password (deprecated, use change password endpoint) |
 ///
 /// See: <https://api.immich.app/models/UserUpdateMeDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct UserUpdateMeDTO {
-    #[serde(
-        rename = "avatarColor",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "avatarColor", skip_serializing_if = "::std::option::Option::is_none")]
     pub avatar_color: Option<UserAvatarColor>,
     /// User email (pattern: `` ^[\p{L}\p{M}\p{N}.!#$%&'*+/=?^_`{|}~-]+@[\p{L}\p{N}](?:[\p{L}\p{M}\p{N}-]{0,61}[\p{L}\p{M}\p{N}])?(?:\.[\p{L}\p{N}](?:[\p{L}\p{M}\p{N}-]{0,61}[\p{L}\p{M}\p{N}])?)*$ ``)
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub email: Option<String>,
     /// User name
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub name: Option<String>,
     /// User password (deprecated, use change password endpoint)
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub password: Option<String>,
 }
 

@@ -24,7 +24,7 @@ pub use crate::id::{AssetId, DuplicateId, LibraryId, PersonId, StackId, TagId, U
 #[non_exhaustive]
 pub struct AssetBulkDeleteDTO {
     /// Force delete even if in use
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub force: Option<bool>,
     /// IDs to process (required)
     pub ids: Vec<AssetId>,
@@ -81,51 +81,35 @@ impl AssetBulkDeleteDTO {
 #[non_exhaustive]
 pub struct AssetBulkUpdateDTO {
     /// Original date and time
-    #[serde(
-        rename = "dateTimeOriginal",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "dateTimeOriginal", skip_serializing_if = "::std::option::Option::is_none")]
     pub date_time_original: Option<String>,
     /// Relative time offset in minutes
-    #[serde(
-        rename = "dateTimeRelative",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "dateTimeRelative", skip_serializing_if = "::std::option::Option::is_none")]
     pub date_time_relative: Option<i64>,
     /// Asset description
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub description: Option<String>,
     /// Duplicate ID
-    #[serde(
-        rename = "duplicateId",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "duplicateId", skip_serializing_if = "::std::option::Option::is_none")]
     pub duplicate_id: Option<String>,
     /// Asset IDs to update (required)
     pub ids: Vec<AssetId>,
     /// Mark as favorite
-    #[serde(
-        rename = "isFavorite",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isFavorite", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_favorite: Option<bool>,
     /// Latitude coordinate
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub latitude: Option<f64>,
     /// Longitude coordinate
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub longitude: Option<f64>,
     /// Rating in range \[1-5\] (starred), -1 (rejected), or null (unrated)
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub rating: Option<i64>,
     /// Time zone (IANA timezone)
-    #[serde(rename = "timeZone", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "timeZone", skip_serializing_if = "::std::option::Option::is_none")]
     pub time_zone: Option<String>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub visibility: Option<AssetVisibility>,
 }
 
@@ -396,18 +380,14 @@ pub struct AssetBulkUploadCheckResult {
     /// (required)
     pub action: AssetUploadAction,
     /// Existing asset ID if duplicate (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
-    #[serde(rename = "assetId", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "assetId", skip_serializing_if = "::std::option::Option::is_none")]
     pub asset_id: Option<AssetId>,
     /// Client-side identifier echoed from the request to match results to inputs (required)
     pub id: String,
     /// Whether existing asset is trashed
-    #[serde(
-        rename = "isTrashed",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isTrashed", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_trashed: Option<bool>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub reason: Option<AssetRejectReason>,
 }
 
@@ -1067,7 +1047,7 @@ pub struct AssetMediaCreateDTO {
     #[serde(rename = "assetData")]
     pub asset_data: Vec<u8>,
     /// Duration in milliseconds (for videos)
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub duration: Option<i64>,
     /// File creation date (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`) (required)
     #[serde(rename = "fileCreatedAt")]
@@ -1076,33 +1056,21 @@ pub struct AssetMediaCreateDTO {
     #[serde(rename = "fileModifiedAt")]
     pub file_modified_at: ::chrono::DateTime<::chrono::offset::Utc>,
     /// Filename
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub filename: Option<String>,
     /// Mark as favorite
-    #[serde(
-        rename = "isFavorite",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isFavorite", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_favorite: Option<bool>,
     /// Live photo video ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
-    #[serde(
-        rename = "livePhotoVideoId",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "livePhotoVideoId", skip_serializing_if = "::std::option::Option::is_none")]
     pub live_photo_video_id: Option<AssetId>,
     /// Asset metadata items
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub metadata: Vec<AssetMetadataUpsertItemDTO>,
     /// Sidecar file data
-    #[serde(
-        rename = "sidecarData",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "sidecarData", skip_serializing_if = "::std::option::Option::is_none")]
     pub sidecar_data: Option<Vec<u8>>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub visibility: Option<AssetVisibility>,
 }
 
@@ -2140,15 +2108,11 @@ pub struct AssetResponseDTO {
     #[serde(rename = "createdAt")]
     pub created_at: ::chrono::DateTime<::chrono::offset::Utc>,
     /// Duplicate group ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
-    #[serde(
-        rename = "duplicateId",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "duplicateId", skip_serializing_if = "::std::option::Option::is_none")]
     pub duplicate_id: Option<DuplicateId>,
     /// Video/gif duration in milliseconds (null for static images) (required)
     pub duration: Option<i64>,
-    #[serde(rename = "exifInfo", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "exifInfo", skip_serializing_if = "::std::option::Option::is_none")]
     pub exif_info: Option<ExifResponseDTO>,
     /// The actual UTC timestamp when the file was created/captured, preserving timezone information. This is the authoritative timestamp for chronological sorting within timeline groups. Combined with timezone data, this can be used to determine the exact moment the photo was taken. (required)
     #[serde(rename = "fileCreatedAt")]
@@ -2179,18 +2143,10 @@ pub struct AssetResponseDTO {
     #[serde(rename = "isTrashed")]
     pub is_trashed: bool,
     /// Library ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
-    #[serde(
-        rename = "libraryId",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "libraryId", skip_serializing_if = "::std::option::Option::is_none")]
     pub library_id: Option<LibraryId>,
     /// Live photo video ID
-    #[serde(
-        rename = "livePhotoVideoId",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "livePhotoVideoId", skip_serializing_if = "::std::option::Option::is_none")]
     pub live_photo_video_id: Option<String>,
     /// The local date and time when the photo/video was taken, derived from EXIF metadata. This represents the photographer's local time regardless of timezone, stored as a timezone-agnostic timestamp. Used for timeline grouping by "local" days and months. (required)
     #[serde(rename = "localDateTime")]
@@ -2199,16 +2155,12 @@ pub struct AssetResponseDTO {
     #[serde(rename = "originalFileName")]
     pub original_file_name: String,
     /// Original MIME type
-    #[serde(
-        rename = "originalMimeType",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "originalMimeType", skip_serializing_if = "::std::option::Option::is_none")]
     pub original_mime_type: Option<String>,
     /// Original file path (required)
     #[serde(rename = "originalPath")]
     pub original_path: String,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub owner: Option<UserResponseDTO>,
     /// Owner user ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
     #[serde(rename = "ownerId")]
@@ -2216,9 +2168,9 @@ pub struct AssetResponseDTO {
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub people: Vec<PersonResponseDTO>,
     /// Is resized
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub resized: Option<bool>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub stack: Option<AssetStackResponseDTO>,
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub tags: Vec<TagResponseDTO>,
@@ -3061,110 +3013,74 @@ impl CropParameters {
 /// | `time_zone` | [`String`] |  | Time zone |
 ///
 /// See: <https://api.immich.app/models/ExifResponseDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 #[non_exhaustive]
 pub struct ExifResponseDTO {
     /// City name
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub city: Option<String>,
     /// Country name
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub country: Option<String>,
     /// Original date/time
-    #[serde(
-        rename = "dateTimeOriginal",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "dateTimeOriginal", skip_serializing_if = "::std::option::Option::is_none")]
     pub date_time_original: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Image description
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub description: Option<String>,
     /// Image height in pixels
-    #[serde(
-        rename = "exifImageHeight",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "exifImageHeight", skip_serializing_if = "::std::option::Option::is_none")]
     pub exif_image_height: Option<i64>,
     /// Image width in pixels
-    #[serde(
-        rename = "exifImageWidth",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "exifImageWidth", skip_serializing_if = "::std::option::Option::is_none")]
     pub exif_image_width: Option<i64>,
     /// Exposure time
-    #[serde(
-        rename = "exposureTime",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "exposureTime", skip_serializing_if = "::std::option::Option::is_none")]
     pub exposure_time: Option<String>,
     /// F-number (aperture)
-    #[serde(rename = "fNumber", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "fNumber", skip_serializing_if = "::std::option::Option::is_none")]
     pub f_number: Option<f64>,
     /// File size in bytes
-    #[serde(
-        rename = "fileSizeInByte",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "fileSizeInByte", skip_serializing_if = "::std::option::Option::is_none")]
     pub file_size_in_byte: Option<i64>,
     /// Focal length in mm
-    #[serde(
-        rename = "focalLength",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "focalLength", skip_serializing_if = "::std::option::Option::is_none")]
     pub focal_length: Option<f64>,
     /// ISO sensitivity
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub iso: Option<i64>,
     /// GPS latitude
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub latitude: Option<f64>,
     /// Lens model
-    #[serde(
-        rename = "lensModel",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "lensModel", skip_serializing_if = "::std::option::Option::is_none")]
     pub lens_model: Option<String>,
     /// GPS longitude
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub longitude: Option<f64>,
     /// Camera make
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub make: Option<String>,
     /// Camera model
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub model: Option<String>,
     /// Modification date/time
-    #[serde(
-        rename = "modifyDate",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "modifyDate", skip_serializing_if = "::std::option::Option::is_none")]
     pub modify_date: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Image orientation
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub orientation: Option<String>,
     /// Projection type
-    #[serde(
-        rename = "projectionType",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "projectionType", skip_serializing_if = "::std::option::Option::is_none")]
     pub projection_type: Option<String>,
     /// Rating
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub rating: Option<::std::num::NonZeroU64>,
     /// State/province name
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub state: Option<String>,
     /// Time zone
-    #[serde(rename = "timeZone", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "timeZone", skip_serializing_if = "::std::option::Option::is_none")]
     pub time_zone: Option<String>,
 }
 
@@ -3788,16 +3704,12 @@ pub struct PersonResponseDTO {
     #[serde(rename = "birthDate")]
     pub birth_date: Option<::chrono::naive::NaiveDate>,
     /// Person color (hex)
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub color: Option<String>,
     /// Person ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
     pub id: PersonId,
     /// Is favorite
-    #[serde(
-        rename = "isFavorite",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isFavorite", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_favorite: Option<bool>,
     /// Is hidden (required)
     #[serde(rename = "isHidden")]
@@ -3817,11 +3729,7 @@ pub struct PersonResponseDTO {
     #[serde(rename = "thumbnailPath")]
     pub thumbnail_path: String,
     /// Last update date
-    #[serde(
-        rename = "updatedAt",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "updatedAt", skip_serializing_if = "::std::option::Option::is_none")]
     pub updated_at: Option<::chrono::DateTime<::chrono::offset::Utc>>,
 }
 
@@ -4094,7 +4002,7 @@ impl RotateParameters {
 #[non_exhaustive]
 pub struct TagResponseDTO {
     /// Tag color (hex)
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub color: Option<String>,
     /// Creation date (required)
     #[serde(rename = "createdAt")]
@@ -4104,7 +4012,7 @@ pub struct TagResponseDTO {
     /// Tag name (required)
     pub name: String,
     /// Parent tag ID
-    #[serde(rename = "parentId", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "parentId", skip_serializing_if = "::std::option::Option::is_none")]
     pub parent_id: Option<String>,
     /// Last update date (required)
     #[serde(rename = "updatedAt")]
@@ -4204,43 +4112,31 @@ impl TagResponseDTO {
 /// | `visibility` | [`AssetVisibility`] |  |  |
 ///
 /// See: <https://api.immich.app/models/UpdateAssetDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 #[non_exhaustive]
 pub struct UpdateAssetDTO {
     /// Original date and time
-    #[serde(
-        rename = "dateTimeOriginal",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "dateTimeOriginal", skip_serializing_if = "::std::option::Option::is_none")]
     pub date_time_original: Option<String>,
     /// Asset description
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub description: Option<String>,
     /// Mark as favorite
-    #[serde(
-        rename = "isFavorite",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "isFavorite", skip_serializing_if = "::std::option::Option::is_none")]
     pub is_favorite: Option<bool>,
     /// Latitude coordinate
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub latitude: Option<f64>,
     /// Live photo video ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
-    #[serde(
-        rename = "livePhotoVideoId",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "livePhotoVideoId", skip_serializing_if = "::std::option::Option::is_none")]
     pub live_photo_video_id: Option<AssetId>,
     /// Longitude coordinate
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub longitude: Option<f64>,
     /// Rating in range \[1-5\] (starred), -1 (rejected), or null (unrated)
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub rating: Option<i64>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub visibility: Option<AssetVisibility>,
 }
 

@@ -18,7 +18,7 @@ pub use crate::id::ApiKeyId;
 #[non_exhaustive]
 pub struct ApiKeyCreateDTO {
     /// API key name
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub name: Option<String>,
     /// List of permissions (required)
     pub permissions: Vec<Permission>,
@@ -243,11 +243,11 @@ impl ApiKeyResponseDTO {
 /// | `permissions` | [`Vec<Permission>`](crate::api_keys::Permission) |  | List of permissions |
 ///
 /// See: <https://api.immich.app/models/ApiKeyUpdateDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct ApiKeyUpdateDTO {
     /// API key name
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub name: Option<String>,
     /// List of permissions
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]

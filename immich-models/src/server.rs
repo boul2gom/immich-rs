@@ -308,98 +308,70 @@ impl<'de> ::serde::Deserialize<'de> for ReleaseType {
 #[non_exhaustive]
 pub struct ServerAboutResponseDTO {
     /// Build identifier
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub build: Option<String>,
     /// Build image name
-    #[serde(
-        rename = "buildImage",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "buildImage", skip_serializing_if = "::std::option::Option::is_none")]
     pub build_image: Option<String>,
     /// Build image URL
-    #[serde(
-        rename = "buildImageUrl",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "buildImageUrl", skip_serializing_if = "::std::option::Option::is_none")]
     pub build_image_url: Option<String>,
     /// Build URL
-    #[serde(rename = "buildUrl", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "buildUrl", skip_serializing_if = "::std::option::Option::is_none")]
     pub build_url: Option<String>,
     /// `ExifTool` version
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub exiftool: Option<String>,
     /// `FFmpeg` version
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub ffmpeg: Option<String>,
     /// `ImageMagick` version
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub imagemagick: Option<String>,
     /// libvips version
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub libvips: Option<String>,
     /// Whether the server is licensed (required)
     pub licensed: bool,
     /// Node.js version
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub nodejs: Option<String>,
     /// Repository name
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub repository: Option<String>,
     /// Repository URL
-    #[serde(
-        rename = "repositoryUrl",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "repositoryUrl", skip_serializing_if = "::std::option::Option::is_none")]
     pub repository_url: Option<String>,
     /// Source commit hash
-    #[serde(
-        rename = "sourceCommit",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "sourceCommit", skip_serializing_if = "::std::option::Option::is_none")]
     pub source_commit: Option<String>,
     /// Source reference (branch/tag)
-    #[serde(
-        rename = "sourceRef",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "sourceRef", skip_serializing_if = "::std::option::Option::is_none")]
     pub source_ref: Option<String>,
     /// Source URL
-    #[serde(
-        rename = "sourceUrl",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "sourceUrl", skip_serializing_if = "::std::option::Option::is_none")]
     pub source_url: Option<String>,
     /// Third-party bug/feature URL
     #[serde(
         rename = "thirdPartyBugFeatureUrl",
-        default,
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub third_party_bug_feature_url: Option<String>,
     /// Third-party documentation URL
     #[serde(
         rename = "thirdPartyDocumentationUrl",
-        default,
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub third_party_documentation_url: Option<String>,
     /// Third-party source URL
     #[serde(
         rename = "thirdPartySourceUrl",
-        default,
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub third_party_source_url: Option<String>,
     /// Third-party support URL
     #[serde(
         rename = "thirdPartySupportUrl",
-        default,
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub third_party_support_url: Option<String>,

@@ -311,7 +311,7 @@ pub struct QueueCommandDTO {
     /// (required)
     pub command: QueueCommand,
     /// Force the command execution (if applicable)
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub force: Option<bool>,
 }
 

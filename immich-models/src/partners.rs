@@ -163,11 +163,7 @@ pub struct PartnerResponseDTO {
     /// User ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
     pub id: UserId,
     /// Show in timeline
-    #[serde(
-        rename = "inTimeline",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
+    #[serde(rename = "inTimeline", skip_serializing_if = "::std::option::Option::is_none")]
     pub in_timeline: Option<bool>,
     /// User name (required)
     pub name: String,

@@ -61,14 +61,14 @@ pub struct NotificationDTO {
     #[serde(default, skip_serializing_if = "::serde_json::Map::is_empty")]
     pub data: ::serde_json::Map<String, ::serde_json::Value>,
     /// Notification description
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub description: Option<String>,
     /// Notification ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
     pub id: NotificationId,
     /// (required)
     pub level: NotificationLevel,
     /// Date when notification was read (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(rename = "readAt", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "readAt", skip_serializing_if = "::std::option::Option::is_none")]
     pub read_at: Option<::chrono::DateTime<::chrono::offset::Utc>>,
     /// Notification title (required)
     pub title: String,
@@ -403,7 +403,7 @@ pub struct NotificationUpdateAllDTO {
     /// Notification IDs to update (required)
     pub ids: Vec<NotificationId>,
     /// Date when notifications were read (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(rename = "readAt", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "readAt", skip_serializing_if = "::std::option::Option::is_none")]
     pub read_at: Option<::chrono::DateTime<::chrono::offset::Utc>>,
 }
 
@@ -444,11 +444,11 @@ impl NotificationUpdateAllDTO {
 /// | `read_at` | [`DateTime`](::chrono::DateTime) |  | Date when notification was read (pattern: `^(?:(?:\d\d[2468][048]\|\d\d[13579][26]\|\d\d0[48]\|[02468][048]00\|[13579][26]00)-02-29\|\d{4}-(?:(?:0[13578]\|1[02])-(?:0[1-9]\|[12]\d\|3[01])\|(?:0[469]\|11)-(?:0[1-9]\|[12]\d\|30)\|(?:02)-(?:0[1-9]\|1\d\|2[0-8])))T(?:(?:[01]\d\|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z\|([+-](?:[01]\d\|2[0-3]):[0-5]\d)))$`) |
 ///
 /// See: <https://api.immich.app/models/NotificationUpdateDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq, Default)]
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct NotificationUpdateDTO {
     /// Date when notification was read (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`)
-    #[serde(rename = "readAt", default, skip_serializing_if = "::std::option::Option::is_none")]
+    #[serde(rename = "readAt", skip_serializing_if = "::std::option::Option::is_none")]
     pub read_at: Option<::chrono::DateTime<::chrono::offset::Utc>>,
 }
 
