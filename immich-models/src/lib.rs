@@ -37,4 +37,4 @@ pub mod workflows;
 pub use id::*;
 
 /// Target Immich `OpenAPI` version from which these models were generated.
-pub const TARGET_IMMICH_VERSION: &str = "v3.3.5";
+pub const TARGET_IMMICH_VERSION: &str = "v3.3.6";
