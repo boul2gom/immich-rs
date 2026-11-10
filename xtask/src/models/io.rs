@@ -96,6 +96,45 @@ pub(super) fn write_modules(
     Ok(())
 }
 
+pub(super) fn sync_readme_versions(workspace_root: &Path, version: &str) -> Result<()> {
+    let updates = [
+        (
+            workspace_root.join("README.md"),
+            "official Immich `OpenAPI` specification (`",
+            "`).",
+        ),
+        (
+            workspace_root.join("immich-models/README.md"),
+            "Targeted Immich version: **`",
+            "`**",
+        ),
+    ];
+
+    for (path, prefix, suffix) in updates {
+        if !path.exists() {
+            continue;
+        }
+        let content = std::fs::read_to_string(&path)?;
+        if let Some(updated) = replace_between(&content, prefix, suffix, version)
+            && updated != content
+        {
+            std::fs::write(&path, updated)?;
+        }
+    }
+
+    Ok(())
+}
+
+fn replace_between(content: &str, prefix: &str, suffix: &str, replacement: &str) -> Option<String> {
+    let start = content.find(prefix)? + prefix.len();
+    let end = start + content[start..].find(suffix)?;
+    let mut out = String::with_capacity(content.len());
+    out.push_str(&content[..start]);
+    out.push_str(replacement);
+    out.push_str(&content[end..]);
+    Some(out)
+}
+
 fn render_id_module() -> String {
     let mut out = String::from(ID_RS_HEADER);
     out.push('\n');

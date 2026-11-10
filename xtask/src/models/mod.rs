@@ -34,6 +34,7 @@ pub fn run_with_spec(workspace_root: &Path, spec: &serde_json::Value, resolved_v
 
     let out_dir = workspace_root.join("immich-models/src");
     write_modules(&out_dir, &module_items, resolved_version)?;
+    io::sync_readme_versions(workspace_root, resolved_version)?;
 
     crate::common::fmt::format_crate(workspace_root, "immich-models")?;
 

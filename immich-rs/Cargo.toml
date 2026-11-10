@@ -28,7 +28,9 @@ tag-message = "chore: release v{{version}}"
 pre-release-commit-message = "chore: release v{{version}}"
 pre-release-replacements = [
   {file="../README.md", search='immich-rs = "[\d.]+"', replace='immich-rs = "{{version}}"', min=1},
-  {file="../README.md", search='(immich-rs = \{ version = )"[\d.]+"', replace='$1"{{version}}"', min=1},
+  {file="../README.md", search='immich-rs = \{ version = "[\d.]+"', replace='immich-rs = { version = "{{version}}"', min=1},
+  {file="../README.md", search='immich-models = "[\d.]+"', replace='immich-models = "{{version}}"', min=1},
+  {file="../immich-models/README.md", search='immich-models = "[\d.]+"', replace='immich-models = "{{version}}"', min=1},
 ]
 
 [features]

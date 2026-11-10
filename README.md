@@ -49,7 +49,7 @@
   </a>
 </p>
 <p align="center">
-  <a href="https://github.com/boul2gom/immich-rs#license">
+  <a href="https://github.com/boul2gom/immich-rs#-license--acknowledgements">
     <img src="https://img.shields.io/badge/License-MIT%20OR%20Apache--2.0-green" alt="License">
   </a>
   <a href="https://github.com/boul2gom/immich-rs/stargazers">
@@ -104,7 +104,7 @@
 `immich-rs` solves this by providing:
 - **Zero API drift**: All models and client bindings are generated from official `OpenAPI` specifications with lossless unknown enum handling (`Unknown(String)`).
 - **Compile-time safety**: Transparent newtypes for 20 domain IDs (`AssetId`, `AlbumId`, `UserId`, etc.) ensure you never pass an asset ID where an album ID was expected.
-- **Enterprise-grade resilience**: Token-bucket rate limiting, full-jitter exponential backoff, RFC 9110 `Retry-After` parsing, and method-idempotence checks.
+- **Enterprise-grade resilience**: Token-bucket rate limiting, jittered exponential backoff, RFC 9110 `Retry-After` parsing, and method-idempotence checks.
 - **Zero credential leaks**: All keys and tokens are strictly masked in `Debug` implementations and OpenTelemetry/tracing spans.
 - **Universal deployment**: Native multi-threaded Tokio support and complete browser WASM support (`wasm32-unknown-unknown`).
 
@@ -112,7 +112,7 @@
 
 ## ✨ Key Highlights
 
-- **Complete `OpenAPI` Coverage**: 100% typed bindings generated strictly from the official Immich `OpenAPI` specification (`v3.3.5`).
+- **Complete `OpenAPI` Coverage**: 100% typed bindings generated strictly from the official Immich `OpenAPI` specification (`v3.3.6`).
 - **20 `#[repr(transparent)]` Domain IDs**: Compile-time prevention of ID mixups (`AssetId`, `AlbumId`, `UserId`, `TagId`, etc.) with zero runtime overhead.
 - **Hierarchical API Client**: Intuitive namespacing mirroring Immich domains: `client.assets().faces()`, `client.users().admin()`, `client.system().config()`.
 - **Atomic Direct-to-Disk Transfers**: Downloads stream directly to temporary files before atomic filesystem rename, ensuring partial downloads never corrupt your disk.
@@ -130,7 +130,7 @@ Add `immich-rs` to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-immich-rs = "1.0.0"
+immich-rs = "1.1.0"
 ```
 
 If you only need the `OpenAPI` data models and DTOs without network or HTTP dependencies (e.g. for event workers, webhooks, or custom clients):
@@ -171,7 +171,7 @@ To use `native-tls` instead of `rustls-tls`:
 
 ```toml
 [dependencies]
-immich-rs = { version = "0.1.0", default-features = false, features = ["fs", "native-tls"] }
+immich-rs = { version = "1.1.0", default-features = false, features = ["fs", "native-tls"] }
 ```
 
 ---
@@ -275,10 +275,14 @@ Rather than exposing hundreds of flat methods on a single monolithic struct, `im
 let _faces = client.assets().faces();
 let _stacks = client.assets().stacks();
 let _downloads = client.assets().downloads();
+let _files = client.assets().files();
 
-// System administration
+// System & administration
 let _config = client.system().config();
+let _metadata = client.system().metadata();
+let _database = client.admin().database();
 let _maintenance = client.admin().maintenance();
+let _notifications = client.admin().notifications();
 let _user_admin = client.users().admin();
 # Ok(())
 # }
@@ -286,14 +290,15 @@ let _user_admin = client.users().admin();
 
 ### 2. Strongly Typed Domain IDs
 
-To eliminate accidental ID swapping at compile-time, all 20 Immich entity IDs are transparent newtypes:
+To eliminate accidental ID swapping at compile-time, all 20 Immich entity IDs are transparent newtypes (re-exported directly at the root of `immich-rs` and in `immich_rs::prelude::*`):
 
 ```rust,no_run
-use immich_models::id::{AlbumId, AssetId, UserId};
+use immich_rs::{AlbumId, AssetId, UserId};
 use uuid::Uuid;
 
 let asset_id = AssetId::new(Uuid::new_v4());
 let album_id = AlbumId::new(Uuid::new_v4());
+let _user_id = UserId::new(Uuid::new_v4());
 
 // asset_id cannot be accidentally passed to an API expecting an album_id:
 // client.albums().get_album_info(asset_id); // ❌ Compile error!
@@ -381,9 +386,9 @@ let client = ImmichClient::builder()
 # Ok::<(), immich_rs::Error>(())
 ```
 
-- **Idempotence-aware**: HTTP `500 Internal Server Error` is safely retried on idempotent methods (`GET`, `PUT`, `DELETE`), but **never** on mutating operations (`POST`).
+- **Idempotence-aware**: HTTP `500 Internal Server Error` is safely retried on idempotent methods (`GET`, `HEAD`, `PUT`, `DELETE`, `OPTIONS`, `TRACE`), but **never** on non-idempotent operations (`POST`, `PATCH`).
 - **RFC 9110 Compliant**: Respects `Retry-After` headers expressed either in whole seconds or RFC 9110 HTTP dates.
-- **Full Jitter**: Exponential backoff uses randomized decorrelated jitter to prevent thundering herd problems.
+- **Randomized Jitter**: Exponential backoff uses randomized jitter (±20%) to prevent thundering herd problems.
 
 ### 7. Dynamic Token Rotation & Live Auth
 
@@ -396,8 +401,8 @@ Update authentication tokens lock-free at runtime across all concurrent operatio
 client.login("user@example.com", "secret-password").await?;
 
 // Or perform lock-free token swaps during periodic rotation
-client.set_bearer_token("new-refreshed-jwt-token");
-client.set_api_key("new-api-key");
+client.set_bearer_token("new-refreshed-jwt-token")?;
+client.set_api_key("new-api-key")?;
 # Ok(())
 # }
 ```
@@ -444,7 +449,7 @@ client.download_with_progress(asset_id, Path::new("photo.jpg"), progress).await?
 ```
 
 > [!NOTE]
-> Atomic safety: downloads are written to `.photo.jpg.<asset_id>.tmp`. If the download is cancelled or fails, the temporary file is immediately removed via RAII guard.
+> Atomic safety: downloads are written to `photo.jpg.<asset_id>.tmp`. If the download is cancelled or fails, the temporary file is immediately removed via RAII guard while leaving any existing destination file untouched.
 
 ### 10. High-Throughput Bulk Uploads
 
@@ -545,16 +550,16 @@ assert_eq!(ver.major, 3);
 
 ## 🌐 WebAssembly (WASM) & Browser Support
 
-`immich-rs` fully supports the `wasm32-unknown-unknown` target for frontend web applications (e.g., Yew, Dioxus, Leptos):
+`immich-rs` fully supports the `wasm32-unknown-unknown` target out of the box for frontend web applications (e.g., Yew, Dioxus, Leptos):
 
 ```bash
-cargo check -p immich-rs --target wasm32-unknown-unknown --no-default-features --features rustls-tls
+cargo check -p immich-rs --target wasm32-unknown-unknown
 ```
 
 In WASM environments:
-- Filesystem-specific features (`download`, `upload_bulk`) are conditionally disabled.
-- In-memory uploads are supported via [`ImmichClient::upload_asset_bytes`](https://docs.rs/immich-rs/latest/immich_rs/struct.ImmichClient.html#method.upload_asset_bytes).
-- High-resolution timers and async sleeps automatically use `web-time` and `gloo-timers`.
+- Native filesystem and OS-specific APIs (`download`, `upload_asset`, `upload_bulk`, `cli-config`, `socketio`) are automatically gated off on `wasm32`.
+- In-memory uploads are supported via [`ImmichClient::upload_asset_bytes`](https://docs.rs/immich-rs/latest/immich_rs/struct.ImmichClient.html#method.upload_asset_bytes), and streaming binary responses work via [`ByteStream`](https://docs.rs/immich-rs/latest/immich_rs/struct.ByteStream.html) and [`ImmichClient::download_to_writer`](https://docs.rs/immich-rs/latest/immich_rs/struct.ImmichClient.html#method.download_to_writer).
+- High-resolution timers, rate limiting, and async retry sleeps automatically use `web-time` and `gloo-timers`.
 
 ---
 
@@ -594,7 +599,7 @@ Contributions are welcome! Please check out [CONTRIBUTING.md](CONTRIBUTING.md) a
 The codebase uses an internal `xtask` orchestrator to generate and sanitize API models directly from the Immich `OpenAPI` specification:
 
 ```bash
-# Regenerate models and client bindings
+# Regenerate models and client bindings from upstream (or pass --offline to use local spec)
 cargo xtask generate
 
 # Run the complete test suite
@@ -605,7 +610,7 @@ cargo +nightly fmt --all -- --check
 cargo clippy --workspace --all-targets --all-features -- -D warnings
 
 # Verify WASM build compatibility
-cargo check -p immich-rs --target wasm32-unknown-unknown --no-default-features
+cargo check -p immich-models -p immich-rs --target wasm32-unknown-unknown --all-features
 ```
 
 ---

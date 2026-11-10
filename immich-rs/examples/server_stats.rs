@@ -39,7 +39,7 @@ async fn main() -> Result<()> {
 
     let server_ver = format!("{}.{}.{}", version_dto.major, version_dto.minor, version_dto.patch);
 
-    println!("   SDK Built-in Target: v{TARGET_IMMICH_VERSION}");
+    println!("   SDK Built-in Target: {TARGET_IMMICH_VERSION}");
     println!("   Remote Immich:       v{server_ver}");
 
     match compat {

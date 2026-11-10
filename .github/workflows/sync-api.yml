@@ -29,7 +29,7 @@ jobs:
         id: app-token
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
-          app-id: ${{ secrets.CI_APP_ID }}
+          client-id: ${{ secrets.CI_APP_ID }}
           private-key: ${{ secrets.CI_APP_KEY }}
 
       - name: 📁 Check out the repository
@@ -79,7 +79,7 @@ jobs:
 
       - name: 🔍 Check for drift and create pull request
         run: |
-          git add immich-models/src immich-rs/src/api open-api
+          git add immich-models/src immich-rs/src/api open-api README.md immich-models/README.md
           if ! git diff --cached --quiet; then
             cargo clippy --workspace --all-targets --all-features -- -D warnings
             cargo test --workspace --all-features

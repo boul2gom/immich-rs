@@ -300,6 +300,10 @@ jobs:
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "User-Agent: ci" "https://crates.io/api/v1/crates/immich-models/$MODELS_VER")
           if [ "$STATUS" = "404" ]; then
             echo "📦 immich-models $MODELS_VER not yet on crates.io — publishing at current version without bump"
+            cargo release replace -p immich-models --execute --no-confirm
+            if ! git diff --quiet; then
+              git commit -am "chore: release models-v$MODELS_VER"
+            fi
             cargo release publish -p immich-models --execute --no-confirm
             cargo release tag -p immich-models --execute --no-confirm
             cargo release push -p immich-models --execute --no-confirm
@@ -336,6 +340,10 @@ jobs:
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "User-Agent: ci" "https://crates.io/api/v1/crates/immich-rs/$RS_VER")
           if [ "$STATUS" = "404" ]; then
             echo "📦 immich-rs $RS_VER not yet on crates.io — publishing at current version"
+            cargo release replace -p immich-rs --execute --no-confirm
+            if ! git diff --quiet; then
+              git commit -am "chore: release v$RS_VER"
+            fi
             cargo release publish -p immich-rs --execute --no-confirm
             cargo release tag -p immich-rs --execute --no-confirm
             cargo release push -p immich-rs --execute --no-confirm
