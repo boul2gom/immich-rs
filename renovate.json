@@ -21,8 +21,9 @@
 
   "packageRules": [
     {
-      "description": "Global Rust / Cargo rule: enforce labels and commit/PR format",
+      "description": "Global Rust / Cargo rule: enforce full x.y.z versions, labels, and commit/PR format",
       "matchManagers": ["cargo"],
+      "rangeStrategy": "replace",
       "labels": ["dependencies", "rust"],
       "commitMessagePrefix": "chore(deps):",
       "commitMessageAction": "update",

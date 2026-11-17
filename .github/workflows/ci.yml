@@ -125,7 +125,7 @@ jobs:
           tool: cargo-hack
 
       - name: 🧩 Check feature powerset
-        run: cargo hack check --feature-powerset --depth 2 --mutually-exclusive-features rustls-tls,native-tls --at-least-one-of rustls-tls,native-tls -p immich-rs
+        run: cargo hack check --feature-powerset --depth 2 --mutually-exclusive-features rustls,native-tls --at-least-one-of rustls,native-tls -p immich-rs
 
   doc-tests:
     name: 📚 Test & Build Docs

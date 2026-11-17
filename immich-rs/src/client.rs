@@ -57,13 +57,8 @@ impl std::fmt::Debug for Auth {
     }
 }
 
-#[cfg(all(
-    not(target_arch = "wasm32"),
-    not(any(feature = "rustls-tls", feature = "native-tls"))
-))]
-compile_error!(
-    "immich-rs requires a TLS backend feature enabled: choose either `rustls-tls` (default) or `native-tls`."
-);
+#[cfg(all(not(target_arch = "wasm32"), not(any(feature = "rustls", feature = "native-tls"))))]
+compile_error!("immich-rs requires a TLS backend feature enabled: choose either `rustls` (default) or `native-tls`.");
 
 /// Type alias for the boxed, cloneable Tower HTTP service pipeline.
 pub type BoxService = crate::core::BoxCloneSyncService<reqwest::Request, reqwest::Response, Error>;
@@ -546,7 +541,7 @@ impl ImmichClientBuilder {
             cb = cb.connect_timeout(self.connect_timeout.unwrap_or_else(|| Duration::from_secs(10)));
         }
 
-        #[cfg(all(not(target_arch = "wasm32"), any(feature = "rustls-tls", feature = "native-tls")))]
+        #[cfg(all(not(target_arch = "wasm32"), any(feature = "rustls", feature = "native-tls")))]
         {
             cb = cb.danger_accept_invalid_certs(self.accept_invalid_certs);
         }
