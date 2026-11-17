@@ -14,7 +14,7 @@ async fn live_auth_dynamic_token_rotation() -> Result<()> {
         .and(path("/server/version"))
         .and(header("x-api-key", "initial-key"))
         .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
-            "major": 3, "minor": 3, "patch": 5
+            "featureLevel": 0, "major": 3, "minor": 3, "patch": 5
         })))
         .expect(1)
         .mount(&server)
@@ -25,7 +25,7 @@ async fn live_auth_dynamic_token_rotation() -> Result<()> {
         .and(path("/server/version"))
         .and(header("authorization", "Bearer new-secret-jwt"))
         .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
-            "major": 3, "minor": 3, "patch": 5
+            "featureLevel": 0, "major": 3, "minor": 3, "patch": 5
         })))
         .expect(1)
         .mount(&server)
@@ -56,7 +56,7 @@ async fn live_auth_concurrent_requests_during_rotation() -> Result<()> {
     Mock::given(method("GET"))
         .and(path("/server/version"))
         .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
-            "major": 3, "minor": 3, "patch": 5
+            "featureLevel": 0, "major": 3, "minor": 3, "patch": 5
         })))
         .mount(&server)
         .await;
@@ -109,7 +109,7 @@ async fn client_login_flow() -> Result<()> {
         .and(path("/server/version"))
         .and(header("authorization", "Bearer returned-jwt-access-token"))
         .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
-            "major": 3, "minor": 3, "patch": 5
+            "featureLevel": 0, "major": 3, "minor": 3, "patch": 5
         })))
         .expect(1)
         .mount(&server)
@@ -154,7 +154,7 @@ async fn client_login_to_creates_authenticated_client() -> Result<()> {
         .and(path("/server/version"))
         .and(header("authorization", "Bearer login-to-token"))
         .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
-            "major": 3, "minor": 3, "patch": 5
+            "featureLevel": 0, "major": 3, "minor": 3, "patch": 5
         })))
         .expect(1)
         .mount(&server)

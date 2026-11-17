@@ -104,6 +104,7 @@ async fn check_compatibility_and_build_checked_advisory_flow() -> anyhow::Result
     Mock::given(method("GET"))
         .and(path("/server/version"))
         .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
+            "featureLevel": 0,
             "major": 1,
             "minor": 100,
             "patch": 0
