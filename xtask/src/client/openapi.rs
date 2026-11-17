@@ -112,15 +112,12 @@ pub fn extract_endpoints(spec: &Value) -> Result<Vec<EndpointDef>> {
                 .as_str()
                 .with_context(|| format!("Missing operationId in {method} {path}"))?
                 .to_string();
-            let tags = op["tags"]
-                .as_array()
-                .map(|a| {
-                    a.iter()
-                        .filter_map(|v| v.as_str())
-                        .map(std::string::ToString::to_string)
-                        .collect()
-                })
-                .unwrap_or_default();
+            let tags = op["tags"].as_array().map_or_default(|a| {
+                a.iter()
+                    .filter_map(|v| v.as_str())
+                    .map(std::string::ToString::to_string)
+                    .collect()
+            });
             let summary = op["summary"].as_str().map(String::from);
             let description = op["description"].as_str().map(String::from);
 

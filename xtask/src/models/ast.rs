@@ -1247,13 +1247,7 @@ pub fn get_serde_rename(field: &syn::Field) -> Option<String> {
 
 #[must_use]
 pub fn get_wire_field_name(field: &syn::Field) -> String {
-    get_serde_rename(field).unwrap_or_else(|| {
-        field
-            .ident
-            .as_ref()
-            .map(std::string::ToString::to_string)
-            .unwrap_or_default()
-    })
+    get_serde_rename(field).unwrap_or_else(|| field.ident.as_ref().map_or_default(std::string::ToString::to_string))
 }
 
 #[derive(Debug)]

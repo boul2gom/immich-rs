@@ -9,7 +9,6 @@ description = "Async, type-safe Rust SDK for the Immich self-hosted photo and vi
 license.workspace = true
 readme = "README.md"
 documentation = "https://docs.rs/immich-rs"
-homepage = "https://github.com/boul2gom/immich-rs"
 repository = "https://github.com/boul2gom/immich-rs"
 
 categories = ["api-bindings", "asynchronous", "web-programming::http-client", "multimedia", "wasm"]

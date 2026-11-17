@@ -45,8 +45,7 @@ pub fn write_modules<S: std::hash::BuildHasher>(
 
         let child_list: Vec<String> = children_of
             .get(module_path)
-            .map(|set| set.iter().cloned().collect())
-            .unwrap_or_default();
+            .map_or_default(|set| set.iter().cloned().collect());
 
         let mod_tokens = ast::emit_client_module(module_path, eps, &child_list, type_map);
         let mod_tokens = crate::common::ast_utils::resolve_and_inject_imports(mod_tokens, type_map);

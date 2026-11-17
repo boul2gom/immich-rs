@@ -189,7 +189,7 @@ struct ApiErrorBody {
 #[must_use]
 pub fn classify_error_code(status: StatusCode, message: &str, error_field: Option<&str>) -> Option<ImmichErrorCode> {
     let lower_msg = message.to_ascii_lowercase();
-    let lower_err = error_field.map(str::to_ascii_lowercase).unwrap_or_default();
+    let lower_err = error_field.map_or_default(str::to_ascii_lowercase);
 
     if lower_msg.contains("duplicate")
         || (status == StatusCode::CONFLICT && (lower_msg.contains("already exist") || lower_msg.contains("asset")))

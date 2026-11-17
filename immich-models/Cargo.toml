@@ -9,7 +9,6 @@ description = "Strongly typed, forward-compatible OpenAPI data models for the Im
 license.workspace = true
 readme = "README.md"
 documentation = "https://docs.rs/immich-models"
-homepage = "https://github.com/boul2gom/immich-rs"
 repository = "https://github.com/boul2gom/immich-rs"
 
 categories = ["api-bindings", "data-structures", "wasm"]

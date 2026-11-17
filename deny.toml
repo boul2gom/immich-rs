@@ -68,10 +68,10 @@ bitbucket = []
 
 [advisories]
 ignore = [
-    # tokio-tar vulnerability in testcontainers 0.23 (dev dependency only, isolated container runner)
-    "RUSTSEC-2025-0111",
-    # rustls-pemfile unmaintained warning from bollard/testcontainers (dev dependency only)
-    "RUSTSEC-2025-0134",
+    # astral-tokio-tar is an unmaintained transitive dependency of testcontainers 0.28 (dev dependency only)
+    "RUSTSEC-2026-0440",
+    # chrono unmaintained advisory (required by typify codegen and part of public API)
+    "RUSTSEC-2026-0543",
     # backoff and instant are unmaintained transitive dependencies of rust_socketio
     "RUSTSEC-2025-0012",
     "RUSTSEC-2024-0384",

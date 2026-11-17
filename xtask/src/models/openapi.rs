@@ -37,13 +37,12 @@ pub fn extract_schema_docs(spec: &serde_json::Value) -> HashMap<String, SchemaDo
         let required: HashSet<String> = schema
             .get("required")
             .and_then(|v| v.as_array())
-            .map(|arr| arr.iter().filter_map(|v| v.as_str()).map(String::from).collect())
-            .unwrap_or_default();
+            .map_or_default(|arr| arr.iter().filter_map(|v| v.as_str()).map(String::from).collect());
 
         let properties: Vec<PropDoc> = schema
             .get("properties")
             .and_then(|v| v.as_object())
-            .map(|props| {
+            .map_or_default(|props| {
                 props
                     .iter()
                     .map(|(prop_name, prop_schema)| {
@@ -72,8 +71,7 @@ pub fn extract_schema_docs(spec: &serde_json::Value) -> HashMap<String, SchemaDo
                         }
                     })
                     .collect()
-            })
-            .unwrap_or_default();
+            });
 
         docs.insert(
             name.clone(),
@@ -139,8 +137,7 @@ pub fn build_schema_tag_map(spec: &serde_json::Value) -> HashMap<String, HashSet
             let tags: HashSet<String> = op
                 .get("tags")
                 .and_then(|v| v.as_array())
-                .map(|arr| arr.iter().filter_map(|t| t.as_str()).map(String::from).collect())
-                .unwrap_or_default();
+                .map_or_default(|arr| arr.iter().filter_map(|t| t.as_str()).map(String::from).collect());
 
             if tags.is_empty() {
                 continue;
