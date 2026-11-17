@@ -1,0 +1,185 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommits",
+    ":dependencyDashboard",
+    ":disableRateLimiting"
+  ],
+  "timezone": "Europe/Paris",
+  "labels": ["dependencies"],
+  "assignees": ["boul2gom"],
+  "reviewers": ["boul2gom"],
+  "dependencyDashboard": {
+    "title": "📦 Dashboard - Renovate"
+  },
+
+  "commitMessagePrefix": "chore(deps):",
+  "commitMessageAction": "update",
+  "commitMessageTopic": "{{depName}}",
+  "commitMessageExtra": "from {{currentVersion}} to {{newVersion}}",
+
+  "packageRules": [
+    {
+      "description": "Global Rust / Cargo rule: enforce labels and commit/PR format",
+      "matchManagers": ["cargo"],
+      "labels": ["dependencies", "rust"],
+      "commitMessagePrefix": "chore(deps):",
+      "commitMessageAction": "update",
+      "commitMessageTopic": "{{depName}}",
+      "commitMessageExtra": "from {{currentVersion}} to {{newVersion}}"
+    },
+    {
+      "description": "Global GitHub Actions rule: enforce labels, commit/PR format, and automerge after 24h",
+      "matchManagers": ["github-actions"],
+      "labels": ["dependencies", "github-actions"],
+      "commitMessagePrefix": "chore(actions):",
+      "commitMessageAction": "update",
+      "commitMessageTopic": "{{depName}}",
+      "commitMessageExtra": "from {{currentVersion}} to {{newVersion}}",
+      "minimumReleaseAge": "1 day",
+      "automerge": true
+    },
+    {
+      "description": "Automerge Cargo patch updates (x.y.Z) for stable versions >= 1.0.0 after a 24-hour stability period",
+      "matchManagers": ["cargo"],
+      "matchUpdateTypes": ["patch"],
+      "minimumReleaseAge": "1 day",
+      "automerge": true
+    },
+    {
+      "description": "Disable automerge on all 0.x.y Cargo crates as minor/patch releases can include breaking changes or new features",
+      "matchManagers": ["cargo"],
+      "matchCurrentVersion": "/^v?0\\./",
+      "automerge": false
+    },
+    {
+      "description": "Keep schemars on 0.8.x because typify 0.8.0 requires schemars =0.8.22",
+      "matchManagers": ["cargo"],
+      "matchPackageNames": ["schemars"],
+      "allowedVersions": "<0.9.0"
+    },
+    {
+      "description": "Group Tokio, Reqwest, Tower, Futures, and networking crates into a single PR",
+      "matchManagers": ["cargo"],
+      "matchPackageNames": [
+        "tokio",
+        "/^tokio-/",
+        "/^reqwest/",
+        "/^tower/",
+        "/^http/",
+        "/^futures/",
+        "/^async-stream/",
+        "/^url/",
+        "/^mime_guess/"
+      ],
+      "groupName": "tokio-network",
+      "commitMessageTopic": "tokio-network",
+      "commitMessageExtra": "to {{newVersion}}"
+    },
+    {
+      "description": "Group Serde, TOML, YAML, UUID, and Chrono serialization crates into a single PR",
+      "matchManagers": ["cargo"],
+      "matchPackageNames": [
+        "serde",
+        "/^serde[_-]/",
+        "/^toml/",
+        "/^uuid/",
+        "/^chrono/"
+      ],
+      "groupName": "serialization",
+      "commitMessageTopic": "serialization",
+      "commitMessageExtra": "to {{newVersion}}"
+    },
+    {
+      "description": "Group Tracing and OpenTelemetry observability crates into a single PR",
+      "matchManagers": ["cargo"],
+      "matchPackageNames": [
+        "tracing",
+        "/^tracing-/",
+        "/^opentelemetry/"
+      ],
+      "groupName": "observability",
+      "commitMessageTopic": "observability",
+      "commitMessageExtra": "to {{newVersion}}"
+    },
+    {
+      "description": "Group xtask OpenAPI code generation crates into a single PR",
+      "matchManagers": ["cargo"],
+      "matchPackageNames": [
+        "/^ureq/",
+        "/^typify/",
+        "/^schemars/",
+        "/^syn/",
+        "/^quote/",
+        "/^proc-macro2/",
+        "/^prettyplease/",
+        "/^heck/"
+      ],
+      "groupName": "code-generation",
+      "commitMessageTopic": "code-generation",
+      "commitMessageExtra": "to {{newVersion}}"
+    },
+    {
+      "description": "Group test and development dependencies into a single PR",
+      "matchManagers": ["cargo"],
+      "matchPackageNames": [
+        "/^wiremock/",
+        "/^testcontainers/",
+        "/^tempfile/",
+        "/^pretty_assertions/",
+        "/^insta/",
+        "/^wasm-bindgen-test/"
+      ],
+      "groupName": "dev-dependencies",
+      "commitMessageTopic": "dev-dependencies",
+      "commitMessageExtra": "to {{newVersion}}"
+    },
+    {
+      "description": "Group boul2gom GitHub Actions into a single PR",
+      "matchManagers": ["github-actions"],
+      "matchPackageNames": [
+        "boul2gom/actions",
+        "/^boul2gom\\/actions\\//"
+      ],
+      "groupName": "boul2gom-actions",
+      "commitMessageTopic": "boul2gom-actions",
+      "commitMessageExtra": "to {{newVersion}}"
+    },
+    {
+      "description": "Group third-party GitHub Actions into a single PR",
+      "matchManagers": ["github-actions"],
+      "excludePackageNames": [
+        "boul2gom/actions",
+        "/^boul2gom\\/actions\\//"
+      ],
+      "groupName": "github-actions",
+      "commitMessageTopic": "github-actions",
+      "commitMessageExtra": "to {{newVersion}}"
+    },
+    {
+      "description": "Highlight major Cargo updates with a dedicated label, breaking change prefix (!), and warning banner",
+      "matchManagers": ["cargo"],
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["dependencies", "rust", "major-update"],
+      "commitMessagePrefix": "chore(deps)!:",
+      "commitMessageAction": "major update",
+      "prBodyNotes": [
+        "⚠️ **MAJOR UPDATE**: Carefully review the Release Notes below for potential *Breaking Changes* before merging."
+      ]
+    },
+    {
+      "description": "Highlight major GitHub Actions updates with a dedicated label, breaking change prefix (!), and warning banner",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["dependencies", "github-actions", "major-update"],
+      "commitMessagePrefix": "chore(actions)!:",
+      "commitMessageAction": "major update",
+      "prBodyNotes": [
+        "⚠️ **MAJOR UPDATE**: Carefully review the Release Notes below for potential *Breaking Changes* before merging."
+      ]
+    }
+  ]
+}

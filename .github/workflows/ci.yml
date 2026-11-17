@@ -120,7 +120,7 @@ jobs:
         run: cargo check -p immich-rs --no-default-features --features native-tls
 
       - name: 🛠️ Install cargo-hack
-        uses: taiki-e/install-action@7fa572463ed6f88f64fd37a4f8ca146df751432d # cargo-hack
+        uses: taiki-e/install-action@ab49d3c64680143e184118bed66a46419fc15519 # v2.90.5
         with:
           tool: cargo-hack
 
@@ -175,13 +175,17 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: 🛠️ Install cargo-deny
-        uses: taiki-e/install-action@7fa572463ed6f88f64fd37a4f8ca146df751432d # cargo-deny
+        uses: taiki-e/install-action@ab49d3c64680143e184118bed66a46419fc15519 # v2.90.5
+        with:
+          tool: cargo-deny
 
       - name: 🔐 Security, License and Dependency Audit
         run: cargo deny check
 
       - name: 🛠️ Install cargo-machete
-        uses: taiki-e/install-action@6929d36b9cc9bd3c8a031f179ec7f72cffbfc6fa # cargo-machete
+        uses: taiki-e/install-action@ab49d3c64680143e184118bed66a46419fc15519 # v2.90.5
+        with:
+          tool: cargo-machete
 
       - name: 🧹 Unused dependencies
         run: cargo machete
