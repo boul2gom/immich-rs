@@ -76,7 +76,7 @@ jobs:
 
       - name: ✅ Check unreleased commits
         id: check_commits
-        uses: boul2gom/actions/unreleased-commits@8364e5cdca6511c15798aa933c6b4c67317f5f40 # v1.0.14
+        uses: boul2gom/actions/unreleased-commits@c9dd953d50b87a04f12a45e439ee5d0733b836ee # v1.0.15
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           force_release: ${{ inputs.force_release || (inputs.release_type != 'auto' && inputs.release_type != '') || false }}
@@ -100,7 +100,7 @@ jobs:
 
       - name: ✅ Check CI status
         id: check_ci
-        uses: boul2gom/actions/ci-status@8364e5cdca6511c15798aa933c6b4c67317f5f40 # v1.0.14
+        uses: boul2gom/actions/ci-status@c9dd953d50b87a04f12a45e439ee5d0733b836ee # v1.0.15
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           workflow_id: ci.yml
@@ -364,7 +364,7 @@ jobs:
       - name: 📝 Generate release notes
         if: ${{ needs.check_updates.outputs.has_updates == 'true' }}
         id: generate_release_notes
-        uses: boul2gom/actions/release-notes@8364e5cdca6511c15798aa933c6b4c67317f5f40 # v1.0.14
+        uses: boul2gom/actions/release-notes@c9dd953d50b87a04f12a45e439ee5d0733b836ee # v1.0.15
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           version: ${{ steps.get_version.outputs.version }}
