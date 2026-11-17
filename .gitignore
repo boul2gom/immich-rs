@@ -32,6 +32,8 @@ scratch.rs
 !.env.sample
 *.pem
 *.key
+!immich-rs/tests/fixtures/tls/*.pem
+!immich-rs/tests/fixtures/tls/*.key
 *.p12
 *.pfx
 
