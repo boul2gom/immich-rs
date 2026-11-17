@@ -74,6 +74,7 @@
 - [🚀 Quick Start](#-quick-start)
   - [API Key Authentication](#api-key-authentication)
   - [Bearer Token Authentication & Live Login](#bearer-token-authentication--live-login)
+  - [Mutual TLS (mTLS) & Custom Root CA Certificates](#mutual-tls-mtls--custom-root-ca-certificates)
   - [Automatic Environment & CLI Discovery](#automatic-environment--cli-discovery)
 - [📖 Core Concepts & Guides](#-core-concepts--guides)
   - [1. Ergonomic Nested Sub-Clients](#1-ergonomic-nested-sub-clients)
@@ -237,16 +238,59 @@ let client = ImmichClient::builder()
 # }
 ```
 
+### Mutual TLS (mTLS) & Custom Root CA Certificates
+
+If your Immich instance sits behind a reverse proxy requiring client certificate authentication (mTLS) or uses a private/self-signed Certificate Authority (CA), you can configure both directly on the builder from files or raw PEM/DER bytes:
+
+```rust,no_run
+# #[cfg(feature = "fs")]
+# fn example_files() -> Result<(), immich_rs::Error> {
+use immich_rs::ImmichClient;
+
+// Load client certificate, private key, and custom CA root from disk (requires `fs` feature)
+let client = ImmichClient::builder()
+    .base_url("https://photos.internal.example.com/api")
+    .api_key("your-api-key")
+    .client_identity_from_files("/etc/certs/client.crt", "/etc/certs/client.key")
+    .add_root_certificate_from_file("/etc/certs/internal-ca.pem")
+    .build()?;
+# let _ = client;
+# Ok(())
+# }
+```
+
+Or pass in-memory PEM/DER bytes directly (works across `rustls` and `native-tls` without touching the filesystem):
+
+```rust,no_run
+# fn example_bytes(cert_pem: &[u8], key_pem: &[u8], ca_pem: &[u8]) -> Result<(), immich_rs::Error> {
+use immich_rs::ImmichClient;
+
+let client = ImmichClient::builder()
+    .base_url("https://photos.internal.example.com/api")
+    .api_key("your-api-key")
+    .client_identity_pem(cert_pem, key_pem) // or .client_identity_pem_bundle(combined_pem)
+    .add_root_certificate_pem(ca_pem)       // or .add_root_certificate_der(ca_der)
+    .build()?;
+# let _ = client;
+# Ok(())
+# }
+```
+
 ### Automatic Environment & CLI Discovery
 
-When writing CLI tools or automation scripts, `immich-rs` can automatically discover server and credential configuration from environment variables or existing CLI tools:
+When writing CLI tools or automation scripts, `immich-rs` can automatically discover server, credential, and mTLS/CA configuration from environment variables or existing CLI tools:
+
+- **Base URL**: `IMMICH_INSTANCE_URL`, `IMMICH_BASE_URL`, `IMMICH_URL`, or `IMMICH_SERVER_URL`
+- **API Key**: `IMMICH_API_KEY`
+- **mTLS Client Certificate** *(optional, `fs` feature)*: `IMMICH_CLIENT_CERT_PATH` and `IMMICH_CLIENT_KEY_PATH`
+- **Custom Root CA** *(optional, `fs` feature)*: `IMMICH_CA_CERT_PATH`
 
 ```rust,no_run
 use immich_rs::ImmichClient;
 
 #[tokio::main]
 async fn main() -> Result<(), immich_rs::Error> {
-    // 1. From standard environment variables (IMMICH_INSTANCE_URL and IMMICH_API_KEY)
+    // 1. From standard environment variables (including optional mTLS & CA paths)
     let client = ImmichClient::from_env()?;
 
     // 2. Or cascading through environment, local `immich-go` files, and global `@immich/cli` auth

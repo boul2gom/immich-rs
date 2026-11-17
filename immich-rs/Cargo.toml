@@ -34,7 +34,7 @@ pre-release-replacements = [
 
 [features]
 default = ["fs", "rustls"]
-fs = ["dep:tokio-util"]
+fs = ["dep:tokio-util", "dep:scopeguard"]
 rustls = ["reqwest/rustls"]
 native-tls = ["reqwest/native-tls"]
 socketio = ["dep:rust_socketio"]
@@ -82,7 +82,6 @@ hex.workspace = true
 
 # Utilities
 rand.workspace = true
-scopeguard.workspace = true
 
 # CLI Configuration parsers (optional)
 toml = { workspace = true, optional = true }
@@ -91,6 +90,7 @@ serde-saphyr = { workspace = true, optional = true }
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 tokio = { workspace = true, features = ["rt", "time", "fs"] }
 tokio-util = { workspace = true, features = ["io"], optional = true }
+scopeguard = { workspace = true, optional = true }
 rust_socketio = { workspace = true, optional = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
@@ -101,6 +101,9 @@ gloo-timers.workspace = true
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 tokio = { workspace = true, features = ["rt-multi-thread", "macros", "signal", "test-util"] }
+tokio-rustls.workspace = true
+rustls.workspace = true
+rustls-pki-types.workspace = true
 testcontainers.workspace = true
 wiremock.workspace = true
 tempfile.workspace = true
