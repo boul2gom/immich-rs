@@ -33,10 +33,10 @@ pre-release-replacements = [
 ]
 
 [features]
-default = ["fs", "rustls-tls"]
+default = ["fs", "rustls"]
 fs = ["dep:tokio-util"]
-rustls-tls = ["reqwest/rustls-tls"]
-native-tls = ["reqwest/default-tls"]
+rustls = ["reqwest/rustls"]
+native-tls = ["reqwest/native-tls"]
 socketio = ["dep:rust_socketio"]
 opentelemetry = ["dep:opentelemetry"]
 cli-config = ["dep:toml", "dep:serde-saphyr"]
@@ -48,7 +48,7 @@ immich-models.workspace = true
 
 # Runtime and async (cross-platform)
 tokio = { workspace = true, features = ["sync", "io-util"] }
-reqwest = { workspace = true, features = ["json", "multipart", "stream"] }
+reqwest = { workspace = true, features = ["json", "multipart", "stream", "query", "form"] }
 tower-service.workspace = true
 tower-layer.workspace = true
 futures-core.workspace = true

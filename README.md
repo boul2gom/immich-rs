@@ -147,7 +147,7 @@ immich-models = "1.1.0"
 This library puts advanced functionality behind optional Cargo features to optimize compile times and dependency trees for minimal binaries:
 
 - 💾 **`fs`** *(enabled by default)* — Local filesystem operations: streaming file uploads, atomic downloads, and SHA-1 checksum helpers.
-- 🔒 **`rustls-tls`** *(enabled by default)* — Modern, memory-safe TLS powered by `rustls` (pure Rust, no OpenSSL or C dependency).
+- 🔒 **`rustls`** *(enabled by default)* — Modern, memory-safe TLS powered by `rustls` (pure Rust, no OpenSSL or C dependency).
 - 🛡️ **`native-tls`** — Platform-native TLS using system certificate stores (`SChannel` / Security Framework / OpenSSL).
 - ⚙️ **`cli-config`** — Automatic configuration discovery from `@immich/cli` (`auth.yml`) and `immich-go` files (`immich-go.toml/yaml/json`). Native targets only.
 - 🧪 **`test-util`** — First-class mock client utilities (`test_util::mock_client`) for zero-network testing.
@@ -158,16 +158,16 @@ This library puts advanced functionality behind optional Cargo features to optim
 
 | Feature | Description | Default |
 |---|---|:---:|
-| `default` | Enables `fs` and `rustls-tls`. | **Yes** |
+| `default` | Enables `fs` and `rustls`. | **Yes** |
 | `fs` | Local filesystem operations: streaming file uploads, atomic downloads, and SHA-1 checksum helpers. | **Yes** |
-| `rustls-tls` | Modern, secure TLS powered by `rustls` (pure Rust, no OpenSSL or C dependency). | **Yes** |
+| `rustls` | Modern, secure TLS powered by `rustls` (pure Rust, no OpenSSL or C dependency). | **Yes** |
 | `native-tls` | Platform-native TLS using system certificate stores (`SChannel` / Security Framework / OpenSSL). | No |
 | `cli-config` | Automatic configuration discovery from `@immich/cli` (`auth.yml`) and `immich-go` files. Native targets only. | No |
 | `test-util` | First-class mock client utilities (`test_util::mock_client`) for zero-network testing. | No |
 | `socketio` | Real-time event notifications via Socket.IO (`rust_socketio`). Native targets only. | No |
 | `opentelemetry` | Metrics integration via OpenTelemetry. | No |
 
-To use `native-tls` instead of `rustls-tls`:
+To use `native-tls` instead of `rustls`:
 
 ```toml
 [dependencies]
