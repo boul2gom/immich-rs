@@ -79,7 +79,7 @@ fn prepare_models(spec: &serde_json::Value) -> Result<(HashMap<String, Vec<syn::
     type_space
         .add_root_schema(root_schema)
         .context("typify: adding root schema")?;
-    let tokens = type_space.to_stream();
+    let tokens = type_space.to_stream().context("typify: generating TokenStream")?;
 
     // Parse to syn::File
     let mut file: syn::File = syn::parse2(tokens).context("parsing generated TokenStream")?;
