@@ -18,7 +18,9 @@ async fn mock_connector_without_network() -> Result<()> {
             assert_eq!(req.headers().get("x-api-key").unwrap(), "mock-api-key");
             http::Response::builder()
                 .status(200)
-                .body(reqwest::Body::from(r#"{"major":3,"minor":3,"patch":5}"#))
+                .body(reqwest::Body::from(
+                    r#"{"featureLevel":0,"major":3,"minor":3,"patch":5}"#,
+                ))
                 .map(reqwest::Response::from)
                 .unwrap()
         }

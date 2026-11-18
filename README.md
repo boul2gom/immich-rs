@@ -579,7 +579,7 @@ let client = mock_client(|req| async move {
     assert_eq!(req.url().path(), "/api/server/version");
     http::Response::builder()
         .status(200)
-        .body(reqwest::Body::from(r#"{"major":3,"minor":3,"patch":5}"#))
+        .body(reqwest::Body::from(r#"{"featureLevel":0,"major":3,"minor":3,"patch":5}"#))
         .map(reqwest::Response::from)
         .unwrap()
 });
