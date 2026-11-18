@@ -1304,7 +1304,6 @@ impl<'a> Users<'a> {
     ///
     /// # Errors
     /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
-    #[deprecated(note = "Deprecated in the Immich OpenAPI specification.")]
     pub fn update_my_preferences(&self, body: impl Into<UserPreferencesUpdateDTO>) -> UpdateMyPreferencesBuilder<'a> {
         UpdateMyPreferencesBuilder {
             client: self.client,
@@ -1332,7 +1331,6 @@ impl<'a> Users<'a> {
     ///
     /// # Errors
     /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
-    #[deprecated(note = "Deprecated in the Immich OpenAPI specification.")]
     pub fn update_my_user(&self, body: impl Into<UserUpdateMeDTO>) -> UpdateMyUserBuilder<'a> {
         UpdateMyUserBuilder {
             client: self.client,

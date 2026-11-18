@@ -592,7 +592,6 @@ impl<'a> ApiKeys<'a> {
     ///
     /// # Errors
     /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
-    #[deprecated(note = "Deprecated in the Immich OpenAPI specification.")]
     pub fn update_api_key(&self, id: impl Into<ApiKeyId>, body: impl Into<ApiKeyUpdateDTO>) -> UpdateApiKeyBuilder<'a> {
         UpdateApiKeyBuilder {
             client: self.client,

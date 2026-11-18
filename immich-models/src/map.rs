@@ -4,6 +4,7 @@
 
 //! `OpenAPI` data models for `map`.
 
+pub use crate::common::{PasskeyAuthenticationOptionsDTO, PasskeyRegistrationOptionsDTO};
 pub use crate::sync::{SyncAckV1, SyncCompleteV1, SyncResetV1};
 
 /// `MapReverseGeocodeResponseDTO`
@@ -78,6 +79,18 @@ impl MapReverseGeocodeResponseDTO {
 impl Default for MapReverseGeocodeResponseDTO {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+impl From<PasskeyAuthenticationOptionsDTO> for ::serde_json::Map<String, ::serde_json::Value> {
+    fn from(value: PasskeyAuthenticationOptionsDTO) -> Self {
+        value.0
+    }
+}
+
+impl From<PasskeyRegistrationOptionsDTO> for ::serde_json::Map<String, ::serde_json::Value> {
+    fn from(value: PasskeyRegistrationOptionsDTO) -> Self {
+        value.0
     }
 }
 

@@ -12,12 +12,16 @@ pub use crate::common::{CqMode, TranscodeHwAccel};
 ///
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
+/// | `beta` | `bool` |  | Whether the backups feature is enabled |
 /// | `database` | [`AdminConfigDatabaseBackupDTO`] | ✓ |  |
 ///
 /// See: <https://api.immich.app/models/AdminConfigBackupsDto>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct AdminConfigBackupsDTO {
+    /// Whether the backups feature is enabled
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub beta: Option<bool>,
     /// (required)
     pub database: AdminConfigDatabaseBackupDTO,
 }
@@ -27,7 +31,19 @@ impl AdminConfigBackupsDTO {
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(database: AdminConfigDatabaseBackupDTO) -> Self {
-        Self { database }
+        Self { beta: None, database }
+    }
+    /// Sets `beta`.
+    #[must_use]
+    pub fn beta(mut self, value: bool) -> Self {
+        self.beta = Some(value);
+        self
+    }
+    /// Sets or clears `beta`.
+    #[must_use]
+    pub fn set_beta(mut self, value: Option<bool>) -> Self {
+        self.beta = value;
+        self
     }
     /// Sets `database`.
     #[must_use]
@@ -150,6 +166,7 @@ impl AdminConfigDatabaseBackupDTO {
 /// | `nightly_tasks` | [`AdminConfigNightlyTasksDTO`] | ✓ |  |
 /// | `notifications` | [`AdminConfigNotificationsDTO`] | ✓ |  |
 /// | `oauth` | [`AdminConfigOAuthDTO`] | ✓ |  |
+/// | `passkey` | [`AdminConfigPasskeyDTO`] | ✓ |  |
 /// | `password_login` | [`AdminConfigPasswordLoginDTO`] | ✓ |  |
 /// | `reverse_geocoding` | [`AdminConfigReverseGeocodingDTO`] | ✓ |  |
 /// | `server` | [`AdminConfigServerDTO`] | ✓ |  |
@@ -196,6 +213,8 @@ pub struct AdminConfigDTO {
     /// (required)
     pub oauth: AdminConfigOAuthDTO,
     /// (required)
+    pub passkey: AdminConfigPasskeyDTO,
+    /// (required)
     #[serde(rename = "passwordLogin")]
     pub password_login: AdminConfigPasswordLoginDTO,
     /// (required)
@@ -235,6 +254,7 @@ impl AdminConfigDTO {
         nightly_tasks: AdminConfigNightlyTasksDTO,
         notifications: AdminConfigNotificationsDTO,
         oauth: AdminConfigOAuthDTO,
+        passkey: AdminConfigPasskeyDTO,
         password_login: AdminConfigPasswordLoginDTO,
         reverse_geocoding: AdminConfigReverseGeocodingDTO,
         server: AdminConfigServerDTO,
@@ -259,6 +279,7 @@ impl AdminConfigDTO {
             nightly_tasks,
             notifications,
             oauth,
+            passkey,
             password_login,
             reverse_geocoding,
             server,
@@ -351,6 +372,12 @@ impl AdminConfigDTO {
     #[must_use]
     pub fn oauth(mut self, value: AdminConfigOAuthDTO) -> Self {
         self.oauth = value;
+        self
+    }
+    /// Sets `passkey`.
+    #[must_use]
+    pub fn passkey(mut self, value: AdminConfigPasskeyDTO) -> Self {
+        self.passkey = value;
         self
     }
     /// Sets `password_login`.
@@ -2396,6 +2423,64 @@ impl AdminConfigOcrDTO {
     }
 }
 
+/// `AdminConfigPasskeyDTO`
+///
+/// | Field | Type | Required | Description |
+/// |-------|------|:--------:|-------------|
+/// | `additional_domains` | [`Vec<String>`](::std::vec::Vec) | ✓ | Additional domains |
+/// | `domain` | [`String`] | ✓ | Passkey domain |
+/// | `enabled` | `bool` | ✓ | Enabled |
+///
+/// See: <https://api.immich.app/models/AdminConfigPasskeyDto>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
+pub struct AdminConfigPasskeyDTO {
+    /// Additional domains (required)
+    #[serde(rename = "additionalDomains")]
+    pub additional_domains: Vec<String>,
+    /// Passkey domain (required)
+    pub domain: Option<String>,
+    /// Enabled (required)
+    pub enabled: bool,
+}
+
+impl AdminConfigPasskeyDTO {
+    /// Creates a new [`AdminConfigPasskeyDTO`].
+    #[must_use]
+    #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
+    pub fn new(additional_domains: impl IntoIterator<Item = impl Into<String>>, enabled: bool) -> Self {
+        Self {
+            additional_domains: additional_domains.into_iter().map(Into::into).collect(),
+            domain: None,
+            enabled,
+        }
+    }
+    /// Sets `additional_domains`.
+    #[must_use]
+    pub fn additional_domains(mut self, value: impl IntoIterator<Item = impl Into<String>>) -> Self {
+        self.additional_domains = value.into_iter().map(Into::into).collect();
+        self
+    }
+    /// Sets `domain`.
+    #[must_use]
+    pub fn domain(mut self, value: impl Into<String>) -> Self {
+        self.domain = Some(value.into());
+        self
+    }
+    /// Sets or clears `domain`.
+    #[must_use]
+    pub fn set_domain(mut self, value: Option<String>) -> Self {
+        self.domain = value;
+        self
+    }
+    /// Sets `enabled`.
+    #[must_use]
+    pub fn enabled(mut self, value: bool) -> Self {
+        self.enabled = value;
+        self
+    }
+}
+
 /// `AdminConfigPasswordLoginDTO`
 ///
 /// | Field | Type | Required | Description |
@@ -3159,6 +3244,7 @@ impl<'de> ::serde::Deserialize<'de> for HlsVideoResolution {
 #[non_exhaustive]
 pub enum ImageFormat {
     Jpeg,
+    Jxl,
     Webp,
     /// Unknown value returned by a newer version of the Immich server.
     Unknown(String),
@@ -3170,6 +3256,7 @@ impl ImageFormat {
     pub fn as_str(&self) -> &str {
         match self {
             Self::Jpeg => "jpeg",
+            Self::Jxl => "jxl",
             Self::Webp => "webp",
             Self::Unknown(s) => s.as_str(),
         }
@@ -3186,6 +3273,7 @@ impl From<&str> for ImageFormat {
     fn from(value: &str) -> Self {
         match value {
             "jpeg" => Self::Jpeg,
+            "jxl" => Self::Jxl,
             "webp" => Self::Webp,
             other => Self::Unknown(other.to_owned()),
         }
@@ -3196,6 +3284,7 @@ impl From<String> for ImageFormat {
     fn from(value: String) -> Self {
         match value.as_str() {
             "jpeg" => Self::Jpeg,
+            "jxl" => Self::Jxl,
             "webp" => Self::Webp,
             _ => Self::Unknown(value),
         }
@@ -3472,24 +3561,30 @@ impl<'de> ::serde::Deserialize<'de> for OAuthTokenEndpointAuthMethod {
 ///
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
+/// | `ffmpeg` | [`PublicConfigFFmpegDTO`] | ✓ |  |
+/// | `map` | [`PublicConfigMapDTO`] | ✓ |  |
 /// | `oauth` | [`PublicConfigOAuthDTO`] | ✓ |  |
+/// | `passkey` | [`PublicConfigPasskeyDTO`] | ✓ |  |
 /// | `password_login` | [`PublicConfigPasswordLoginDTO`] | ✓ |  |
 /// | `server` | [`PublicConfigServerDTO`] | ✓ |  |
-/// | `theme` | [`PublicConfigThemeDTO`] | ✓ |  |
 ///
 /// See: <https://api.immich.app/models/PublicConfigDto>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct PublicConfigDTO {
     /// (required)
+    pub ffmpeg: PublicConfigFFmpegDTO,
+    /// (required)
+    pub map: PublicConfigMapDTO,
+    /// (required)
     pub oauth: PublicConfigOAuthDTO,
+    /// (required)
+    pub passkey: PublicConfigPasskeyDTO,
     /// (required)
     #[serde(rename = "passwordLogin")]
     pub password_login: PublicConfigPasswordLoginDTO,
     /// (required)
     pub server: PublicConfigServerDTO,
-    /// (required)
-    pub theme: PublicConfigThemeDTO,
 }
 
 impl PublicConfigDTO {
@@ -3497,22 +3592,44 @@ impl PublicConfigDTO {
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(
+        ffmpeg: PublicConfigFFmpegDTO,
+        map: PublicConfigMapDTO,
         oauth: PublicConfigOAuthDTO,
+        passkey: PublicConfigPasskeyDTO,
         password_login: PublicConfigPasswordLoginDTO,
         server: PublicConfigServerDTO,
-        theme: PublicConfigThemeDTO,
     ) -> Self {
         Self {
+            ffmpeg,
+            map,
             oauth,
+            passkey,
             password_login,
             server,
-            theme,
         }
+    }
+    /// Sets `ffmpeg`.
+    #[must_use]
+    pub fn ffmpeg(mut self, value: PublicConfigFFmpegDTO) -> Self {
+        self.ffmpeg = value;
+        self
+    }
+    /// Sets `map`.
+    #[must_use]
+    pub fn map(mut self, value: PublicConfigMapDTO) -> Self {
+        self.map = value;
+        self
     }
     /// Sets `oauth`.
     #[must_use]
     pub fn oauth(mut self, value: PublicConfigOAuthDTO) -> Self {
         self.oauth = value;
+        self
+    }
+    /// Sets `passkey`.
+    #[must_use]
+    pub fn passkey(mut self, value: PublicConfigPasskeyDTO) -> Self {
+        self.passkey = value;
         self
     }
     /// Sets `password_login`.
@@ -3527,10 +3644,115 @@ impl PublicConfigDTO {
         self.server = value;
         self
     }
-    /// Sets `theme`.
+}
+
+/// `PublicConfigFFmpegDTO`
+///
+/// | Field | Type | Required | Description |
+/// |-------|------|:--------:|-------------|
+/// | `realtime` | [`PublicConfigFFmpegRealtimeDTO`] | ✓ |  |
+///
+/// See: <https://api.immich.app/models/PublicConfigFFmpegDto>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
+pub struct PublicConfigFFmpegDTO {
+    /// (required)
+    pub realtime: PublicConfigFFmpegRealtimeDTO,
+}
+
+impl PublicConfigFFmpegDTO {
+    /// Creates a new [`PublicConfigFFmpegDTO`].
     #[must_use]
-    pub fn theme(mut self, value: PublicConfigThemeDTO) -> Self {
-        self.theme = value;
+    #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
+    pub fn new(realtime: PublicConfigFFmpegRealtimeDTO) -> Self {
+        Self { realtime }
+    }
+    /// Sets `realtime`.
+    #[must_use]
+    pub fn realtime(mut self, value: PublicConfigFFmpegRealtimeDTO) -> Self {
+        self.realtime = value;
+        self
+    }
+}
+
+/// `PublicConfigFFmpegRealtimeDTO`
+///
+/// | Field | Type | Required | Description |
+/// |-------|------|:--------:|-------------|
+/// | `enabled` | `bool` | ✓ | Enable real-time HLS transcoding (alpha) |
+///
+/// See: <https://api.immich.app/models/PublicConfigFFmpegRealtimeDto>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
+pub struct PublicConfigFFmpegRealtimeDTO {
+    /// Enable real-time HLS transcoding (alpha) (required)
+    pub enabled: bool,
+}
+
+impl PublicConfigFFmpegRealtimeDTO {
+    /// Creates a new [`PublicConfigFFmpegRealtimeDTO`].
+    #[must_use]
+    #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
+    pub fn new(enabled: bool) -> Self {
+        Self { enabled }
+    }
+    /// Sets `enabled`.
+    #[must_use]
+    pub fn enabled(mut self, value: bool) -> Self {
+        self.enabled = value;
+        self
+    }
+}
+
+/// `PublicConfigMapDTO`
+///
+/// | Field | Type | Required | Description |
+/// |-------|------|:--------:|-------------|
+/// | `dark_style` | [`String`] | ✓ | Dark map style URL |
+/// | `enabled` | `bool` | ✓ | Enabled |
+/// | `light_style` | [`String`] | ✓ | Light map style URL |
+///
+/// See: <https://api.immich.app/models/PublicConfigMapDto>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
+pub struct PublicConfigMapDTO {
+    /// Dark map style URL (required)
+    #[serde(rename = "darkStyle")]
+    pub dark_style: String,
+    /// Enabled (required)
+    pub enabled: bool,
+    /// Light map style URL (required)
+    #[serde(rename = "lightStyle")]
+    pub light_style: String,
+}
+
+impl PublicConfigMapDTO {
+    /// Creates a new [`PublicConfigMapDTO`].
+    #[must_use]
+    #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
+    pub fn new(dark_style: impl Into<String>, enabled: bool, light_style: impl Into<String>) -> Self {
+        Self {
+            dark_style: dark_style.into(),
+            enabled,
+            light_style: light_style.into(),
+        }
+    }
+    /// Sets `dark_style`.
+    #[must_use]
+    pub fn dark_style(mut self, value: impl Into<String>) -> Self {
+        self.dark_style = value.into();
+        self
+    }
+    /// Sets `enabled`.
+    #[must_use]
+    pub fn enabled(mut self, value: bool) -> Self {
+        self.enabled = value;
+        self
+    }
+    /// Sets `light_style`.
+    #[must_use]
+    pub fn light_style(mut self, value: impl Into<String>) -> Self {
+        self.light_style = value.into();
         self
     }
 }
@@ -3579,6 +3801,35 @@ impl PublicConfigOAuthDTO {
     pub fn button_text(mut self, value: impl Into<String>) -> Self {
         self.button_text = value.into();
         self
+    }
+    /// Sets `enabled`.
+    #[must_use]
+    pub fn enabled(mut self, value: bool) -> Self {
+        self.enabled = value;
+        self
+    }
+}
+
+/// `PublicConfigPasskeyDTO`
+///
+/// | Field | Type | Required | Description |
+/// |-------|------|:--------:|-------------|
+/// | `enabled` | `bool` | ✓ | Enabled |
+///
+/// See: <https://api.immich.app/models/PublicConfigPasskeyDto>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
+pub struct PublicConfigPasskeyDTO {
+    /// Enabled (required)
+    pub enabled: bool,
+}
+
+impl PublicConfigPasskeyDTO {
+    /// Creates a new [`PublicConfigPasskeyDTO`].
+    #[must_use]
+    #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
+    pub fn new(enabled: bool) -> Self {
+        Self { enabled }
     }
     /// Sets `enabled`.
     #[must_use]
@@ -3645,38 +3896,6 @@ impl PublicConfigServerDTO {
     #[must_use]
     pub fn login_page_message(mut self, value: impl Into<String>) -> Self {
         self.login_page_message = value.into();
-        self
-    }
-}
-
-/// `PublicConfigThemeDTO`
-///
-/// | Field | Type | Required | Description |
-/// |-------|------|:--------:|-------------|
-/// | `custom_css` | [`String`] | ✓ | Custom CSS for theming |
-///
-/// See: <https://api.immich.app/models/PublicConfigThemeDto>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
-#[non_exhaustive]
-pub struct PublicConfigThemeDTO {
-    /// Custom CSS for theming (required)
-    #[serde(rename = "customCss")]
-    pub custom_css: String,
-}
-
-impl PublicConfigThemeDTO {
-    /// Creates a new [`PublicConfigThemeDTO`].
-    #[must_use]
-    #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(custom_css: impl Into<String>) -> Self {
-        Self {
-            custom_css: custom_css.into(),
-        }
-    }
-    /// Sets `custom_css`.
-    #[must_use]
-    pub fn custom_css(mut self, value: impl Into<String>) -> Self {
-        self.custom_css = value.into();
         self
     }
 }
@@ -4038,11 +4257,12 @@ impl UserConfigClipDTO {
 /// | `image` | [`UserConfigImageDTO`] | ✓ |  |
 /// | `machine_learning` | [`UserConfigMachineLearningDTO`] | ✓ |  |
 /// | `map` | [`UserConfigMapDTO`] | ✓ |  |
+/// | `notifications` | [`UserConfigNotificationsDTO`] | ✓ |  |
 /// | `oauth` | [`UserConfigOAuthDTO`] | ✓ |  |
+/// | `passkey` | [`UserConfigPasskeyDTO`] | ✓ |  |
 /// | `password_login` | [`UserConfigPasswordLoginDTO`] | ✓ |  |
 /// | `reverse_geocoding` | [`UserConfigReverseGeocodingDTO`] | ✓ |  |
 /// | `server` | [`UserConfigServerDTO`] | ✓ |  |
-/// | `theme` | [`UserConfigThemeDTO`] | ✓ |  |
 /// | `trash` | [`UserConfigTrashDTO`] | ✓ |  |
 /// | `user` | [`UserConfigUserDTO`] | ✓ |  |
 ///
@@ -4060,7 +4280,11 @@ pub struct UserConfigDTO {
     /// (required)
     pub map: UserConfigMapDTO,
     /// (required)
+    pub notifications: UserConfigNotificationsDTO,
+    /// (required)
     pub oauth: UserConfigOAuthDTO,
+    /// (required)
+    pub passkey: UserConfigPasskeyDTO,
     /// (required)
     #[serde(rename = "passwordLogin")]
     pub password_login: UserConfigPasswordLoginDTO,
@@ -4069,8 +4293,6 @@ pub struct UserConfigDTO {
     pub reverse_geocoding: UserConfigReverseGeocodingDTO,
     /// (required)
     pub server: UserConfigServerDTO,
-    /// (required)
-    pub theme: UserConfigThemeDTO,
     /// (required)
     pub trash: UserConfigTrashDTO,
     /// (required)
@@ -4086,11 +4308,12 @@ impl UserConfigDTO {
         image: UserConfigImageDTO,
         machine_learning: UserConfigMachineLearningDTO,
         map: UserConfigMapDTO,
+        notifications: UserConfigNotificationsDTO,
         oauth: UserConfigOAuthDTO,
+        passkey: UserConfigPasskeyDTO,
         password_login: UserConfigPasswordLoginDTO,
         reverse_geocoding: UserConfigReverseGeocodingDTO,
         server: UserConfigServerDTO,
-        theme: UserConfigThemeDTO,
         trash: UserConfigTrashDTO,
         user: UserConfigUserDTO,
     ) -> Self {
@@ -4099,11 +4322,12 @@ impl UserConfigDTO {
             image,
             machine_learning,
             map,
+            notifications,
             oauth,
+            passkey,
             password_login,
             reverse_geocoding,
             server,
-            theme,
             trash,
             user,
         }
@@ -4132,10 +4356,22 @@ impl UserConfigDTO {
         self.map = value;
         self
     }
+    /// Sets `notifications`.
+    #[must_use]
+    pub fn notifications(mut self, value: UserConfigNotificationsDTO) -> Self {
+        self.notifications = value;
+        self
+    }
     /// Sets `oauth`.
     #[must_use]
     pub fn oauth(mut self, value: UserConfigOAuthDTO) -> Self {
         self.oauth = value;
+        self
+    }
+    /// Sets `passkey`.
+    #[must_use]
+    pub fn passkey(mut self, value: UserConfigPasskeyDTO) -> Self {
+        self.passkey = value;
         self
     }
     /// Sets `password_login`.
@@ -4154,12 +4390,6 @@ impl UserConfigDTO {
     #[must_use]
     pub fn server(mut self, value: UserConfigServerDTO) -> Self {
         self.server = value;
-        self
-    }
-    /// Sets `theme`.
-    #[must_use]
-    pub fn theme(mut self, value: UserConfigThemeDTO) -> Self {
-        self.theme = value;
         self
     }
     /// Sets `trash`.
@@ -4574,10 +4804,40 @@ impl UserConfigMapDTO {
     }
 }
 
+/// `UserConfigNotificationsDTO`
+///
+/// | Field | Type | Required | Description |
+/// |-------|------|:--------:|-------------|
+/// | `smtp` | [`UserConfigSmtpDTO`] | ✓ |  |
+///
+/// See: <https://api.immich.app/models/UserConfigNotificationsDto>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
+pub struct UserConfigNotificationsDTO {
+    /// (required)
+    pub smtp: UserConfigSmtpDTO,
+}
+
+impl UserConfigNotificationsDTO {
+    /// Creates a new [`UserConfigNotificationsDTO`].
+    #[must_use]
+    #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
+    pub fn new(smtp: UserConfigSmtpDTO) -> Self {
+        Self { smtp }
+    }
+    /// Sets `smtp`.
+    #[must_use]
+    pub fn smtp(mut self, value: UserConfigSmtpDTO) -> Self {
+        self.smtp = value;
+        self
+    }
+}
+
 /// `UserConfigOAuthDTO`
 ///
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
+/// | `account_management_url` | [`String`] |  | Account management URL |
 /// | `auto_launch` | `bool` | ✓ | Auto launch |
 /// | `button_text` | [`String`] | ✓ | Button text |
 /// | `enabled` | `bool` | ✓ | Enabled |
@@ -4586,6 +4846,9 @@ impl UserConfigMapDTO {
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct UserConfigOAuthDTO {
+    /// Account management URL
+    #[serde(rename = "accountManagementUrl", default)]
+    pub account_management_url: String,
     /// Auto launch (required)
     #[serde(rename = "autoLaunch")]
     pub auto_launch: bool,
@@ -4602,10 +4865,17 @@ impl UserConfigOAuthDTO {
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(auto_launch: bool, button_text: impl Into<String>, enabled: bool) -> Self {
         Self {
+            account_management_url: <String>::default(),
             auto_launch,
             button_text: button_text.into(),
             enabled,
         }
+    }
+    /// Sets `account_management_url`.
+    #[must_use]
+    pub fn account_management_url(mut self, value: impl Into<String>) -> Self {
+        self.account_management_url = value.into();
+        self
     }
     /// Sets `auto_launch`.
     #[must_use]
@@ -4643,6 +4913,35 @@ pub struct UserConfigOcrDTO {
 
 impl UserConfigOcrDTO {
     /// Creates a new [`UserConfigOcrDTO`].
+    #[must_use]
+    #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
+    pub fn new(enabled: bool) -> Self {
+        Self { enabled }
+    }
+    /// Sets `enabled`.
+    #[must_use]
+    pub fn enabled(mut self, value: bool) -> Self {
+        self.enabled = value;
+        self
+    }
+}
+
+/// `UserConfigPasskeyDTO`
+///
+/// | Field | Type | Required | Description |
+/// |-------|------|:--------:|-------------|
+/// | `enabled` | `bool` | ✓ | Enabled |
+///
+/// See: <https://api.immich.app/models/UserConfigPasskeyDto>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
+pub struct UserConfigPasskeyDTO {
+    /// Enabled (required)
+    pub enabled: bool,
+}
+
+impl UserConfigPasskeyDTO {
+    /// Creates a new [`UserConfigPasskeyDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(enabled: bool) -> Self {
@@ -4768,34 +5067,31 @@ impl UserConfigServerDTO {
     }
 }
 
-/// `UserConfigThemeDTO`
+/// `UserConfigSmtpDTO`
 ///
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
-/// | `custom_css` | [`String`] | ✓ | Custom CSS for theming |
+/// | `enabled` | `bool` | ✓ | Whether SMTP email notifications are enabled |
 ///
-/// See: <https://api.immich.app/models/UserConfigThemeDto>
+/// See: <https://api.immich.app/models/UserConfigSmtpDto>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
 #[non_exhaustive]
-pub struct UserConfigThemeDTO {
-    /// Custom CSS for theming (required)
-    #[serde(rename = "customCss")]
-    pub custom_css: String,
+pub struct UserConfigSmtpDTO {
+    /// Whether SMTP email notifications are enabled (required)
+    pub enabled: bool,
 }
 
-impl UserConfigThemeDTO {
-    /// Creates a new [`UserConfigThemeDTO`].
+impl UserConfigSmtpDTO {
+    /// Creates a new [`UserConfigSmtpDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(custom_css: impl Into<String>) -> Self {
-        Self {
-            custom_css: custom_css.into(),
-        }
+    pub fn new(enabled: bool) -> Self {
+        Self { enabled }
     }
-    /// Sets `custom_css`.
+    /// Sets `enabled`.
     #[must_use]
-    pub fn custom_css(mut self, value: impl Into<String>) -> Self {
-        self.custom_css = value.into();
+    pub fn enabled(mut self, value: bool) -> Self {
+        self.enabled = value;
         self
     }
 }
