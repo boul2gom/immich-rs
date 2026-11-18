@@ -890,10 +890,52 @@ impl ServerConfigDTO {
     }
 }
 
+/// Server feature level
+///
+/// See: <https://api.immich.app/models/ServerFeatureLevel>
+#[derive(::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[serde(transparent)]
+pub struct ServerFeatureLevel(pub i64);
+
+impl ::std::ops::Deref for ServerFeatureLevel {
+    type Target = i64;
+    fn deref(&self) -> &i64 {
+        &self.0
+    }
+}
+
+impl From<ServerFeatureLevel> for i64 {
+    fn from(value: ServerFeatureLevel) -> Self {
+        value.0
+    }
+}
+
+impl TryFrom<i64> for ServerFeatureLevel {
+    type Error = crate::common::error::ConversionError;
+    fn try_from(value: i64) -> Result<Self, crate::common::error::ConversionError> {
+        if [1_i64, 2_i64].contains(&value) {
+            Ok(Self(value))
+        } else {
+            Err(format!("invalid value for {}: {}", "ServerFeatureLevel", value).into())
+        }
+    }
+}
+
+impl<'de> ::serde::Deserialize<'de> for ServerFeatureLevel {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        Self::try_from(<i64>::deserialize(deserializer)?)
+            .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
+
 /// `ServerFeaturesDTO`
 ///
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
+/// | `backups` | `bool` | ✓ | Whether the backups feature is enabled |
 /// | `config_file` | `bool` | ✓ | Whether config file is available |
 /// | `duplicate_detection` | `bool` | ✓ | Whether duplicate detection is enabled |
 /// | `email` | `bool` | ✓ | Whether email notifications are enabled |
@@ -915,6 +957,8 @@ impl ServerConfigDTO {
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct ServerFeaturesDTO {
+    /// Whether the backups feature is enabled (required)
+    pub backups: bool,
     /// Whether config file is available (required)
     #[serde(rename = "configFile")]
     pub config_file: bool,
@@ -963,6 +1007,7 @@ impl ServerFeaturesDTO {
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
     pub fn new(
+        backups: bool,
         config_file: bool,
         duplicate_detection: bool,
         email: bool,
@@ -981,6 +1026,7 @@ impl ServerFeaturesDTO {
         trash: bool,
     ) -> Self {
         Self {
+            backups,
             config_file,
             duplicate_detection,
             email,
@@ -998,6 +1044,12 @@ impl ServerFeaturesDTO {
             smart_search,
             trash,
         }
+    }
+    /// Sets `backups`.
+    #[must_use]
+    pub fn backups(mut self, value: bool) -> Self {
+        self.backups = value;
+        self
     }
     /// Sets `config_file`.
     #[must_use]
@@ -1438,6 +1490,7 @@ impl ServerVersionHistoryResponseDTO {
 ///
 /// | Field | Type | Required | Description |
 /// |-------|------|:--------:|-------------|
+/// | `feature_level` | `i64` | ✓ | Highest feature level supported by the server, which increments independently of the release version |
 /// | `major` | `i64` | ✓ | Major version number |
 /// | `minor` | `i64` | ✓ | Minor version number |
 /// | `patch` | `i64` | ✓ | Patch version number |
@@ -1447,6 +1500,9 @@ impl ServerVersionHistoryResponseDTO {
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct ServerVersionResponseDTO {
+    /// Highest feature level supported by the server, which increments independently of the release version (required)
+    #[serde(rename = "featureLevel")]
+    pub feature_level: i64,
     /// Major version number (required)
     pub major: i64,
     /// Minor version number (required)
@@ -1461,13 +1517,20 @@ impl ServerVersionResponseDTO {
     /// Creates a new [`ServerVersionResponseDTO`].
     #[must_use]
     #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
-    pub fn new(major: i64, minor: i64, patch: i64) -> Self {
+    pub fn new(feature_level: i64, major: i64, minor: i64, patch: i64) -> Self {
         Self {
+            feature_level,
             major,
             minor,
             patch,
             prerelease: None,
         }
+    }
+    /// Sets `feature_level`.
+    #[must_use]
+    pub fn feature_level(mut self, value: i64) -> Self {
+        self.feature_level = value;
+        self
     }
     /// Sets `major`.
     #[must_use]

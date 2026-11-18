@@ -110,6 +110,338 @@ impl<'de> ::serde::Deserialize<'de> for CqMode {
     }
 }
 
+/// `PasskeyAuthenticationFinishDTO`
+///
+/// | Field | Type | Required | Description |
+/// |-------|------|:--------:|-------------|
+/// | `response` | `object` | ✓ | Response returned by @simplewebauthn/browser's `startAuthentication()` |
+///
+/// See: <https://api.immich.app/models/PasskeyAuthenticationFinishDto>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[non_exhaustive]
+pub struct PasskeyAuthenticationFinishDTO {
+    /// Response returned by @simplewebauthn/browser's `startAuthentication()` (required)
+    pub response: PasskeyAuthenticationFinishResponse,
+}
+
+impl PasskeyAuthenticationFinishDTO {
+    /// Creates a new [`PasskeyAuthenticationFinishDTO`].
+    #[must_use]
+    #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
+    pub fn new(response: PasskeyAuthenticationFinishResponse) -> Self {
+        Self { response }
+    }
+    /// Sets `response`.
+    #[must_use]
+    pub fn response(mut self, value: PasskeyAuthenticationFinishResponse) -> Self {
+        self.response = value;
+        self
+    }
+}
+
+/// Response returned by @simplewebauthn/browser's `startAuthentication()`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[non_exhaustive]
+pub struct PasskeyAuthenticationFinishResponse {
+    /// Credential ID
+    pub id: String,
+    pub response: PasskeyAuthenticationFinishResponseResponse,
+    #[serde(flatten)]
+    pub extra: ::serde_json::Map<String, ::serde_json::Value>,
+}
+
+impl PasskeyAuthenticationFinishResponse {
+    /// Creates a new [`PasskeyAuthenticationFinishResponse`].
+    #[must_use]
+    #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
+    pub fn new(
+        id: impl Into<String>,
+        response: PasskeyAuthenticationFinishResponseResponse,
+        extra: ::serde_json::Map<String, ::serde_json::Value>,
+    ) -> Self {
+        Self {
+            id: id.into(),
+            response,
+            extra,
+        }
+    }
+    /// Sets `id`.
+    #[must_use]
+    pub fn id(mut self, value: impl Into<String>) -> Self {
+        self.id = value.into();
+        self
+    }
+    /// Sets `response`.
+    #[must_use]
+    pub fn response(mut self, value: PasskeyAuthenticationFinishResponseResponse) -> Self {
+        self.response = value;
+        self
+    }
+    /// Sets `extra`.
+    #[must_use]
+    pub fn extra(mut self, value: ::serde_json::Map<String, ::serde_json::Value>) -> Self {
+        self.extra = value;
+        self
+    }
+}
+
+/// `PasskeyAuthenticationFinishDtoResponseResponse`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[non_exhaustive]
+pub struct PasskeyAuthenticationFinishResponseResponse {
+    /// User handle
+    #[serde(rename = "userHandle", skip_serializing_if = "::std::option::Option::is_none")]
+    pub user_handle: Option<String>,
+    #[serde(flatten)]
+    pub extra: ::serde_json::Map<String, ::serde_json::Value>,
+}
+
+impl PasskeyAuthenticationFinishResponseResponse {
+    /// Creates a new [`PasskeyAuthenticationFinishResponseResponse`].
+    #[must_use]
+    #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
+    pub fn new(extra: ::serde_json::Map<String, ::serde_json::Value>) -> Self {
+        Self {
+            user_handle: None,
+            extra,
+        }
+    }
+    /// Sets `user_handle`.
+    #[must_use]
+    pub fn user_handle(mut self, value: impl Into<String>) -> Self {
+        self.user_handle = Some(value.into());
+        self
+    }
+    /// Sets or clears `user_handle`.
+    #[must_use]
+    pub fn set_user_handle(mut self, value: Option<String>) -> Self {
+        self.user_handle = value;
+        self
+    }
+    /// Sets `extra`.
+    #[must_use]
+    pub fn extra(mut self, value: ::serde_json::Map<String, ::serde_json::Value>) -> Self {
+        self.extra = value;
+        self
+    }
+}
+
+/// Response returned by @simplewebauthn/server's `generateAuthenticationOptions`
+///
+/// See: <https://api.immich.app/models/PasskeyAuthenticationOptionsDto>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct PasskeyAuthenticationOptionsDTO(pub ::serde_json::Map<String, ::serde_json::Value>);
+
+impl ::std::ops::Deref for PasskeyAuthenticationOptionsDTO {
+    type Target = ::serde_json::Map<String, ::serde_json::Value>;
+    fn deref(&self) -> &::serde_json::Map<String, ::serde_json::Value> {
+        &self.0
+    }
+}
+
+impl From<::serde_json::Map<String, ::serde_json::Value>> for PasskeyAuthenticationOptionsDTO {
+    fn from(value: ::serde_json::Map<String, ::serde_json::Value>) -> Self {
+        Self(value)
+    }
+}
+
+/// `PasskeyRegistrationFinishDTO`
+///
+/// | Field | Type | Required | Description |
+/// |-------|------|:--------:|-------------|
+/// | `name` | [`String`] |  | Passkey name |
+/// | `response` | `object` | ✓ | Response returned by @simplewebauthn/browser's `startAuthentication()` |
+///
+/// See: <https://api.immich.app/models/PasskeyRegistrationFinishDto>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[non_exhaustive]
+pub struct PasskeyRegistrationFinishDTO {
+    /// Passkey name
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub name: Option<String>,
+    /// Response returned by @simplewebauthn/browser's `startAuthentication()` (required)
+    pub response: ::serde_json::Value,
+}
+
+impl PasskeyRegistrationFinishDTO {
+    /// Creates a new [`PasskeyRegistrationFinishDTO`].
+    #[must_use]
+    #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
+    pub fn new(response: ::serde_json::Value) -> Self {
+        Self { name: None, response }
+    }
+    /// Sets `name`.
+    #[must_use]
+    pub fn name(mut self, value: impl Into<String>) -> Self {
+        self.name = Some(value.into());
+        self
+    }
+    /// Sets or clears `name`.
+    #[must_use]
+    pub fn set_name(mut self, value: Option<String>) -> Self {
+        self.name = value;
+        self
+    }
+    /// Sets `response`.
+    #[must_use]
+    pub fn response(mut self, value: ::serde_json::Value) -> Self {
+        self.response = value;
+        self
+    }
+}
+
+/// Response returned by @simplewebauthn/server's `generateRegistrationOptions`
+///
+/// See: <https://api.immich.app/models/PasskeyRegistrationOptionsDto>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct PasskeyRegistrationOptionsDTO(pub ::serde_json::Map<String, ::serde_json::Value>);
+
+impl ::std::ops::Deref for PasskeyRegistrationOptionsDTO {
+    type Target = ::serde_json::Map<String, ::serde_json::Value>;
+    fn deref(&self) -> &::serde_json::Map<String, ::serde_json::Value> {
+        &self.0
+    }
+}
+
+impl From<::serde_json::Map<String, ::serde_json::Value>> for PasskeyRegistrationOptionsDTO {
+    fn from(value: ::serde_json::Map<String, ::serde_json::Value>) -> Self {
+        Self(value)
+    }
+}
+
+/// `PasskeyResponseDTO`
+///
+/// | Field | Type | Required | Description |
+/// |-------|------|:--------:|-------------|
+/// | `created_at` | [`DateTime`](::chrono::DateTime) | ✓ | Creation date (pattern: `^(?:(?:\d\d[2468][048]\|\d\d[13579][26]\|\d\d0[48]\|[02468][048]00\|[13579][26]00)-02-29\|\d{4}-(?:(?:0[13578]\|1[02])-(?:0[1-9]\|[12]\d\|3[01])\|(?:0[469]\|11)-(?:0[1-9]\|[12]\d\|30)\|(?:02)-(?:0[1-9]\|1\d\|2[0-8])))T(?:(?:[01]\d\|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z\|([+-](?:[01]\d\|2[0-3]):[0-5]\d)))$`) |
+/// | `id` | [`Uuid`](::uuid::Uuid) | ✓ | Passkey ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) |
+/// | `name` | [`String`] | ✓ | Passkey name |
+/// | `updated_at` | [`DateTime`](::chrono::DateTime) | ✓ | Last update date (pattern: `^(?:(?:\d\d[2468][048]\|\d\d[13579][26]\|\d\d0[48]\|[02468][048]00\|[13579][26]00)-02-29\|\d{4}-(?:(?:0[13578]\|1[02])-(?:0[1-9]\|[12]\d\|3[01])\|(?:0[469]\|11)-(?:0[1-9]\|[12]\d\|30)\|(?:02)-(?:0[1-9]\|1\d\|2[0-8])))T(?:(?:[01]\d\|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z\|([+-](?:[01]\d\|2[0-3]):[0-5]\d)))$`) |
+/// | `used_at` | [`DateTime`](::chrono::DateTime) | ✓ | Last used date (pattern: `^(?:(?:\d\d[2468][048]\|\d\d[13579][26]\|\d\d0[48]\|[02468][048]00\|[13579][26]00)-02-29\|\d{4}-(?:(?:0[13578]\|1[02])-(?:0[1-9]\|[12]\d\|3[01])\|(?:0[469]\|11)-(?:0[1-9]\|[12]\d\|30)\|(?:02)-(?:0[1-9]\|1\d\|2[0-8])))T(?:(?:[01]\d\|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z\|([+-](?:[01]\d\|2[0-3]):[0-5]\d)))$`) |
+///
+/// See: <https://api.immich.app/models/PasskeyResponseDto>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
+pub struct PasskeyResponseDTO {
+    /// Creation date (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`) (required)
+    #[serde(rename = "createdAt")]
+    pub created_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    /// Passkey ID (pattern: `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`) (required)
+    pub id: ::uuid::Uuid,
+    /// Passkey name (required)
+    pub name: Option<String>,
+    /// Last update date (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`) (required)
+    #[serde(rename = "updatedAt")]
+    pub updated_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    /// Last used date (pattern: `^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$`) (required)
+    #[serde(rename = "usedAt")]
+    pub used_at: Option<::chrono::DateTime<::chrono::offset::Utc>>,
+}
+
+impl PasskeyResponseDTO {
+    /// Creates a new [`PasskeyResponseDTO`].
+    #[must_use]
+    #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
+    pub fn new(
+        created_at: ::chrono::DateTime<::chrono::offset::Utc>,
+        id: ::uuid::Uuid,
+        updated_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    ) -> Self {
+        Self {
+            created_at,
+            id,
+            name: None,
+            updated_at,
+            used_at: None,
+        }
+    }
+    /// Sets `created_at`.
+    #[must_use]
+    pub fn created_at(mut self, value: ::chrono::DateTime<::chrono::offset::Utc>) -> Self {
+        self.created_at = value;
+        self
+    }
+    /// Sets `id`.
+    #[must_use]
+    pub fn id(mut self, value: ::uuid::Uuid) -> Self {
+        self.id = value;
+        self
+    }
+    /// Sets `name`.
+    #[must_use]
+    pub fn name(mut self, value: impl Into<String>) -> Self {
+        self.name = Some(value.into());
+        self
+    }
+    /// Sets or clears `name`.
+    #[must_use]
+    pub fn set_name(mut self, value: Option<String>) -> Self {
+        self.name = value;
+        self
+    }
+    /// Sets `updated_at`.
+    #[must_use]
+    pub fn updated_at(mut self, value: ::chrono::DateTime<::chrono::offset::Utc>) -> Self {
+        self.updated_at = value;
+        self
+    }
+    /// Sets `used_at`.
+    #[must_use]
+    pub fn used_at(mut self, value: ::chrono::DateTime<::chrono::offset::Utc>) -> Self {
+        self.used_at = Some(value);
+        self
+    }
+    /// Sets or clears `used_at`.
+    #[must_use]
+    pub fn set_used_at(mut self, value: Option<::chrono::DateTime<::chrono::offset::Utc>>) -> Self {
+        self.used_at = value;
+        self
+    }
+}
+
+/// `PasskeyUpdateDTO`
+///
+/// | Field | Type | Required | Description |
+/// |-------|------|:--------:|-------------|
+/// | `name` | [`String`] | ✓ | Passkey name |
+///
+/// See: <https://api.immich.app/models/PasskeyUpdateDto>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
+pub struct PasskeyUpdateDTO {
+    /// Passkey name (required)
+    pub name: Option<String>,
+}
+
+impl PasskeyUpdateDTO {
+    /// Creates a new [`PasskeyUpdateDTO`].
+    #[must_use]
+    #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools, clippy::similar_names)]
+    pub fn new() -> Self {
+        Self { name: None }
+    }
+    /// Sets `name`.
+    #[must_use]
+    pub fn name(mut self, value: impl Into<String>) -> Self {
+        self.name = Some(value.into());
+        self
+    }
+    /// Sets or clears `name`.
+    #[must_use]
+    pub fn set_name(mut self, value: Option<String>) -> Self {
+        self.name = value;
+        self
+    }
+}
+
+impl Default for PasskeyUpdateDTO {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl From<PersonUsersDeleteDTO> for Vec<PersonUsersDeleteItem> {
     fn from(value: PersonUsersDeleteDTO) -> Self {
         value.0

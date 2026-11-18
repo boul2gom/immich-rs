@@ -61,7 +61,7 @@ You do **not** need the full `immich-rs` client and its async network dependenci
 - **Lossless Forward Compatibility**: Unknown enum variants from newer Immich servers deserialize into `Unknown(String)` instead of panicking, and `#[non_exhaustive]` protects against upstream schema additions.
 - **Ergonomic DTO Builders**: Request DTOs include `new(...)` constructors for required fields and fluent builder methods for optional fields.
 
-Targeted Immich version: **`v3.3.6`** (accessible at runtime via `immich_models::TARGET_IMMICH_VERSION`).
+Targeted Immich version: **`v3.4.1`** (accessible at runtime via `immich_models::TARGET_IMMICH_VERSION`).
 
 ---
 

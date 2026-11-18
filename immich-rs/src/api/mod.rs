@@ -11,6 +11,7 @@ pub mod api_keys;
 pub mod assets;
 pub mod authentication;
 pub mod clusters;
+pub mod common;
 pub mod duplicates;
 pub mod jobs;
 pub mod libraries;
@@ -82,6 +83,13 @@ impl crate::ImmichClient {
     #[must_use]
     pub const fn clusters(&self) -> clusters::Clusters<'_> {
         clusters::Clusters::new(self)
+    }
+
+    /// Returns an API handle for the [`common`](crate::api::common::Common) endpoints.
+    #[inline]
+    #[must_use]
+    pub const fn common(&self) -> common::Common<'_> {
+        common::Common::new(self)
     }
 
     /// Returns an API handle for the [`duplicates`](crate::api::duplicates::Duplicates) endpoints.

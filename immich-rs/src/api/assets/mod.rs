@@ -2685,7 +2685,6 @@ impl<'a> Assets<'a> {
     ///
     /// # Errors
     /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
-    #[deprecated(note = "Deprecated in the Immich OpenAPI specification.")]
     pub fn update_asset(&self, id: impl Into<AssetId>, body: impl Into<UpdateAssetDTO>) -> UpdateAssetBuilder<'a> {
         UpdateAssetBuilder {
             client: self.client,
@@ -2745,7 +2744,6 @@ impl<'a> Assets<'a> {
     ///
     /// # Errors
     /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
-    #[deprecated(note = "Deprecated in the Immich OpenAPI specification.")]
     pub fn update_assets(&self, body: impl Into<AssetBulkUpdateDTO>) -> UpdateAssetsBuilder<'a> {
         UpdateAssetsBuilder {
             client: self.client,

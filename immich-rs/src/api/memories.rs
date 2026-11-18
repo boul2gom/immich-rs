@@ -1061,7 +1061,6 @@ impl<'a> Memories<'a> {
     ///
     /// # Errors
     /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
-    #[deprecated(note = "Deprecated in the Immich OpenAPI specification.")]
     pub fn update_memory(&self, id: impl Into<MemoryId>, body: impl Into<MemoryUpdateDTO>) -> UpdateMemoryBuilder<'a> {
         UpdateMemoryBuilder {
             client: self.client,

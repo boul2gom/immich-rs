@@ -401,6 +401,7 @@ impl PluginTemplateStepResponseDTO {
 pub enum WorkflowTrigger {
     AssetCreate,
     AssetMetadataExtraction,
+    AssetOcrExtraction,
     AssetTagged,
     /// Unknown value returned by a newer version of the Immich server.
     Unknown(String),
@@ -413,6 +414,7 @@ impl WorkflowTrigger {
         match self {
             Self::AssetCreate => "AssetCreate",
             Self::AssetMetadataExtraction => "AssetMetadataExtraction",
+            Self::AssetOcrExtraction => "AssetOcrExtraction",
             Self::AssetTagged => "AssetTagged",
             Self::Unknown(s) => s.as_str(),
         }
@@ -430,6 +432,7 @@ impl From<&str> for WorkflowTrigger {
         match value {
             "AssetCreate" => Self::AssetCreate,
             "AssetMetadataExtraction" => Self::AssetMetadataExtraction,
+            "AssetOcrExtraction" => Self::AssetOcrExtraction,
             "AssetTagged" => Self::AssetTagged,
             other => Self::Unknown(other.to_owned()),
         }
@@ -441,6 +444,7 @@ impl From<String> for WorkflowTrigger {
         match value.as_str() {
             "AssetCreate" => Self::AssetCreate,
             "AssetMetadataExtraction" => Self::AssetMetadataExtraction,
+            "AssetOcrExtraction" => Self::AssetOcrExtraction,
             "AssetTagged" => Self::AssetTagged,
             _ => Self::Unknown(value),
         }

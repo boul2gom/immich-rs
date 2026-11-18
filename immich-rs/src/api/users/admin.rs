@@ -1149,7 +1149,6 @@ impl<'a> Admin<'a> {
     ///
     /// # Errors
     /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
-    #[deprecated(note = "Deprecated in the Immich OpenAPI specification.")]
     pub fn update_user_admin(
         &self,
         id: impl Into<UserId>,
@@ -1183,7 +1182,6 @@ impl<'a> Admin<'a> {
     ///
     /// # Errors
     /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
-    #[deprecated(note = "Deprecated in the Immich OpenAPI specification.")]
     pub fn update_user_preferences_admin(
         &self,
         id: impl Into<UserId>,

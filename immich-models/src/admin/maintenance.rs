@@ -259,6 +259,7 @@ pub enum MaintenanceAction {
     End,
     SelectDatabaseRestore,
     RestoreDatabase,
+    Rollback,
     /// Unknown value returned by a newer version of the Immich server.
     Unknown(String),
 }
@@ -272,6 +273,7 @@ impl MaintenanceAction {
             Self::End => "end",
             Self::SelectDatabaseRestore => "select_database_restore",
             Self::RestoreDatabase => "restore_database",
+            Self::Rollback => "rollback",
             Self::Unknown(s) => s.as_str(),
         }
     }
@@ -290,6 +292,7 @@ impl From<&str> for MaintenanceAction {
             "end" => Self::End,
             "select_database_restore" => Self::SelectDatabaseRestore,
             "restore_database" => Self::RestoreDatabase,
+            "rollback" => Self::Rollback,
             other => Self::Unknown(other.to_owned()),
         }
     }
@@ -302,6 +305,7 @@ impl From<String> for MaintenanceAction {
             "end" => Self::End,
             "select_database_restore" => Self::SelectDatabaseRestore,
             "restore_database" => Self::RestoreDatabase,
+            "rollback" => Self::Rollback,
             _ => Self::Unknown(value),
         }
     }
@@ -523,6 +527,7 @@ impl MaintenanceLoginDTO {
 /// | `action` | [`MaintenanceAction`] | ✓ |  |
 /// | `active` | `bool` | ✓ |  |
 /// | `error` | [`String`] |  |  |
+/// | `futo_backups_job_id` | [`String`] |  | FUTO Backups job ID |
 /// | `progress` | `i64` |  |  |
 /// | `task` | [`String`] |  |  |
 ///
@@ -536,6 +541,9 @@ pub struct MaintenanceStatusResponseDTO {
     pub active: bool,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub error: Option<String>,
+    /// FUTO Backups job ID
+    #[serde(rename = "futoBackupsJobId", skip_serializing_if = "::std::option::Option::is_none")]
+    pub futo_backups_job_id: Option<String>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub progress: Option<i64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -551,6 +559,7 @@ impl MaintenanceStatusResponseDTO {
             action,
             active,
             error: None,
+            futo_backups_job_id: None,
             progress: None,
             task: None,
         }
@@ -577,6 +586,18 @@ impl MaintenanceStatusResponseDTO {
     #[must_use]
     pub fn set_error(mut self, value: Option<String>) -> Self {
         self.error = value;
+        self
+    }
+    /// Sets `futo_backups_job_id`.
+    #[must_use]
+    pub fn futo_backups_job_id(mut self, value: impl Into<String>) -> Self {
+        self.futo_backups_job_id = Some(value.into());
+        self
+    }
+    /// Sets or clears `futo_backups_job_id`.
+    #[must_use]
+    pub fn set_futo_backups_job_id(mut self, value: Option<String>) -> Self {
+        self.futo_backups_job_id = value;
         self
     }
     /// Sets `progress`.
@@ -611,6 +632,8 @@ impl MaintenanceStatusResponseDTO {
 /// |-------|------|:--------:|-------------|
 /// | `action` | [`MaintenanceAction`] | ✓ |  |
 /// | `restore_backup_filename` | [`String`] |  | Restore backup filename |
+/// | `rollback_repository_id` | [`String`] |  | Rollback repository ID |
+/// | `rollback_snapshot_id` | [`String`] |  | Rollback snapshot ID |
 ///
 /// See: <https://api.immich.app/models/SetMaintenanceModeDto>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq, Eq)]
@@ -624,6 +647,18 @@ pub struct SetMaintenanceModeDTO {
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub restore_backup_filename: Option<String>,
+    /// Rollback repository ID
+    #[serde(
+        rename = "rollbackRepositoryId",
+        skip_serializing_if = "::std::option::Option::is_none"
+    )]
+    pub rollback_repository_id: Option<String>,
+    /// Rollback snapshot ID
+    #[serde(
+        rename = "rollbackSnapshotId",
+        skip_serializing_if = "::std::option::Option::is_none"
+    )]
+    pub rollback_snapshot_id: Option<String>,
 }
 
 impl SetMaintenanceModeDTO {
@@ -634,6 +669,8 @@ impl SetMaintenanceModeDTO {
         Self {
             action,
             restore_backup_filename: None,
+            rollback_repository_id: None,
+            rollback_snapshot_id: None,
         }
     }
     /// Sets `action`.
@@ -652,6 +689,30 @@ impl SetMaintenanceModeDTO {
     #[must_use]
     pub fn set_restore_backup_filename(mut self, value: Option<String>) -> Self {
         self.restore_backup_filename = value;
+        self
+    }
+    /// Sets `rollback_repository_id`.
+    #[must_use]
+    pub fn rollback_repository_id(mut self, value: impl Into<String>) -> Self {
+        self.rollback_repository_id = Some(value.into());
+        self
+    }
+    /// Sets or clears `rollback_repository_id`.
+    #[must_use]
+    pub fn set_rollback_repository_id(mut self, value: Option<String>) -> Self {
+        self.rollback_repository_id = value;
+        self
+    }
+    /// Sets `rollback_snapshot_id`.
+    #[must_use]
+    pub fn rollback_snapshot_id(mut self, value: impl Into<String>) -> Self {
+        self.rollback_snapshot_id = Some(value.into());
+        self
+    }
+    /// Sets or clears `rollback_snapshot_id`.
+    #[must_use]
+    pub fn set_rollback_snapshot_id(mut self, value: Option<String>) -> Self {
+        self.rollback_snapshot_id = value;
         self
     }
 }

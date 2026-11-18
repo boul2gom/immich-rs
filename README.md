@@ -113,7 +113,7 @@
 
 ## ✨ Key Highlights
 
-- **Complete `OpenAPI` Coverage**: 100% typed bindings generated strictly from the official Immich `OpenAPI` specification (`v3.3.6`).
+- **Complete `OpenAPI` Coverage**: 100% typed bindings generated strictly from the official Immich `OpenAPI` specification (`v3.4.1`).
 - **20 `#[repr(transparent)]` Domain IDs**: Compile-time prevention of ID mixups (`AssetId`, `AlbumId`, `UserId`, `TagId`, etc.) with zero runtime overhead.
 - **Hierarchical API Client**: Intuitive namespacing mirroring Immich domains: `client.assets().faces()`, `client.users().admin()`, `client.system().config()`.
 - **Atomic Direct-to-Disk Transfers**: Downloads stream directly to temporary files before atomic filesystem rename, ensuring partial downloads never corrupt your disk.

@@ -497,7 +497,6 @@ impl<'a> Sessions<'a> {
     ///
     /// # Errors
     /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
-    #[deprecated(note = "Deprecated in the Immich OpenAPI specification.")]
     pub fn update_session(
         &self,
         id: impl Into<SessionId>,

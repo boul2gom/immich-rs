@@ -721,7 +721,6 @@ impl<'a> Tags<'a> {
     ///
     /// # Errors
     /// Returns an [`Error`](crate::Error) if request validation fails, the server returns an error status, or deserialization fails.
-    #[deprecated(note = "Deprecated in the Immich OpenAPI specification.")]
     pub fn update_tag(&self, id: impl Into<TagId>, body: impl Into<TagUpdateDTO>) -> UpdateTagBuilder<'a> {
         UpdateTagBuilder {
             client: self.client,
