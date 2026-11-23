@@ -131,14 +131,14 @@ Add `immich-rs` to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-immich-rs = "1.1.0"
+immich-rs = "1.2.0"
 ```
 
 If you only need the `OpenAPI` data models and DTOs without network or HTTP dependencies (e.g. for event workers, webhooks, or custom clients):
 
 ```toml
 [dependencies]
-immich-models = "1.1.0"
+immich-models = "1.2.0"
 ```
 
 ---
@@ -172,7 +172,7 @@ To use `native-tls` instead of `rustls`:
 
 ```toml
 [dependencies]
-immich-rs = { version = "1.1.0", default-features = false, features = ["fs", "native-tls"] }
+immich-rs = { version = "1.2.0", default-features = false, features = ["fs", "native-tls"] }
 ```
 
 ---
